@@ -16,6 +16,11 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   etiqueta do mesmo vidro logo acima do painel, e tocar nele continua renomeando (#6).
 - Com muitos apps para a largura da tela, o espaço entre as linhas diminui antes dos ícones,
   que ficam quase do tamanho dos da tela inicial (#6).
+- Segurar um app dentro da pasta aberta mostra o mesmo menu da tela inicial (editar, esconder,
+  informações, desinstalar...). Arrastando, o menu some e o app muda de lugar na pasta, como antes.
+- Com a pasta aberta, arrastar para cima ou para baixo fora do painel fecha a pasta e faz o gesto
+  da tela inicial: a gaveta sobe acompanhando o dedo, ou descem as notificações. Arrastar o
+  próprio painel continua fechando só a pasta.
 
 ### Widgets
 - Tocar e segurar num widget acende o vidro até a borda, acompanhando os cantos arredondados,
