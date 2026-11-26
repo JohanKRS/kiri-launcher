@@ -23,6 +23,12 @@ val kiriVersionCode: Int = run {
     major * 10_000 + minor * 100 + patch
 }
 
+// A build can add to the version name what tells it apart from the others of the same version,
+// like the owner's own builds (`-Pkiri.versionSuffix=-pessoal.3`), so an app store such as
+// Obtainium sees each one as new. The version code stays the version's, so such a build still
+// installs over any other build of the same version.
+val kiriVersionName: String = kiriVersion + providers.gradleProperty("kiri.versionSuffix").getOrElse("")
+
 // The release key never lives in the repository. It comes from the environment (the release
 // workflow and scripts/release.sh) or from `keystore.properties` at the root, which git ignores.
 // Without it a release build still compiles, unsigned.
@@ -47,7 +53,7 @@ android {
         minSdk = 30
         targetSdk = 35
         versionCode = kiriVersionCode
-        versionName = kiriVersion
+        versionName = kiriVersionName
     }
 
     signingConfigs {
