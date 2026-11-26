@@ -9,6 +9,13 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Widgets
+- Tocar e segurar num widget acende o vidro até a borda, acompanhando os cantos arredondados,
+  sem o corte reto de antes: vale para o Mercado e para os widgets de outros apps que usam o
+  vidro do Kiri. Botão com forma própria (uma pílula, um círculo) continua com a luz dele (#3).
+- Mercado: quando há mais itens do que cabem, o widget rola com o dedo e sempre para num item
+  inteiro, nunca pela metade, em qualquer tamanho. Uma marca fina à direita avisa que há mais (#3).
+
 ## [0.1.0] - 2026-11-26
 
 Primeira versão pública. Reúne tudo o que foi feito desde o começo do projeto, antes de o código

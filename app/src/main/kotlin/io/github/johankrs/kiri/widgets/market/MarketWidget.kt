@@ -39,6 +39,7 @@ import io.github.johankrs.kiri.market.QuoteResult
 import io.github.johankrs.kiri.market.extra.ExtraSources
 import io.github.johankrs.kiri.market.sparkline
 import io.github.johankrs.kiri.widgets.KiriWidget
+import io.github.johankrs.kiri.widgets.SnapScroll
 import java.util.Currency
 import java.util.Date
 import java.util.Locale
@@ -102,6 +103,8 @@ fun MarketWithPanes(controller: MarketController, prefs: MarketPrefs, modifier: 
     val coords = remember { arrayOfNulls<LayoutCoordinates>(1) }
     var originBounds by remember { mutableStateOf(Rect.Zero) }
     var covered by remember { mutableStateOf(false) }
+    // The picture of the widget a pane grows out of shows the same items as the widget.
+    val scroll = remember { SnapScroll() }
 
     fun openInstrument(id: String) {
         val current = coords[0]?.takeIf { it.isAttached }
@@ -121,6 +124,7 @@ fun MarketWithPanes(controller: MarketController, prefs: MarketPrefs, modifier: 
         onStockClick = { openInstrument(it) },
         refreshing = refreshing,
         onRefresh = { scope.launch { controller.refreshNow(prefs) } },
+        scroll = scroll,
     )
 
     val instrument = opened?.let(Instrument::parse) ?: return
@@ -129,7 +133,7 @@ fun MarketWithPanes(controller: MarketController, prefs: MarketPrefs, modifier: 
         originCorner = prefs.settings.cornerDp.dp,
         onCover = { covered = it },
         onClosed = { opened = null },
-        start = { MarketPanel(prefs.settings, rows, updated, Modifier.fillMaxSize()) },
+        start = { MarketPanel(prefs.settings, rows, updated, Modifier.fillMaxSize(), scroll = scroll) },
     ) { close ->
         if (instrument.market == Market.FX) {
             ConverterPane(
