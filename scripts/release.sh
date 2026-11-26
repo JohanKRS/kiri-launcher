@@ -21,6 +21,33 @@ version="$(sed -n 's/^kiri\.version=//p' gradle.properties | tr -d '[:space:]')"
 [ -n "$version" ] || { echo "kiri.version is missing from gradle.properties" >&2; exit 1; }
 echo "Kiri $version"
 
+# The key, from the environment or keystore.properties, as app/build.gradle.kts reads it. It is
+# checked before the build, so a wrong key or password fails in seconds and says so.
+store="${KIRI_RELEASE_STORE:-}"
+password="${KIRI_RELEASE_PASSWORD:-}"
+alias="${KIRI_RELEASE_ALIAS:-}"
+if [ -f keystore.properties ]; then
+    [ -n "$store" ] || store="$(sed -n 's/^storeFile=//p' keystore.properties)"
+    [ -n "$password" ] || password="$(sed -n 's/^password=//p' keystore.properties)"
+    [ -n "$alias" ] || alias="$(sed -n 's/^alias=//p' keystore.properties)"
+fi
+alias="${alias:-kiri}"
+if [ -z "$store" ] || [ ! -f "$store" ] || [ -z "$password" ]; then
+    echo "No release key: set KIRI_RELEASE_STORE and KIRI_RELEASE_PASSWORD, or keystore.properties" >&2
+    exit 1
+fi
+if ! listing="$(keytool -list -v -keystore "$store" -storepass "$password" -alias "$alias" 2>&1)"; then
+    echo "The release key could not be opened: $(printf '%s\n' "$listing" | grep -m 1 'keytool error')" >&2
+    echo "The file has $(wc -c < "$store") bytes and SHA-256 $(sha256sum "$store" | cut -d' ' -f1)." >&2
+    echo "Check that the keystore is whole (in base64, the whole line) and that the password is its own." >&2
+    exit 1
+fi
+fingerprint="$(printf '%s\n' "$listing" | sed -n 's/^[[:space:]]*SHA256: //p' | head -n 1 | tr -d ':' | tr 'A-F' 'a-f')"
+if [ "$fingerprint" != "$RELEASE_CERT_SHA256" ]; then
+    echo "The key in $store is not Kiri's release key (certificate $fingerprint)." >&2
+    exit 1
+fi
+
 # The notes of this version in the changelog: everything under "## [<version>]" up to the next
 # version.
 out="build/release"
