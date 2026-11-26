@@ -189,3 +189,66 @@ object FolderGrid {
         return Closed(slots, more)
     }
 }
+
+/**
+ * The places of an open folder, in any unit (pixels or dp, as long as all are the same).
+ *
+ * Every app has a square [cell], its icon and its name in the middle of it, so the icons are as
+ * far apart across as down, and the panel is [pad] wider than its cells on every side. With as
+ * many rows as columns (4, 9 or 16 apps, and those that fill the last row in part) the panel
+ * is a square.
+ */
+data class FolderPanelCells(
+    val columns: Int,
+    val rows: Int,
+    /** The side of the square every app has. */
+    val cell: Float,
+    val icon: Float,
+    /** From the top of a cell to the top of its icon. */
+    val iconTop: Float,
+    val pad: Float,
+) {
+    val width: Float get() = columns * cell + 2f * pad
+    val height: Float get() = rows * cell + 2f * pad
+
+    /** From the left of a cell to the left of its icon. */
+    val iconLeft: Float get() = (cell - icon) / 2f
+
+    companion object {
+        /** Icons side by side never come nearer than this, in dp. */
+        const val LEAST_GAP_DP = 4f
+
+        /** A name never comes nearer than this to the icon under it, in dp. */
+        const val LEAST_ROW_GAP_DP = 8f
+
+        /**
+         * The places of [count] apps in [columns] columns, with icons of [icon] and names
+         * [labelBlock] tall (with the room above them; nothing when names are hidden).
+         * Between two icons side by side there is at least [gap], and between a name and the
+         * icon under it at least [rowGap]: the larger of the two sets the cell. In [roomWidth]
+         * by [roomHeight] (the panel with its [pad]) that do not fit, the cells get smaller:
+         * the room between rows goes first, down to [leastRowGap], then the icons.
+         */
+        fun of(
+            count: Int,
+            columns: Int,
+            icon: Float,
+            labelBlock: Float,
+            gap: Float,
+            rowGap: Float,
+            pad: Float,
+            roomWidth: Float,
+            roomHeight: Float,
+            leastGap: Float = LEAST_GAP_DP,
+            leastRowGap: Float = LEAST_ROW_GAP_DP,
+        ): FolderPanelCells {
+            val across = columns.coerceAtLeast(1)
+            val down = FolderGrid.rows(count, across)
+            val wanted = icon + maxOf(gap, labelBlock + rowGap)
+            val cell = minOf(wanted, (roomWidth - 2f * pad) / across, (roomHeight - 2f * pad) / down).coerceAtLeast(1f)
+            val shown = minOf(icon, cell - leastGap, cell - labelBlock - leastRowGap).coerceAtLeast(1f)
+            val top = ((cell - shown - labelBlock) / 2f).coerceAtLeast(0f)
+            return FolderPanelCells(across, down, cell, shown, top, pad)
+        }
+    }
+}

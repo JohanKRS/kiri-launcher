@@ -9,6 +9,14 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Pastas
+- A pasta aberta tem uma casa quadrada para cada app: os ícones ficam à mesma distância na
+  horizontal e na vertical, e o painel tem a mesma margem nos quatro lados. Com 4, 9 ou 16 apps
+  (e com 3, 7 ou 8, que fecham a mesma grade) o painel é um quadrado. O nome da pasta vai numa
+  etiqueta do mesmo vidro logo acima do painel, e tocar nele continua renomeando.
+- Com muitos apps para a largura da tela, o espaço entre as linhas diminui antes dos ícones,
+  que ficam quase do tamanho dos da tela inicial.
+
 ### Widgets
 - Tocar e segurar num widget acende o vidro até a borda, acompanhando os cantos arredondados,
   sem o corte reto de antes: vale para o Mercado e para os widgets de outros apps que usam o

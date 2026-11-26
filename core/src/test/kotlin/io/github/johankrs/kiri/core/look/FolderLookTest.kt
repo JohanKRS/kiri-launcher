@@ -90,4 +90,59 @@ class FolderLookTest {
         assertEquals(margins.sorted(), margins)
         assertEquals(18f, FolderLook().panelMarginDp)
     }
+
+    // A phone in portrait: 384 wide less 12 on each side, icons of 56, names 21 tall.
+    private fun panel(count: Int, room: Float = 360f, names: Float = 21f) = FolderPanelCells.of(
+        count = count,
+        columns = FolderGrid.columns(count, most = 5),
+        icon = 56f,
+        labelBlock = names,
+        gap = 20f,
+        rowGap = 14f,
+        pad = 18f,
+        roomWidth = room,
+        roomHeight = 760f,
+    )
+
+    @Test
+    fun `an open folder of 4, 9 or 16 apps is a square, its icons as far apart across as down`() {
+        for (count in listOf(4, 9, 16)) {
+            val cells = panel(count)
+            assertEquals(cells.width, cells.height, 0.01f, "$count apps")
+            // The same room on every side of the cells.
+            assertEquals(cells.pad, (cells.width - cells.columns * cells.cell) / 2f, 0.01f)
+        }
+        // 3 and 7 fill the last row in part, and are squares too; 6 is wider than tall.
+        assertEquals(panel(3).width, panel(3).height, 0.01f)
+        assertEquals(panel(7).width, panel(7).height, 0.01f)
+        assertTrue(panel(6).width > panel(6).height)
+    }
+
+    @Test
+    fun `an icon and its name sit in the middle of their cell`() {
+        val cells = panel(9)
+        assertEquals(56f, cells.icon)
+        // 56 + 21 + 14: the name and the room under it set the cell.
+        assertEquals(91f, cells.cell, 0.01f)
+        assertEquals(7f, cells.iconTop, 0.01f)
+        assertEquals(17.5f, cells.iconLeft, 0.01f)
+        // Without names the room between icons sets it, the same across and down.
+        val bare = panel(9, names = 0f)
+        assertEquals(76f, bare.cell, 0.01f)
+        assertEquals(bare.iconLeft, bare.iconTop, 0.01f)
+    }
+
+    @Test
+    fun `short of room, the rows come closer first, then the icons get smaller`() {
+        // 16 apps in 360: cells of 81, so 4 between a name and the next icon would be too
+        // little; the icons give a little instead.
+        val sixteen = panel(16)
+        assertEquals(81f, sixteen.cell, 0.01f)
+        assertEquals(81f - 21f - FolderPanelCells.LEAST_ROW_GAP_DP, sixteen.icon, 0.01f)
+        assertTrue(sixteen.icon >= 50f)
+        // A narrower screen takes more from them, never down to nothing.
+        val narrow = panel(16, room = 260f)
+        assertTrue(narrow.icon < sixteen.icon && narrow.icon >= 1f)
+        assertEquals(narrow.width, narrow.height, 0.01f)
+    }
 }
