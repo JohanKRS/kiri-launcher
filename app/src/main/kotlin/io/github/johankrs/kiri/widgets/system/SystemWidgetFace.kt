@@ -47,7 +47,10 @@ import io.github.johankrs.kiri.core.look.WidgetLook
 import io.github.johankrs.kiri.ui.settings.Glyph
 import io.github.johankrs.kiri.ui.settings.GlyphIcon
 import io.github.johankrs.kiri.ui.theme.KiriType
+import io.github.johankrs.kiri.ui.theme.PanePress
 import io.github.johankrs.kiri.ui.theme.kiriGlass
+import io.github.johankrs.kiri.ui.theme.panePress
+import io.github.johankrs.kiri.ui.theme.rememberPanePress
 import io.github.johankrs.kiri.ui.theme.spec
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
@@ -67,9 +70,18 @@ fun SystemWidgetFace(content: ItemContent.AppWidget, live: Boolean, modifier: Mo
     // glass, with its corners, goes around the widget here; the rest is done to its views.
     val look = LocalWidgetLooks.current[content.appWidgetId] ?: WidgetLook.AsMade
     val glass = look.glass
-    val frame = if (glass != null) Modifier.kiriGlass(glass, WidgetShape).padding(look.marginDp.dp) else Modifier
+    // What is pressed in a dressed widget is lit up by its pane, out to the pane's edge.
+    val press = rememberPanePress()
+    val frame = if (glass != null) {
+        Modifier
+            .kiriGlass(glass, WidgetShape)
+            .then(if (live) Modifier.panePress(press, glass.spec().content) else Modifier)
+            .padding(look.marginDp.dp)
+    } else {
+        Modifier
+    }
     if (live) {
-        LiveWidget(content, system, look, modifier, frame)
+        LiveWidget(content, system, look, press, modifier, frame)
     } else {
         WidgetPicture(content, system, modifier, frame)
     }
@@ -92,6 +104,7 @@ private fun LiveWidget(
     content: ItemContent.AppWidget,
     system: SystemWidgets,
     look: WidgetLook,
+    press: PanePress,
     modifier: Modifier,
     frame: Modifier,
 ) {
@@ -116,8 +129,9 @@ private fun LiveWidget(
     }
 
     val dress = rememberWidgetDress(look)
-    DisposableEffect(view, dress) {
-        view.wear(dress)
+    val inset = with(LocalDensity.current) { look.marginDp.dp.roundToPx() }
+    DisposableEffect(view, dress, press, inset) {
+        view.wear(dress, press, inset)
         onDispose { }
     }
 

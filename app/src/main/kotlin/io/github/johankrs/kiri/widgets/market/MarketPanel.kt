@@ -25,14 +25,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -40,7 +42,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -64,8 +68,16 @@ import io.github.johankrs.kiri.market.MarketPlan
 import io.github.johankrs.kiri.market.MarketPlanner
 import io.github.johankrs.kiri.market.MarketSettings
 import io.github.johankrs.kiri.ui.theme.GlassSpec
+import io.github.johankrs.kiri.ui.theme.LocalPanePress
+import io.github.johankrs.kiri.ui.theme.PanePressIndication
 import io.github.johankrs.kiri.ui.theme.kiriGlass
+import io.github.johankrs.kiri.ui.theme.panePress
+import io.github.johankrs.kiri.ui.theme.rememberPanePress
 import io.github.johankrs.kiri.ui.theme.spec
+import io.github.johankrs.kiri.widgets.SnapScroll
+import io.github.johankrs.kiri.widgets.scrollMark
+import io.github.johankrs.kiri.widgets.snapScroll
+import kotlin.math.roundToInt
 
 /** Which way a price moved since the previous close. */
 enum class Trend { UP, DOWN, FLAT, UNKNOWN }
@@ -144,7 +156,10 @@ internal fun GlassStyle.trendColor(trend: Trend, glass: GlassSpec): Color = when
  *
  * Text is never cut and never shrinks under its base size: names wrap, every line of a list
  * takes the height of the tallest, and only items that fit whole are shown. Spare space makes
- * everything a little larger instead.
+ * everything a little larger instead. Where there are more items than fit, a finger scrolls to
+ * the others, [scroll], and they always come to rest whole: never one cut in half.
+ *
+ * What is pressed is lit up by the pane itself, out to its edge and round its corners.
  *
  * A tap on a currency opens the converter and a tap on a stock opens its details; the caller
  * shows them. A tap on the title, where there is room for one, asks for fresh prices, and so
@@ -167,11 +182,18 @@ fun MarketPanel(
     refreshing: Boolean = false,
     /** Called when the person asks for fresh prices. Null leaves the title inert. */
     onRefresh: (() -> Unit)? = null,
+    /** How far the items are scrolled. Shared by two panels that are to show the same ones. */
+    scroll: SnapScroll = remember { SnapScroll() },
 ) {
     val glass = settings.glass.spec(settings.opacityPercent)
     val shape = remember(settings.cornerDp) { RoundedCornerShape(settings.cornerDp.dp) }
+    val press = rememberPanePress()
 
-    BoxWithConstraints(modifier = modifier.kiriGlass(settings.glass, shape, settings.opacityPercent)) {
+    BoxWithConstraints(
+        modifier = modifier
+            .kiriGlass(settings.glass, shape, settings.opacityPercent)
+            .panePress(press, glass.content),
+    ) {
         if (rows.isEmpty()) {
             BasicText(
                 text = stringResource(R.string.market_empty),
@@ -208,18 +230,13 @@ fun MarketPanel(
         )
         val fading = remember(presence) { Modifier.graphicsLayer { alpha = presence.value } }
         val taps = RowTaps(onCurrencyClick, onStockClick, onRefresh)
-        CompositionLocalProvider(LocalDensity provides scaled) {
+        // Where a finger may be about to scroll, a touch is lit up a moment late.
+        press.waits = rows.size > plan.shown
+        CompositionLocalProvider(LocalDensity provides scaled, LocalPanePress provides press) {
             when (plan.layout) {
-                MarketLayout.SINGLE -> SingleItem(
-                    row = rows.first(),
-                    showExtended = plan.showExtended,
-                    settings = settings,
-                    glass = glass,
-                    tap = rows.first().tap(taps),
-                    fading = fading,
-                )
-                MarketLayout.TILES -> Tiles(rows, plan, settings, glass, taps, fading)
-                MarketLayout.LIST -> QuoteList(rows, plan, settings, glass, updatedText, taps, refreshing, fading)
+                MarketLayout.SINGLE -> SingleItems(rows, plan.showExtended, settings, glass, taps, fading, scroll)
+                MarketLayout.TILES -> Tiles(rows, plan, settings, glass, taps, fading, scroll)
+                MarketLayout.LIST -> QuoteList(rows, plan, settings, glass, updatedText, taps, refreshing, fading, scroll)
             }
         }
     }
@@ -246,16 +263,22 @@ private fun MarketRow.tap(taps: RowTaps): Modifier {
     val onRefresh = taps.onRefresh
     return when {
         code != null && onCurrencyClick != null -> Modifier.clickable(
+            interactionSource = null,
+            indication = PanePressIndication,
             onClickLabel = stringResource(R.string.market_converter_open, symbol),
             role = Role.Button,
             onClick = { onCurrencyClick(code) },
         )
         id != null && onStockClick != null -> Modifier.clickable(
+            interactionSource = null,
+            indication = PanePressIndication,
             onClickLabel = stringResource(R.string.market_detail_open, symbol),
             role = Role.Button,
             onClick = { onStockClick(id) },
         )
         code == null && id == null && onRefresh != null -> Modifier.clickable(
+            interactionSource = null,
+            indication = PanePressIndication,
             onClickLabel = stringResource(R.string.market_refresh_now),
             role = Role.Button,
             onClick = onRefresh,
@@ -293,6 +316,7 @@ private fun QuoteList(
     taps: RowTaps,
     refreshing: Boolean,
     fading: Modifier,
+    scroll: SnapScroll,
 ) {
     val onRefresh = taps.onRefresh
     Column(
@@ -306,6 +330,8 @@ private fun QuoteList(
                 Modifier
             } else {
                 Modifier.clickable(
+                    interactionSource = null,
+                    indication = PanePressIndication,
                     onClickLabel = stringResource(R.string.market_refresh_now),
                     role = Role.Button,
                     onClick = onRefresh,
@@ -336,9 +362,15 @@ private fun QuoteList(
             gap = MarketPlanner.COLUMN_GAP.dp,
             lineColor = glass.divider,
             topLine = plan.showHeader,
+            scroll = scroll,
+            // Under the title the lines go out of sight at its line; without one, at the edge of the glass.
+            bleedTop = if (plan.showHeader) 0.dp else MarketPlanner.LIST_PADDING_V.dp,
+            bleedBottom = MarketPlanner.LIST_PADDING_V.dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                .snapScroll(scroll)
+                .scrollMark(scroll, glass.contentMuted, outside = (MarketPlanner.LIST_PADDING_H / 2f).dp)
                 .then(fading),
         ) {
             for (row in rows) {
@@ -358,11 +390,15 @@ private fun QuoteList(
 private data class GridGeometry(
     val columns: Int = 1,
     val rows: Int = 1,
-    val shown: Int = 0,
+    /** The cells that are laid out: the ones that fit, or all of them where the grid scrolls. */
+    val cells: Int = 0,
     val cellWidth: Int = 0,
     val cellHeight: Int = 0,
     val gap: Int = 0,
     val top: Int = 0,
+    /** Cells fill a row before the next one starts; otherwise they run down a column. */
+    val byRow: Boolean = false,
+    val scrolls: Boolean = false,
 )
 
 /**
@@ -372,6 +408,12 @@ private data class GridGeometry(
  *
  * With [across] the children fill a row before starting the next (tiles); without it they run
  * down a column, in as few columns as show the most children (a list).
+ *
+ * With a [scroll], children that do not fit are not left out: they follow further down, and
+ * [scroll] says how many rows have gone out of sight at the top. The rows then share the height
+ * exactly, so that at rest every cell on show is whole, and the children fill row by row, so
+ * the first ones are the ones on show. While they move, cells go out of sight [bleedTop] above
+ * the grid and [bleedBottom] below it, not at its own edge: that is where the pane's edge is.
  */
 @Composable
 private fun EqualGrid(
@@ -381,25 +423,29 @@ private fun EqualGrid(
     lineColor: Color,
     topLine: Boolean,
     modifier: Modifier = Modifier,
+    scroll: SnapScroll? = null,
+    bleedTop: Dp = 0.dp,
+    bleedBottom: Dp = 0.dp,
     content: @Composable () -> Unit,
 ) {
     var geometry by remember { mutableStateOf(GridGeometry()) }
     Layout(
         content = content,
-        modifier = modifier.drawBehind {
+        modifier = modifier.drawWithContent {
             val g = geometry
-            val stroke = 1.dp.toPx()
-            for (index in 0 until g.shown) {
-                val column = if (across) index % g.columns else index / g.rows
-                val row = if (across) index / g.columns else index % g.rows
-                val x = column * (g.cellWidth + g.gap).toFloat()
-                val y = g.top + row * g.cellHeight.toFloat()
-                if (row > 0 || topLine) {
-                    drawLine(lineColor, Offset(x, y), Offset(x + g.cellWidth, y), strokeWidth = stroke)
+            if (g.scrolls && scroll != null) {
+                clipRect(
+                    left = -size.width,
+                    top = -bleedTop.toPx(),
+                    right = size.width * 2f,
+                    bottom = size.height + bleedBottom.toPx(),
+                ) {
+                    drawGridLines(g, across, topLine, lineColor, scrolled = scroll.at * g.cellHeight)
+                    this@drawWithContent.drawContent()
                 }
-                if (across && column > 0) {
-                    drawLine(lineColor, Offset(x, y), Offset(x, y + g.cellHeight), strokeWidth = stroke)
-                }
+            } else {
+                drawGridLines(g, across, topLine, lineColor, scrolled = 0f)
+                drawContent()
             }
         },
     ) { measurables, constraints ->
@@ -407,6 +453,7 @@ private fun EqualGrid(
         val width = constraints.maxWidth
         if (count == 0) {
             geometry = GridGeometry()
+            scroll?.hidden = 0
             return@Layout layout(width, constraints.minHeight) {}
         }
         val gapPx = gap.roundToPx()
@@ -437,25 +484,74 @@ private fun EqualGrid(
         }
         val shown = shown(columns)
         val rows = (shown + columns - 1) / columns
+        val scrolls = scroll != null && bounded && shown < count
+        val byRow = across || scrolls
         val cellWidth = cellWidth(columns)
         val tallest = tallest(columns)
-        val cellHeight = if (bounded) {
-            maxOf(tallest, minOf(constraints.maxHeight / rows, tallest * 8 / 5))
-        } else {
-            tallest
+        val cellHeight = when {
+            // The rows on show take all the height between them: the next one starts right
+            // where the grid ends, so nothing of it shows.
+            scrolls -> maxOf(tallest, constraints.maxHeight / rows)
+            bounded -> maxOf(tallest, minOf(constraints.maxHeight / rows, tallest * 8 / 5))
+            else -> tallest
         }
         val height = if (bounded) constraints.maxHeight else cellHeight * rows
         // Under a title the cells start at the top; alone they sit in the middle.
-        val top = if (topLine) 0 else ((height - cellHeight * rows) / 2).coerceAtLeast(0)
-        geometry = GridGeometry(columns, rows, shown, cellWidth, cellHeight, gapPx, top)
+        val top = if (topLine && !scrolls) 0 else ((height - cellHeight * rows) / 2).coerceAtLeast(0)
+        val cells = if (scrolls) count else shown
+        geometry = GridGeometry(columns, rows, cells, cellWidth, cellHeight, gapPx, top, byRow, scrolls)
+        if (scroll != null) {
+            scroll.linePx = cellHeight.toFloat()
+            scroll.shown = rows
+            scroll.hidden = if (scrolls) (count + columns - 1) / columns - rows else 0
+        }
 
-        val placeables = measurables.take(shown).map { it.measure(Constraints.fixed(cellWidth, cellHeight)) }
+        val placeables = measurables.take(cells).map { it.measure(Constraints.fixed(cellWidth, cellHeight)) }
+        val above = bleedTop.roundToPx()
+        val below = bleedBottom.roundToPx()
         layout(width, height) {
+            // Read here, so that scrolling only places the cells again and measures nothing.
+            val scrolled = if (scrolls) (scroll!!.at * cellHeight).roundToInt() else 0
+            val resting = !scrolls || scroll!!.resting
+            val end = top + rows * cellHeight
             placeables.forEachIndexed { index, placeable ->
-                val column = if (across) index % columns else index / rows
-                val row = if (across) index / columns else index % rows
-                placeable.place(column * (cellWidth + gapPx), top + row * cellHeight)
+                val column = if (byRow) index % columns else index / rows
+                val row = if (byRow) index / columns else index % rows
+                val y = top + row * cellHeight - scrolled
+                // A cell that is not among the rows on show is only there while they move.
+                val among = y + cellHeight > top && y < end
+                val passing = !resting && y + cellHeight > -above && y < height + below
+                if (among || passing) placeable.place(column * (cellWidth + gapPx), y)
             }
+        }
+    }
+}
+
+/** The thin lines between the cells of an [EqualGrid], [scrolled] pixels up with its cells. */
+private fun DrawScope.drawGridLines(g: GridGeometry, across: Boolean, topLine: Boolean, color: Color, scrolled: Float) {
+    val stroke = 1.dp.toPx()
+    val first = g.top.toFloat()
+    val end = first + g.rows * g.cellHeight
+    for (index in 0 until g.cells) {
+        val column = if (g.byRow) index % g.columns else index / g.rows
+        val row = if (g.byRow) index / g.columns else index % g.rows
+        val x = column * (g.cellWidth + g.gap).toFloat()
+        val y = first + row * g.cellHeight - scrolled
+        if (y + g.cellHeight <= first - g.cellHeight || y >= end + g.cellHeight) continue
+        // A line is drawn between two rows on show: never along the grid's own top or bottom.
+        if (row > 0 && y > first + stroke && y < end - stroke) {
+            drawLine(color, Offset(x, y), Offset(x + g.cellWidth, y), strokeWidth = stroke)
+        }
+        if (across && column > 0) {
+            drawLine(color, Offset(x, y), Offset(x, y + g.cellHeight), strokeWidth = stroke)
+        }
+    }
+    // The line under the title stays where it is while the rows go under it.
+    if (topLine) {
+        val used = if (g.byRow) minOf(g.columns, g.cells) else (g.cells + g.rows - 1) / g.rows.coerceAtLeast(1)
+        for (column in 0 until used) {
+            val x = column * (g.cellWidth + g.gap).toFloat()
+            drawLine(color, Offset(x, first), Offset(x + g.cellWidth, first), strokeWidth = stroke)
         }
     }
 }
@@ -643,6 +739,7 @@ private fun Tiles(
     glass: GlassSpec,
     taps: RowTaps,
     fading: Modifier,
+    scroll: SnapScroll,
 ) {
     EqualGrid(
         maxColumns = plan.columns,
@@ -650,9 +747,14 @@ private fun Tiles(
         gap = 0.dp,
         lineColor = glass.divider,
         topLine = false,
+        scroll = scroll,
+        bleedTop = MarketPlanner.TILES_PADDING.dp,
+        bleedBottom = MarketPlanner.TILES_PADDING.dp,
         modifier = Modifier
             .fillMaxSize()
             .padding(MarketPlanner.TILES_PADDING.dp)
+            .snapScroll(scroll)
+            .scrollMark(scroll, glass.contentMuted, outside = (MarketPlanner.TILES_PADDING / 2f).dp)
             .then(fading),
     ) {
         for (row in rows) {
@@ -679,6 +781,51 @@ private fun Tiles(
                 // A tile is narrow: the arrow says which way, the percentage stays out.
                 if (plan.showExtended && extended != null) ExtendedShort(extended, false, settings.glass, glass)
             }
+        }
+    }
+}
+
+/**
+ * One item at a time, each with the whole pane to itself. Where there are more, a finger
+ * scrolls from one to the next, and only the one on show and the one coming are built.
+ */
+@Composable
+private fun SingleItems(
+    rows: List<MarketRow>,
+    showExtended: Boolean,
+    settings: MarketSettings,
+    glass: GlassSpec,
+    taps: RowTaps,
+    fading: Modifier,
+    scroll: SnapScroll,
+) {
+    val last = rows.lastIndex
+    val first by remember(last) { derivedStateOf { scroll.at.toInt().coerceIn(0, last) } }
+    Layout(
+        content = {
+            for (index in first..minOf(first + 1, last)) {
+                key(index) {
+                    val row = rows[index]
+                    SingleItem(row, showExtended, settings, glass, row.tap(taps), fading)
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .snapScroll(scroll)
+            .scrollMark(scroll, glass.contentMuted, outside = (-6).dp),
+    ) { measurables, constraints ->
+        val width = constraints.maxWidth
+        val height = constraints.maxHeight
+        scroll.linePx = height.toFloat()
+        scroll.shown = 1
+        scroll.hidden = last
+        val placeables = measurables.map { it.measure(Constraints.fixed(width, height)) }
+        layout(width, height) {
+            // How far the one on show has gone up, and the next one with it.
+            val gone = ((scroll.at - first).coerceIn(0f, 1f) * height).roundToInt()
+            placeables.getOrNull(0)?.place(0, -gone)
+            if (gone > 0) placeables.getOrNull(1)?.place(0, height - gone)
         }
     }
 }
