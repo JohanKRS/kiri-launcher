@@ -76,12 +76,19 @@
     <string name="motion_speed">Speed of the animations</string>
     <string name="motion_drawer">Opening and closing the drawer</string>
     <string name="motion_app_open">Opening an app</string>
-    <string name="motion_home_return">Coming back to the home screen</string>
-    <string name="motion_home_return_note">How an app leaves the screen is drawn by Android itself. What is chosen here is how the home screen comes back behind it.</string>
-    <string name="motion_app_open_icon">Grow out of the icon</string>
-    <string name="motion_slide_up">Slide up</string>
+    <string name="motion_home">The home screen leaving and coming back</string>
+    <string name="motion_home_return_note">The home screen goes and comes back the same way for the drawer and for apps. How an app itself opens and closes is drawn by Android: Kiri asks for the way it opens, and only the system\'s own launcher can draw an app shrinking back into its icon.</string>
+    <string name="motion_app_open_grow">Grow out of the icon</string>
+    <string name="motion_app_open_icon">Reveal from the icon</string>
+    <string name="motion_rise">Rise</string>
     <string name="motion_fade">Fade</string>
-    <string name="motion_zoom">Zoom</string>
+    <string name="motion_drawer_closer">Come closer</string>
+    <string name="motion_drawer_reveal">Reveal from the finger</string>
+    <string name="motion_drawer_cascade">Cascade</string>
+    <string name="motion_home_recede">Step back</string>
+    <string name="motion_home_fly_back">Fly back</string>
+    <string name="motion_home_wave">Fly back in a wave</string>
+    <string name="motion_home_focus">Focus</string>
     <string name="motion_none">None</string>
     <string name="motion_system">Device default</string>
 

@@ -125,6 +125,8 @@ fun AppGrid(
             }
         }
 
+        // How each app moves as the drawer or an app comes and goes, when it moves on its own.
+        val move = LocalItemMove.current
         CompositionLocalProvider(LocalGlassMotion provides if (interactive) glass else null) {
             LazyVerticalGrid(
                 state = gridState,
@@ -165,6 +167,7 @@ fun AppGrid(
                         onClick = { bounds -> onLaunch(app, bounds) },
                         onLongClick = if (onLongPress != null) { { bounds: Rect -> onLongPress(app, bounds) } } else null,
                         fittedLabelStyle = labels.styleFor(app.label),
+                        modifier = Modifier.itemMove(move),
                     )
                 }
             }

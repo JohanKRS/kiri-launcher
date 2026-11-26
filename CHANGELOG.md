@@ -14,6 +14,23 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   (desfoque e cor) vai de transparente até a cor da gaveta num degradê suave, que acompanha o
   dedo. Com a gaveta toda aberta, a tela inteira continua com o mesmo vidro (#8).
 
+### Movimento
+- Duas maneiras novas de abrir e fechar a gaveta, acompanhando o dedo como as outras: **Revelar
+  do dedo** (o vidro se abre num círculo de borda suave a partir de onde o dedo começou, e cada
+  app aparece quando o círculo passa por ele) e **Cascata** (o vidro embaça no lugar e os apps
+  sobem fileira por fileira, de baixo para cima). "Deslizar de baixo" virou **Subir** e "Zoom"
+  virou **Aproximar**.
+- A tela inicial sai e volta do mesmo jeito para a gaveta e para os apps, com cinco maneiras:
+  **Recuar** (a de antes), **Voo de volta** (ganha zoom por fora e volta voando rapidinho para o
+  lugar, com um leve assentar; ao abrir um app, o zoom sai do ícone tocado), **Voo em onda**
+  (cada item voa sozinho e os mais perto chegam primeiro), **Foco** (desfoca como o fundo de uma
+  foto) e **Esmaecer**, além de **Nenhuma**. Enquanto um app abre, a tela não some, para nunca
+  ficar vazia se o app demorar.
+- Abrir um app tem uma maneira nova, **Crescer do ícone**: o app inteiro cresce de dentro do
+  ícone até a tela cheia. A de antes, que mostra o app num recorte que se abre do ícone, passou
+  a se chamar **Revelar do ícone**. Quem desenha o app abrindo é o Android.
+- As escolhas de Movimento são passadas com as setas, como os outros nomes das configurações.
+
 ### Pastas
 - A pasta aberta tem uma casa quadrada para cada app: os ícones ficam à mesma distância na
   horizontal e na vertical, e o painel tem a mesma margem nos quatro lados. Com 4, 9 ou 16 apps

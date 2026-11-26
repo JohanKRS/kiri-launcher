@@ -20,18 +20,31 @@ class LookTest {
     @Test
     fun `saved choices are read back`() {
         val strings = mapOf(
-            MotionSettings.KEY_APP_OPEN to AppOpenStyle.FADE.key,
-            MotionSettings.KEY_HOME_RETURN to HomeReturnStyle.NONE.key,
-            MotionSettings.KEY_DRAWER to DrawerStyle.ZOOM.key,
+            MotionSettings.KEY_APP_OPEN to AppOpenStyle.GROW.key,
+            MotionSettings.KEY_HOME to HomeStyle.WAVE.key,
+            MotionSettings.KEY_DRAWER to DrawerStyle.REVEAL.key,
             DrawerLook.KEY_GLASS to GlassStyle.NEVOA.key,
         )
         val ints = mapOf(MotionSettings.KEY_SPEED to 4, DrawerLook.KEY_OPACITY to 30, DrawerLook.KEY_BLUR to 12)
 
         assertEquals(
-            MotionSettings(AppOpenStyle.FADE, HomeReturnStyle.NONE, DrawerStyle.ZOOM, speed = 4),
+            MotionSettings(AppOpenStyle.GROW, HomeStyle.WAVE, DrawerStyle.REVEAL, speed = 4),
             MotionSettings.fromStored(strings::get, ints::get),
         )
         assertEquals(DrawerLook(GlassStyle.NEVOA, 30, 12), DrawerLook.fromStored(strings::get, ints::get))
+    }
+
+    @Test
+    fun `choices saved before there were more of them still read the same`() {
+        val strings = mapOf(
+            MotionSettings.KEY_APP_OPEN to "icon",
+            MotionSettings.KEY_HOME to "zoom",
+            MotionSettings.KEY_DRAWER to "slide",
+        )
+        assertEquals(
+            MotionSettings(AppOpenStyle.FROM_ICON, HomeStyle.RECEDE, DrawerStyle.SLIDE),
+            MotionSettings.fromStored(strings::get) { null },
+        )
     }
 
     @Test
