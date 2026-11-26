@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_hide_app">Esconder app</string>
+
+    <string name="settings_hidden_apps">Esconder apps</string>
+    <string name="settings_hidden_apps_none">Nenhum app escondido</string>
+    <plurals name="hidden_apps_count">
+        <item quantity="one">%d app escondido</item>
+        <item quantity="many">%d apps escondidos</item>
+        <item quantity="other">%d apps escondidos</item>
+    </plurals>
+
+    <string name="hidden_apps_caption">Escondido, o app sai da gaveta e da tela inicial, mas continua instalado. Toque num app para esconder ou mostrar de novo.</string>
+    <string name="hidden_apps_section_hidden">Escondidos</string>
+    <string name="hidden_apps_section_all">Todos os apps</string>
+    <string name="hidden_app_state_hidden">Escondido</string>
+    <string name="hidden_app_state_shown">Visível</string>
+    <string name="hidden_app_show">Mostrar</string>
+    <string name="hidden_app_hide">Esconder</string>
+</resources>

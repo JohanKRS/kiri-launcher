@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_hide_app">Hide app</string>
+
+    <string name="settings_hidden_apps">Hide apps</string>
+    <string name="settings_hidden_apps_none">No app is hidden</string>
+    <plurals name="hidden_apps_count">
+        <item quantity="one">%d app hidden</item>
+        <item quantity="other">%d apps hidden</item>
+    </plurals>
+
+    <string name="hidden_apps_caption">A hidden app leaves the drawer and the home screen, but stays installed. Tap an app to hide it or show it again.</string>
+    <string name="hidden_apps_section_hidden">Hidden</string>
+    <string name="hidden_apps_section_all">All apps</string>
+    <string name="hidden_app_state_hidden">Hidden</string>
+    <string name="hidden_app_state_shown">Shown</string>
+    <string name="hidden_app_show">Show</string>
+    <string name="hidden_app_hide">Hide</string>
+</resources>

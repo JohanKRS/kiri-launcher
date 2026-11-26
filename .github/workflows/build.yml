@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Test and build the debug and optimized APKs
+        run: ./gradlew :core:test :app:assembleDebug :app:assembleOptimized --stacktrace
+
+      - name: Check that nothing from the personal folder is in the app
+        run: |
+          if unzip -p app/build/outputs/apk/debug/app-debug.apk 'classes*.dex' | grep -a -q 'kiri/personal'; then
+            echo "The app holds code from the personal folder." >&2
+            exit 1
+          fi
+
+      - name: Upload the debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kiri-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload the optimized APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kiri-optimized-apk
+          path: app/build/outputs/apk/optimized/*.apk
+          if-no-files-found: error

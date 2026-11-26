@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="market_title">Mercado</string>
+    <string name="market_summary">Ações e moedas que você acompanha, estilo do vidro e fonte dos preços</string>
+    <string name="market_empty">Adicione ações ou moedas nos ajustes do widget.</string>
+    <string name="market_updated_at">Atualizado às %1$s</string>
+    <string name="market_updating">Atualizando…</string>
+    <string name="market_refresh_now">Atualizar agora</string>
+
+    <string name="market_note_missing_key">Falta a chave</string>
+    <string name="market_note_not_found">Não encontrado</string>
+    <string name="market_note_rate_limited">Limite atingido</string>
+    <string name="market_note_network">Sem conexão</string>
+    <string name="market_note_bad_response">Sem dados</string>
+
+    <string name="market_extended_pre">Pré</string>
+    <string name="market_extended_post">Pós</string>
+    <string name="market_extended_pre_long">Pré-mercado</string>
+    <string name="market_extended_post_long">Pós-mercado</string>
+
+    <string name="market_preview_size">Tamanho para testar</string>
+    <string name="market_preview_width">Largura (células)</string>
+    <string name="market_preview_height">Altura (células)</string>
+    <string name="market_preview_note">O widget se adapta a qualquer tamanho: mostra mais ou menos coisas, e o texto nunca diminui. Toque numa ação para ver os detalhes ou numa moeda para abrir o conversor. Para atualizar na hora, toque nas setas no alto de qualquer um dos dois, ou no título do widget quando ele aparece.</string>
+
+    <string name="market_section_glass">Vidro</string>
+    <string name="market_glass_fume">Fumê</string>
+    <string name="market_glass_cristal">Cristal</string>
+    <string name="market_glass_nevoa">Névoa</string>
+    <string name="market_opacity">Opacidade do vidro</string>
+    <string name="market_corners">Cantos arredondados</string>
+    <string name="market_refresh">Atualizar a cada</string>
+    <string name="market_chart">Mostrar o gráfico</string>
+    <string name="market_minutes">%1$d min</string>
+    <string name="market_hours">%1$d h</string>
+
+    <string name="market_section_list">Ações e moedas que eu acompanho</string>
+    <string name="market_market_b3">Brasil</string>
+    <string name="market_market_us">EUA</string>
+    <string name="market_market_fx">Moeda</string>
+    <string name="market_entry_b3">Ação do Brasil</string>
+    <string name="market_entry_us">Ação dos EUA</string>
+    <string name="market_entry_fx">Moeda, em reais</string>
+    <string name="market_move_up">Subir %1$s</string>
+    <string name="market_move_down">Descer %1$s</string>
+    <string name="market_remove">Remover %1$s</string>
+    <string name="market_add_label">Adicionar pelo código</string>
+    <string name="market_add">Adicionar</string>
+    <string name="market_add_invalid">Esse não parece um código desse tipo.</string>
+
+    <string name="market_section_source">De onde vêm os preços</string>
+    <string name="market_source_official">Serviços oficiais</string>
+    <string name="market_source_official_note">Um serviço oficial e grátis para cada mercado, cada um com a sua chave: brapi para o Brasil, Alpaca e Finnhub para os EUA, AwesomeAPI e Frankfurter para as moedas.</string>
+
+    <string name="market_keys_note">As chaves ficam guardadas só neste aparelho.</string>
+    <string name="market_key_hint">Cole aqui</string>
+
+    <string name="market_detail_open">Ver detalhes de %1$s</string>
+    <string name="market_range_day">24 h</string>
+    <string name="market_range_week">Semana</string>
+    <string name="market_range_month">Mês</string>
+    <string name="market_range_year">Ano</string>
+    <string name="market_range_five_years">5 anos</string>
+    <string name="market_detail_loading">Carregando o gráfico…</string>
+    <string name="market_detail_no_chart">Esta fonte não tem gráfico para este período.</string>
+    <string name="market_detail_period">No período</string>
+    <string name="market_detail_low_high">mín. %1$s · máx. %2$s</string>
+    <string name="market_detail_day_high">Máxima do dia</string>
+    <string name="market_detail_day_low">Mínima do dia</string>
+    <string name="market_detail_previous_close">Fechamento anterior</string>
+    <string name="market_detail_volume">Volume do dia</string>
+    <string name="market_detail_year_high">Máxima em 52 semanas</string>
+    <string name="market_detail_year_low">Mínima em 52 semanas</string>
+
+    <string name="market_converter_title">Converter</string>
+    <string name="market_converter_open">Converter %1$s</string>
+    <string name="market_converter_from">Moeda de origem</string>
+    <string name="market_converter_amount">Valor em %1$s</string>
+    <string name="market_converter_decrease">Diminuir valor</string>
+    <string name="market_converter_increase">Aumentar valor</string>
+    <string name="market_converter_step">Quanto cada toque em menos ou mais muda</string>
+    <string name="market_converter_no_rate">Sem cotação</string>
+    <string name="market_converter_empty">Adicione uma moeda nos ajustes do widget para converter.</string>
+    <string name="market_section_services">Serviços oficiais</string>
+    <string name="market_services_intro">Cada mercado vem de um serviço oficial e grátis. Toque num deles para criar a chave e colar aqui.</string>
+    <string name="market_keys_saved">Chave guardada</string>
+    <string name="market_keys_steps">Passo a passo</string>
+    <string name="market_keys_create">Criar a conta</string>
+    <string name="market_keys_open">Abrir %1$s</string>
+    <string name="market_keys_copy_token">Copiar o token</string>
+    <string name="market_keys_copy_key">Copiar a chave</string>
+    <string name="market_keys_make_key">Gerar a chave</string>
+    <string name="market_keys_paste_here">Colar aqui</string>
+    <string name="market_keys_paste">Colar</string>
+    <string name="market_keys_token">Token</string>
+    <string name="market_keys_part_key">Chave</string>
+    <string name="market_keys_copied_hint">Você copiou algo agora. Toque em Colar.</string>
+    <string name="market_keys_testing">Testando a chave…</string>
+    <string name="market_keys_testing_on">Buscando o preço de %1$s</string>
+    <string name="market_keys_works">Funcionando</string>
+    <string name="market_keys_works_sample">%1$s agora: %2$s</string>
+    <string name="market_keys_refused">%1$s recusou essa chave</string>
+    <string name="market_keys_refused_text">Confira se copiou a chave inteira, sem espaço no fim, e cole de novo. Nada foi guardado.</string>
+    <string name="market_keys_limit">Limite do plano atingido</string>
+    <string name="market_keys_limit_text">A chave está certa, mas o plano grátis não tem mais consultas agora. Ela foi guardada e volta a funcionar quando o limite renovar.</string>
+    <string name="market_keys_offline">Sem internet agora</string>
+    <string name="market_keys_offline_text">A chave foi guardada. Teste de novo quando a conexão voltar.</string>
+    <string name="market_keys_unclear">Não deu para confirmar</string>
+    <string name="market_keys_unclear_text">O serviço respondeu algo inesperado. A chave foi guardada; teste de novo mais tarde.</string>
+    <string name="market_keys_test_again">Testar de novo</string>
+    <string name="market_keys_forget">Apagar a chave</string>
+
+    <string name="market_keys_brapi_row">Ações do Brasil · brapi</string>
+    <string name="market_keys_brapi_without">Sem chave: só PETR4, VALE3, ITUB4 e MGLU3</string>
+    <string name="market_keys_brapi_intro">Ações, fundos imobiliários, ETFs e BDRs da B3, com gráficos de até 3 meses no plano grátis. Os preços chegam com cerca de 30 minutos de atraso.</string>
+    <string name="market_keys_brapi_create">Cadastro grátis. PETR4, VALE3, ITUB4 e MGLU3 já funcionam sem chave.</string>
+    <string name="market_keys_brapi_copy">No painel da brapi, copie o seu token.</string>
+
+    <string name="market_keys_alpaca_row">Ações dos EUA · Alpaca</string>
+    <string name="market_keys_alpaca_without">Falta a chave · preço, pré e pós-mercado e gráficos</string>
+    <string name="market_keys_alpaca_intro">Ações dos EUA: preço, pré e pós-mercado e gráficos de todos os períodos. Grátis; os preços chegam com 15 minutos de atraso.</string>
+    <string name="market_keys_alpaca_create">Grátis, com e-mail. Não precisa depositar nada nem abrir conta de corretora de verdade: a conta de simulação (paper trading) basta.</string>
+    <string name="market_keys_alpaca_copy">No painel, em API Keys, toque em Generate New Keys. Aparecem duas partes, Key e Secret: copie uma de cada vez. O Secret só aparece uma vez.</string>
+
+    <string name="market_keys_finnhub_row">Ações dos EUA sem atraso · Finnhub</string>
+    <string name="market_keys_finnhub_without">Opcional · preço na hora e nomes das empresas</string>
+    <string name="market_keys_finnhub_intro">Ações dos EUA no horário normal, sem atraso, e os nomes das empresas. Sem gráficos no plano grátis: eles vêm da Alpaca.</string>
+    <string name="market_keys_finnhub_create">Grátis, com e-mail.</string>
+    <string name="market_keys_finnhub_copy">A chave aparece no painel logo depois do cadastro.</string>
+
+    <string name="market_keys_awesome_row">Moedas · AwesomeAPI</string>
+    <string name="market_keys_awesome_without">Funciona sem chave · com ela, o gráfico mostra as últimas horas</string>
+    <string name="market_keys_awesome_intro">As moedas em reais funcionam sem chave nenhuma: preço do momento e gráficos dos últimos dias, pela AwesomeAPI e pela Frankfurter. Com a chave da AwesomeAPI o gráfico mostra também as últimas horas e as últimas 24 horas.</string>
+    <string name="market_keys_awesome_create">Grátis, até 100 mil consultas por mês.</string>
+    <string name="market_keys_awesome_copy">Na sua conta, abra API Keys e copie a chave.</string>
+</resources>

@@ -1,0 +1,96 @@
+name: Release
+
+# A new version on main is released by itself: when kiri.version in gradle.properties changes
+# and there is no release v<version> yet, this builds the public APK, signs it with Kiri's
+# release key and publishes the release, with the tag and the version's notes from CHANGELOG.md.
+#
+# Run by hand (Actions → Release → Run workflow) it releases the version on the chosen branch, or,
+# when that release already exists, builds it again and replaces its APK and notes.
+#
+# Needs two secrets of the repository: KIRI_RELEASE_KEYSTORE (the keystore file in base64) and
+# KIRI_RELEASE_PASSWORD.
+
+on:
+  push:
+    branches: [main]
+    paths: [gradle.properties]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find the version and whether it is released
+        id: version
+        run: |
+          version="$(sed -n 's/^kiri\.version=//p' gradle.properties | tr -d '[:space:]')"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "TAG=v$version" >> "$GITHUB_ENV"
+          if gh release view "v$version" > /dev/null 2>&1; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Nothing new to release
+        if: github.event_name == 'push' && steps.version.outputs.released == 'true'
+        run: echo "v$VERSION is already released."
+
+      - uses: actions/setup-java@v4
+        if: github.event_name != 'push' || steps.version.outputs.released == 'false'
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: github.event_name != 'push' || steps.version.outputs.released == 'false'
+
+      - name: Put the release key in place
+        if: github.event_name != 'push' || steps.version.outputs.released == 'false'
+        env:
+          KIRI_RELEASE_KEYSTORE: ${{ secrets.KIRI_RELEASE_KEYSTORE }}
+        run: |
+          if [ -z "$KIRI_RELEASE_KEYSTORE" ]; then
+            echo "The secret KIRI_RELEASE_KEYSTORE is missing." >&2
+            exit 1
+          fi
+          printf '%s' "$KIRI_RELEASE_KEYSTORE" | base64 -d > "$RUNNER_TEMP/kiri-release.jks"
+          echo "KIRI_RELEASE_STORE=$RUNNER_TEMP/kiri-release.jks" >> "$GITHUB_ENV"
+
+      - name: Test, build, check and sign the public APK
+        if: github.event_name != 'push' || steps.version.outputs.released == 'false'
+        env:
+          KIRI_RELEASE_PASSWORD: ${{ secrets.KIRI_RELEASE_PASSWORD }}
+        run: scripts/release.sh --stacktrace
+
+      - name: Publish the release
+        if: github.event_name != 'push' || steps.version.outputs.released == 'false'
+        run: |
+          apk="build/release/kiri-launcher-$VERSION.apk"
+          notes="build/release/notas-$VERSION.md"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$apk" "$apk.sha256" --clobber
+            gh release edit "$TAG" --notes-file "$notes"
+          else
+            gh release create "$TAG" "$apk" "$apk.sha256" \
+              --target "$GITHUB_SHA" \
+              --title "Kiri $VERSION" \
+              --notes-file "$notes" \
+              --prerelease
+          fi
+
+      - name: Remove the release key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/kiri-release.jks"

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the "Fios de névoa" design (threads of mist that draw the paulownia's flower cluster). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M46.24,24.55 L46.49,24.55 M52.52,24.55 L55.48,24.55 M61.51,24.55 L61.76,24.55 M41.54,28.1 L47.61,28.1 M52.94,28.1 L55.06,28.1 M60.39,28.1 L66.46,28.1 M44.49,31.65 L49.02,31.65 M58.98,31.65 L63.51,31.65 M40.48,35.2 L41.08,35.2 M49.31,35.2 L58.69,35.2 M66.92,35.2 L67.52,35.2 M39.73,38.75 L43.11,38.75 M52.17,38.75 L55.83,38.75 M64.89,38.75 L68.27,38.75 M34.93,42.3 L45.51,42.3 M53.5,42.3 L54.5,42.3 M62.49,42.3 L73.07,42.3 M43,45.85 L48.08,45.85 M53.5,45.85 L54.5,45.85 M59.92,45.85 L65,45.85 M34.53,49.4 L36.18,49.4 M49.92,49.4 L58.08,49.4 M71.82,49.4 L73.47,49.4 M34.47,52.95 L39.71,52.95 M53.15,52.95 L54.85,52.95 M68.29,52.95 L73.53,52.95 M30.27,56.5 L42.98,56.5 M53.5,56.5 L54.5,56.5 M65.02,56.5 L77.73,56.5 M36.8,60.05 L46.89,60.05 M53.5,60.05 L54.5,60.05 M61.11,60.05 L71.2,60.05 M49.01,63.6 L58.99,63.6 M53.5,67.15 L54.5,67.15 M53.5,70.7 L54.5,70.7"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="26"
+                android:endX="0"
+                android:endY="76"
+                android:startColor="#FF6A4DB4"
+                android:endColor="#FFA792DC" />
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M30,77.4 L49,77.4 M55,77.4 L78,77.4"
+        android:strokeColor="#FF8C76CB"
+        android:strokeAlpha="0.55"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M37,81 L71,81 M43,84.6 L51,84.6 M56,84.6 L65,84.6"
+        android:strokeColor="#FF8C76CB"
+        android:strokeAlpha="0.32"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round" />
+</vector>

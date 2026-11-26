@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pages_title">Páginas</string>
+    <string name="pages_hint">Segure uma página para mudar de lugar</string>
+    <string name="pages_empty">Página vazia</string>
+    <string name="pages_new">Nova página</string>
+    <string name="pages_add">Adicionar uma página vazia</string>
+    <string name="pages_page">Página %1$d</string>
+    <string name="pages_is_main">A página %1$d é a página inicial</string>
+    <string name="pages_make_main">Fazer da página %1$d a página inicial</string>
+    <string name="pages_remove">Tirar a página %1$d</string>
+    <string name="pages_ask">Tirar esta página?</string>
+    <string name="pages_ask_note">Os apps continuam na gaveta.</string>
+    <string name="pages_ask_yes">Tirar</string>
+    <string name="pages_ask_no">Manter</string>
+    <string name="action_open_pages">Mostrar as páginas</string>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="folder_default">Pasta</string>
+    <string name="folder_games">Jogos</string>
+    <string name="folder_music">Música</string>
+    <string name="folder_video">Vídeo</string>
+    <string name="folder_photos">Fotos</string>
+    <string name="folder_social">Social</string>
+    <string name="folder_news">Notícias</string>
+    <string name="folder_maps">Mapas</string>
+    <string name="folder_productivity">Produtividade</string>
+
+    <string name="folder_apps">%1$s, pasta com %2$d apps</string>
+    <string name="folder_more">mais %1$d</string>
+    <string name="folder_rename_hint">Nome da pasta</string>
+
+    <string name="action_rename_folder">Renomear</string>
+    <string name="action_undo_folder">Desfazer a pasta</string>
+    <string name="folder_ground_own">Fundo</string>
+    <string name="folder_ground_shared">Como as outras</string>
+
+    <string name="settings_folders">Pastas</string>
+    <string name="settings_folders_summary">Fundo, forma e miniaturas da pasta fechada, vidro da aberta</string>
+    <string name="folders_closed">Pasta fechada</string>
+    <string name="folders_open">Pasta aberta</string>
+    <string name="folders_ground">Fundo</string>
+    <string name="folders_ground_none">Sem fundo</string>
+    <string name="folders_glass">Vidro</string>
+    <string name="folders_opacity">Opacidade do vidro</string>
+    <string name="folders_shape">Forma</string>
+    <string name="folders_shape_icons">Igual aos ícones</string>
+    <string name="folders_minis">Miniaturas</string>
+    <string name="folders_minis_up_to">Até %1$d</string>
+    <string name="folders_margin">Margem</string>
+    <string name="folders_spacing">Espaço entre miniaturas</string>
+    <string name="folders_show_name">Nome embaixo</string>
+    <string name="folders_columns">Colunas</string>
+    <string name="folders_panel_spacing">Espaço entre os apps</string>
+    <string name="folders_panel_margin">Margem</string>
+    <string name="folders_best_fit">Melhor encaixe</string>
+    <string name="folders_panel_names">Nomes dos apps</string>
+    <string name="folders_panel_title">Nome da pasta no alto</string>
+    <string name="folders_dim">Escurecer atrás</string>
+    <string name="folders_reset">Voltar ao padrão</string>
+    <string name="folders_reset_summary">Tudo desta tela como veio</string>
+    <string name="folders_note">Para criar uma pasta, segure um app na tela inicial e solte em cima de outro. Abrir e fechar seguem a velocidade escolhida em Movimento. Uma pasta pode ter o fundo próprio: segure nela e mude o Fundo.</string>
+</resources>

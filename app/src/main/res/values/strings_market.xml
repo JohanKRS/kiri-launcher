@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="market_title">Market</string>
+    <string name="market_summary">Stocks and currencies you follow, glass style and where prices come from</string>
+    <string name="market_empty">Add stocks or currencies in the widget settings.</string>
+    <string name="market_updated_at">Updated at %1$s</string>
+    <string name="market_updating">Updating…</string>
+    <string name="market_refresh_now">Refresh now</string>
+
+    <string name="market_note_missing_key">Key missing</string>
+    <string name="market_note_not_found">Not found</string>
+    <string name="market_note_rate_limited">Limit reached</string>
+    <string name="market_note_network">No connection</string>
+    <string name="market_note_bad_response">No data</string>
+
+    <string name="market_extended_pre">Pre</string>
+    <string name="market_extended_post">Post</string>
+    <string name="market_extended_pre_long">Pre-market</string>
+    <string name="market_extended_post_long">After hours</string>
+
+    <string name="market_preview_size">Size to try</string>
+    <string name="market_preview_width">Width (cells)</string>
+    <string name="market_preview_height">Height (cells)</string>
+    <string name="market_preview_note">The widget adapts to any size: it shows more or less, and the text never shrinks. Tap a stock to see its details or a currency to open the converter. To refresh right away, tap the arrows at the top of either one, or the title of the widget when it is there.</string>
+
+    <string name="market_section_glass">Glass</string>
+    <string name="market_glass_fume">Smoked</string>
+    <string name="market_glass_cristal">Crystal</string>
+    <string name="market_glass_nevoa">Mist</string>
+    <string name="market_opacity">Glass opacity</string>
+    <string name="market_corners">Rounded corners</string>
+    <string name="market_refresh">Update every</string>
+    <string name="market_chart">Show the chart</string>
+    <string name="market_percent" translatable="false">%1$d%%</string>
+    <string name="market_minutes">%1$d min</string>
+    <string name="market_hours">%1$d h</string>
+
+    <string name="market_section_list">Stocks and currencies I follow</string>
+    <string name="market_market_b3">Brazil</string>
+    <string name="market_market_us">USA</string>
+    <string name="market_market_fx">Currency</string>
+    <string name="market_entry_b3">Brazilian stock</string>
+    <string name="market_entry_us">US stock</string>
+    <string name="market_entry_fx">Currency, in reais</string>
+    <string name="market_move_up">Move %1$s up</string>
+    <string name="market_move_down">Move %1$s down</string>
+    <string name="market_remove">Remove %1$s</string>
+    <string name="market_add_label">Add by code</string>
+    <string name="market_add_hint_b3" translatable="false">PETR4</string>
+    <string name="market_add_hint_us" translatable="false">AAPL</string>
+    <string name="market_add_hint_fx" translatable="false">EUR</string>
+    <string name="market_add">Add</string>
+    <string name="market_add_invalid">This does not look like a code of this kind.</string>
+
+    <string name="market_section_source">Where prices come from</string>
+    <string name="market_source_official">Official services</string>
+    <string name="market_source_official_note">One official free service for each market, each with its own key: brapi for Brazil, Alpaca and Finnhub for the US, AwesomeAPI and Frankfurter for currencies.</string>
+
+    <string name="market_keys_note">Keys are kept only on this device.</string>
+    <string name="market_key_hint">Paste it here</string>
+
+    <string name="market_detail_open">See details of %1$s</string>
+    <string name="market_range_day">24 h</string>
+    <string name="market_range_week">Week</string>
+    <string name="market_range_month">Month</string>
+    <string name="market_range_year">Year</string>
+    <string name="market_range_five_years">5 years</string>
+    <string name="market_detail_loading">Loading the chart…</string>
+    <string name="market_detail_no_chart">This source has no chart for this period.</string>
+    <string name="market_detail_period">In the period</string>
+    <string name="market_detail_low_high">low %1$s · high %2$s</string>
+    <string name="market_detail_day_high">Day high</string>
+    <string name="market_detail_day_low">Day low</string>
+    <string name="market_detail_previous_close">Previous close</string>
+    <string name="market_detail_volume">Day volume</string>
+    <string name="market_detail_year_high">52-week high</string>
+    <string name="market_detail_year_low">52-week low</string>
+
+    <string name="market_converter_title">Convert</string>
+    <string name="market_converter_open">Convert %1$s</string>
+    <string name="market_converter_from">From</string>
+    <string name="market_converter_amount">Amount in %1$s</string>
+    <string name="market_converter_decrease">Decrease amount</string>
+    <string name="market_converter_increase">Increase amount</string>
+    <string name="market_converter_step">How much each tap on minus or plus changes</string>
+    <string name="market_converter_rate" translatable="false">1 %1$s = %2$s</string>
+    <string name="market_converter_no_rate">No rate</string>
+    <string name="market_converter_empty">Add a currency in the widget settings to convert.</string>
+    <string name="market_section_services">Official services</string>
+    <string name="market_services_intro">Each market comes from an official free service. Tap one to create its key and paste it here.</string>
+    <string name="market_keys_saved">Key saved</string>
+    <string name="market_keys_steps">Step by step</string>
+    <string name="market_keys_create">Create the account</string>
+    <string name="market_keys_open">Open %1$s</string>
+    <string name="market_keys_copy_token">Copy the token</string>
+    <string name="market_keys_copy_key">Copy the key</string>
+    <string name="market_keys_make_key">Make the key</string>
+    <string name="market_keys_paste_here">Paste it here</string>
+    <string name="market_keys_paste">Paste</string>
+    <string name="market_keys_token">Token</string>
+    <string name="market_keys_part_key">Key</string>
+    <string name="market_keys_copied_hint">You copied something just now. Tap Paste.</string>
+    <string name="market_keys_testing">Trying the key…</string>
+    <string name="market_keys_testing_on">Asking for the price of %1$s</string>
+    <string name="market_keys_works">Working</string>
+    <string name="market_keys_works_sample">%1$s now: %2$s</string>
+    <string name="market_keys_refused">%1$s refused this key</string>
+    <string name="market_keys_refused_text">Check that you copied the whole key, with no space at the end, and paste it again. Nothing was saved.</string>
+    <string name="market_keys_limit">Plan limit reached</string>
+    <string name="market_keys_limit_text">The key is right, but the free plan has no requests left for now. It was saved and works again when the limit renews.</string>
+    <string name="market_keys_offline">No internet right now</string>
+    <string name="market_keys_offline_text">The key was saved. Try it again when the connection is back.</string>
+    <string name="market_keys_unclear">Could not confirm it</string>
+    <string name="market_keys_unclear_text">The service answered something unexpected. The key was saved; try it again later.</string>
+    <string name="market_keys_test_again">Try again</string>
+    <string name="market_keys_forget">Remove the key</string>
+
+    <string name="market_keys_brapi" translatable="false">brapi</string>
+    <string name="market_keys_brapi_site" translatable="false">brapi.dev</string>
+    <string name="market_keys_brapi_row">Brazilian stocks · brapi</string>
+    <string name="market_keys_brapi_without">No key: only PETR4, VALE3, ITUB4 and MGLU3</string>
+    <string name="market_keys_brapi_intro">Stocks, real estate funds, ETFs and BDRs from B3, with charts of up to 3 months on the free plan. Prices arrive about 30 minutes late.</string>
+    <string name="market_keys_brapi_create">Free sign-up. PETR4, VALE3, ITUB4 and MGLU3 already work without a key.</string>
+    <string name="market_keys_brapi_copy">In the brapi dashboard, copy your token.</string>
+
+    <string name="market_keys_alpaca" translatable="false">Alpaca</string>
+    <string name="market_keys_alpaca_site" translatable="false">alpaca.markets</string>
+    <string name="market_keys_alpaca_key" translatable="false">Key</string>
+    <string name="market_keys_alpaca_secret" translatable="false">Secret</string>
+    <string name="market_keys_alpaca_row">US stocks · Alpaca</string>
+    <string name="market_keys_alpaca_without">No key · price, pre-market and after hours, and charts</string>
+    <string name="market_keys_alpaca_intro">US stocks: price, pre-market and after hours, and charts of every range. Free; prices arrive 15 minutes late.</string>
+    <string name="market_keys_alpaca_create">Free, with e-mail. No deposit and no real brokerage account needed: the paper trading account is enough.</string>
+    <string name="market_keys_alpaca_copy">In the dashboard, under API Keys, tap Generate New Keys. Two parts appear, Key and Secret: copy one at a time. The Secret is shown only once.</string>
+
+    <string name="market_keys_finnhub" translatable="false">Finnhub</string>
+    <string name="market_keys_finnhub_site" translatable="false">finnhub.io</string>
+    <string name="market_keys_finnhub_row">US stocks with no delay · Finnhub</string>
+    <string name="market_keys_finnhub_without">Optional · price on the spot and company names</string>
+    <string name="market_keys_finnhub_intro">US stocks during regular hours, with no delay, and the names of the companies. No charts on the free plan: those come from Alpaca.</string>
+    <string name="market_keys_finnhub_create">Free, with e-mail.</string>
+    <string name="market_keys_finnhub_copy">The key is on the dashboard right after signing up.</string>
+
+    <string name="market_keys_awesome" translatable="false">AwesomeAPI</string>
+    <string name="market_keys_awesome_site" translatable="false">awesomeapi.com.br</string>
+    <string name="market_keys_awesome_row">Currencies · AwesomeAPI</string>
+    <string name="market_keys_awesome_without">Works without a key · with it, the chart shows the last hours</string>
+    <string name="market_keys_awesome_intro">Currencies in reais work without any key: the price of the moment and charts of the last days, from AwesomeAPI and Frankfurter. With the AwesomeAPI key the chart also shows the last hours and the last 24 hours.</string>
+    <string name="market_keys_awesome_create">Free, up to 100 thousand requests a month.</string>
+    <string name="market_keys_awesome_copy">In your account, open API Keys and copy the key.</string>
+</resources>

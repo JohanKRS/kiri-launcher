@@ -1,0 +1,14 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+.DS_Store
+captures/
+*.jks
+keystore.properties
+*.keystore
+!app/debug.keystore
+# The owner's own additions live in a private repository of their own, cloned into this folder.
+/personal/

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the "Fios de névoa" design (threads of mist that draw the paulownia's flower cluster). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path android:pathData="M0,0 L320,0 L320,180 L0,180 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="160"
+                android:centerY="57.6"
+                android:gradientRadius="240"
+                android:startColor="#FF16111F"
+                android:endColor="#FF000000" />
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M143.7,29.2 L144.24,29.2 M156.88,29.2 L163.12,29.2 M175.76,29.2 L176.3,29.2 M133.83,36.66 L146.59,36.66 M157.78,36.66 L162.22,36.66 M173.41,36.66 L186.17,36.66 M140.03,44.11 L149.54,44.11 M170.46,44.11 L179.97,44.11 M131.62,51.57 L132.86,51.57 M150.16,51.57 L169.84,51.57 M187.14,51.57 L188.38,51.57 M130.03,59.02 L137.12,59.02 M156.15,59.02 L163.85,59.02 M182.88,59.02 L189.97,59.02 M119.95,66.48 L142.17,66.48 M158.95,66.48 L161.05,66.48 M177.83,66.48 L200.05,66.48 M136.9,73.93 L147.57,73.93 M158.95,73.93 L161.05,73.93 M172.43,73.93 L183.1,73.93 M119.12,81.39 L122.59,81.39 M151.42,81.39 L168.58,81.39 M197.41,81.39 L200.88,81.39 M119,88.84 L129.98,88.84 M158.21,88.84 L161.79,88.84 M190.02,88.84 L201,88.84 M110.17,96.3 L136.86,96.3 M158.95,96.3 L161.05,96.3 M183.14,96.3 L209.83,96.3 M123.88,103.75 L145.07,103.75 M158.95,103.75 L161.05,103.75 M174.93,103.75 L196.12,103.75 M149.53,111.21 L170.47,111.21 M158.95,118.66 L161.05,118.66 M158.95,126.12 L161.05,126.12"
+        android:strokeWidth="4.62"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="32.25"
+                android:endX="0"
+                android:endY="137.25"
+                android:startColor="#FFB9A3EA"
+                android:endColor="#FFFFFFFF" />
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M109.6,140.19 L149.5,140.19 M162.1,140.19 L210.4,140.19"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeAlpha="0.5"
+        android:strokeWidth="4.62"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M124.3,147.75 L195.7,147.75 M136.9,155.31 L153.7,155.31 M164.2,155.31 L183.1,155.31"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeAlpha="0.3"
+        android:strokeWidth="4.62"
+        android:strokeLineCap="round" />
+</vector>

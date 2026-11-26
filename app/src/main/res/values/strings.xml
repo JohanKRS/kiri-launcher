@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Kiri</string>
+
+    <string name="home_hint_gesture">%1$s: %2$s</string>
+    <string name="home_hint_add">In the app drawer, touch and hold an app to put it here.</string>
+
+    <string name="action_back">Back</string>
+    <string name="action_decrease">Decrease %1$s</string>
+    <string name="action_increase">Increase %1$s</string>
+    <string name="action_previous">%1$s: previous</string>
+    <string name="action_next">%1$s: next</string>
+    <string name="action_add_to_home">Add to home screen</string>
+    <string name="action_remove_from_home">Remove from home screen</string>
+    <string name="action_app_info">App info</string>
+    <string name="action_none">Nothing</string>
+    <string name="action_open_drawer">Open the app drawer</string>
+    <string name="action_open_settings">Open Kiri settings</string>
+    <string name="action_open_notifications">Open notifications</string>
+    <string name="action_launch_app">Open %1$s</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_layout">Arrangement</string>
+    <string name="settings_home">Home screen</string>
+    <string name="settings_home_summary">Columns, rows, margins, spacing and icon size</string>
+    <string name="settings_drawer">App drawer</string>
+    <string name="settings_drawer_summary">Columns, margins, spacing and icon size</string>
+
+    <string name="settings_section_gestures">Interaction</string>
+    <string name="settings_gestures">Home screen gestures</string>
+    <string name="settings_gestures_summary">What swiping, double tapping and holding do</string>
+    <string name="gestures_caption">Gestures made on an empty place of the home screen.</string>
+    <string name="gestures_settings_fallback">No gesture opens the settings. So that you are never locked out, touch and hold still does.</string>
+    <string name="gesture_swipe_up">Swipe up</string>
+    <string name="gesture_swipe_down">Swipe down</string>
+    <string name="gesture_double_tap">Double tap</string>
+    <string name="gesture_long_press">Touch and hold</string>
+
+    <string name="grid_profile_caption">Adjusting: %1$s, %2$s</string>
+    <string name="device_phone">phone</string>
+    <string name="device_tablet">tablet</string>
+    <string name="device_tv">TV</string>
+    <string name="orientation_portrait">portrait</string>
+    <string name="orientation_landscape">landscape</string>
+
+    <string name="grid_columns">Columns</string>
+    <string name="grid_rows">Rows</string>
+    <string name="grid_margin_horizontal">Side margin</string>
+    <string name="grid_margin_top">Top margin</string>
+    <string name="grid_margin_bottom">Bottom margin</string>
+    <string name="grid_gap">Space between icons</string>
+    <string name="grid_gap_rows">Space between rows</string>
+    <string name="grid_icon_size">Icon size</string>
+    <string name="grid_show_labels">Show app names</string>
+    <string name="grid_page_dots">Page dots while turning pages</string>
+    <string name="grid_even_gaps">Same space vertically</string>
+    <string name="grid_row_gap">Vertical space</string>
+    <string name="grid_place">Grid position</string>
+    <string name="grid_place_top">Top</string>
+    <string name="grid_place_middle">Middle</string>
+    <string name="grid_place_bottom">Bottom</string>
+
+    <string name="action_edit_app">Edit icon and name</string>
+    <string name="action_store_page">Play Store</string>
+    <string name="action_uninstall">Uninstall</string>
+    <string name="action_widget_settings">Widget settings</string>
+    <string name="widget_width">Width</string>
+    <string name="widget_height">Height</string>
+
+    <string name="settings_section_look">Look</string>
+    <string name="settings_drawer_look">Glass and blur</string>
+    <string name="settings_drawer_look_summary">Tint of the drawer, blur, and where the blur comes from</string>
+    <string name="settings_motion">Animations</string>
+    <string name="settings_motion_summary">Opening apps, coming back, the drawer and their speed</string>
+
+    <string name="motion_speed">Speed of the animations</string>
+    <string name="motion_drawer">Opening and closing the drawer</string>
+    <string name="motion_app_open">Opening an app</string>
+    <string name="motion_home_return">Coming back to the home screen</string>
+    <string name="motion_home_return_note">How an app leaves the screen is drawn by Android itself. What is chosen here is how the home screen comes back behind it.</string>
+    <string name="motion_app_open_icon">Grow out of the icon</string>
+    <string name="motion_slide_up">Slide up</string>
+    <string name="motion_fade">Fade</string>
+    <string name="motion_zoom">Zoom</string>
+    <string name="motion_none">None</string>
+    <string name="motion_system">Device default</string>
+
+    <string name="drawer_look_tint">Drawer tint</string>
+    <string name="drawer_look_opacity">Tint opacity</string>
+    <string name="drawer_look_blur">Blur</string>
+
+    <string name="icon_picker_title">Edit %1$s</string>
+    <string name="app_name_label">Name</string>
+    <string name="app_name_hint">Type a new name</string>
+    <string name="icon_picker_original">Original</string>
+    <string name="icon_picker_suggested">Made for this app</string>
+    <string name="icon_picker_no_packs">No icon pack is installed. Install one from the Play Store and it shows up here.</string>
+    <string name="icon_picker_empty_pack">This pack does not list its icons in a way Kiri can read.</string>
+    <string name="icon_picker_search">Search every pack by app name</string>
+    <string name="icon_picker_search_clear">Clear the search</string>
+    <string name="icon_picker_nothing_found">No icon by that name in your packs.</string>
+    <string name="icon_picker_packs">Icon packs</string>
+
+    <string name="blur_system_title">Android\'s blur</string>
+    <string name="blur_system_on">Available on this device. Kiri uses it behind the drawer when it has no picture of the wallpaper, as with a live one.</string>
+    <string name="blur_system_off">Not available right now. Either this device does not offer it to apps, or it is turned off by battery saving or by “Reduce transparency and blur”.</string>
+    <string name="blur_system_old">Needs Android 12 or newer.</string>
+    <string name="blur_copy_title">Kiri\'s own blur</string>
+    <string name="blur_copy_ready">Kiri is reading the wallpaper and blurs its own copy: behind the drawer, widgets, menus and icons.</string>
+    <string name="blur_copy_not_allowed">Kiri is not allowed to read the wallpaper yet. Allow it once and glass turns frosted behind the drawer, widgets, menus and icons.</string>
+    <string name="blur_copy_animated">The wallpaper is a live one, so there is no picture to read. Only Android\'s blur can follow it; without it, glass keeps only its tint.</string>
+    <string name="blur_copy_unreadable">Kiri is allowed to read the wallpaper, but the device did not hand it over.</string>
+    <string name="blur_allow">Let Kiri read the wallpaper</string>
+    <string name="blur_allow_summary">Opens the “access to all files” permission. Kiri only reads the wallpaper.</string>
+
+    <string name="settings_icons">Icons</string>
+    <string name="settings_icons_summary">Shape, glass, glass tile and size of the drawing</string>
+    <string name="icons_shape">Shape</string>
+    <string name="icon_shape_circle">Circle</string>
+    <string name="icon_shape_rounded">Rounded</string>
+    <string name="icon_shape_squircle">Squircle</string>
+    <string name="icon_shape_soft_square">Soft square</string>
+    <string name="icons_glass_use">Glass background</string>
+    <string name="icons_glass_off">Off</string>
+    <string name="icons_glass_transparent">Only icons with no background</string>
+    <string name="icons_glass_all">Every icon</string>
+    <string name="icons_glass_style">Glass</string>
+    <string name="icons_border">Relief</string>
+    <string name="icons_art">Size of the drawing on glass</string>
+    <string name="icons_note">To change the size or the background of one app only, hold the app and choose “Adjust icon”.</string>
+    <string name="icon_picker_art">Zoom of the drawing</string>
+    <string name="icon_picker_art_default">Default</string>
+    <string name="icon_picker_art_reset">Back to the default zoom</string>
+    <string name="icon_picker_ground">Background</string>
+    <string name="icon_picker_ground_shared">Same as the other icons</string>
+    <string name="icon_picker_ground_own">The icon\'s own background</string>
+    <string name="icon_picker_ground_glass">Glass, without the icon\'s own background</string>
+    <string name="icons_clear_own_sizes">Make every app the same</string>
+    <string name="icons_clear_own_sizes_summary">Apps with a size or background of their own: %1$d. This gives them the look above.</string>
+
+    <string name="settings_wallpaper">Wallpaper</string>
+    <string name="settings_wallpaper_summary">Picture, framing and the lock screen</string>
+    <string name="wallpaper_none">No picture chosen yet</string>
+    <string name="wallpaper_on_home">Home screen</string>
+    <string name="wallpaper_on_lock">Lock screen</string>
+    <string name="wallpaper_pick">Choose a picture</string>
+    <string name="wallpaper_pick_summary">From your photos. Kiri keeps a copy of its own.</string>
+    <string name="wallpaper_live">Live wallpapers</string>
+    <string name="wallpaper_live_summary">Opens the device\'s list of animated wallpapers</string>
+    <string name="wallpaper_zoom">Zoom</string>
+    <string name="wallpaper_scroll">Travel with the pages</string>
+    <string name="wallpaper_dim">Darken</string>
+    <string name="wallpaper_blur">Blur the picture</string>
+    <string name="wallpaper_target">Where it goes</string>
+    <string name="wallpaper_target_home">Home screen only</string>
+    <string name="wallpaper_target_lock">Lock screen only</string>
+    <string name="wallpaper_target_both">Home and lock screen</string>
+    <string name="wallpaper_apply">Apply as wallpaper</string>
+    <string name="wallpaper_applying">Applying…</string>
+    <string name="wallpaper_applied">Done. The device has the new wallpaper.</string>
+    <string name="wallpaper_failed">The device did not accept the wallpaper.</string>
+    <string name="wallpaper_note">Drag a preview to move the picture. Nothing changes on the device until you apply.</string>
+
+    <string name="settings_typography">Typography</string>
+    <string name="settings_typography_summary">Size and weight of the names of apps</string>
+    <string name="typography_label_size">Size of the names</string>
+    <string name="typography_label_weight">Weight of the names</string>
+    <string name="typography_weight_light">Light</string>
+    <string name="typography_weight_regular">Regular</string>
+    <string name="typography_weight_medium">Medium</string>
+
+    <string name="icons_shine">Light while scrolling</string>
+    <string name="icons_shine_off">None</string>
+    <string name="icons_shine_light">Light</string>
+    <string name="icons_shine_medium">Medium</string>
+    <string name="icons_shine_strong">Strong</string>
+    <string name="icons_tile">Glass tile</string>
+    <string name="icons_glass_opacity">Glass opacity</string>
+    <string name="icons_edge_light">Light on the edge</string>
+    <string name="icons_edge_width">Width of the edge</string>
+    <string name="icons_shadow">Shadow</string>
+    <string name="icons_shadow_off">None</string>
+    <string name="icons_shadow_light">Light</string>
+    <string name="icons_shadow_medium">Medium</string>
+    <string name="icons_shadow_strong">Strong</string>
+
+    <string name="widgets_title">Widgets</string>
+    <string name="settings_widgets_summary">Add, adjust and remove the widgets of the home screen</string>
+    <string name="widgets_on_home">On the home screen</string>
+    <string name="widgets_none_on_home">No widgets on the home screen yet. Pick one below.</string>
+    <string name="widgets_add">Add</string>
+    <string name="widgets_none_offered">No app on this device offers widgets.</string>
+    <plurals name="widgets_count">
+        <item quantity="one">%1$d widget</item>
+        <item quantity="other">%1$d widgets</item>
+    </plurals>
+    <string name="widgets_size">%1$d × %2$d</string>
+    <string name="widgets_place_summary">%1$s · %2$d × %3$d · page %4$d</string>
+    <string name="widgets_already_on_home">Already on the home screen</string>
+    <string name="widgets_add_action">Add %1$s to the home screen</string>
+    <string name="widgets_remove_action">Remove %1$s from the home screen</string>
+    <string name="widgets_adjust_action">Settings of %1$s</string>
+    <string name="widget_look">Look</string>
+    <string name="widget_look_of">Look of %1$s</string>
+    <string name="widget_look_glass">Glass</string>
+    <string name="widget_look_as_made">From the app</string>
+    <string name="widget_look_background">App\'s background</string>
+    <string name="widget_look_hidden">Hidden</string>
+    <string name="widget_look_shown">Shown</string>
+    <string name="widget_look_colors">Colours</string>
+    <string name="widget_look_font">Font</string>
+    <string name="widget_look_margin">Margin</string>
+    <string name="widget_unavailable">Widget unavailable</string>
+    <string name="action_open_widgets">Open the widgets</string>
+    <string name="action_open_home_menu">Open the home screen menu</string>
+</resources>

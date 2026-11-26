@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_app_icon">Kiri\'s icon</string>
+    <string name="settings_app_icon_summary">The color of Kiri\'s own icon in app lists</string>
+
+    <string name="app_icon_color">Color</string>
+    <string name="app_icon_lilac">Lilac</string>
+    <string name="app_icon_mist">Mist</string>
+    <string name="app_icon_smoke">Smoke</string>
+    <string name="app_icon_night">Night</string>
+    <string name="app_icon_rose">Rose</string>
+    <string name="app_icon_blue">Blue</string>
+
+    <string name="app_icon_note_title">Where it changes</string>
+    <string name="app_icon_note">In the app lists of Android and of other launchers, and on TVs. Some take a few seconds to show the new color. Themed icons (Android 13 and later) take the color of the system instead.</string>
+</resources>

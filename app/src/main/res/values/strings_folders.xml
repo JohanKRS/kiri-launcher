@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Names a new folder gets from what its first two apps are. -->
+    <string name="folder_default">Folder</string>
+    <string name="folder_games">Games</string>
+    <string name="folder_music">Music</string>
+    <string name="folder_video">Video</string>
+    <string name="folder_photos">Photos</string>
+    <string name="folder_social">Social</string>
+    <string name="folder_news">News</string>
+    <string name="folder_maps">Maps</string>
+    <string name="folder_productivity">Productivity</string>
+
+    <string name="folder_apps">%1$s, folder of %2$d apps</string>
+    <string name="folder_more">%1$d more</string>
+    <string name="folder_rename_hint">Folder name</string>
+
+    <string name="action_rename_folder">Rename</string>
+    <string name="action_undo_folder">Undo the folder</string>
+    <string name="folder_ground_own">Background</string>
+    <string name="folder_ground_shared">Like the others</string>
+
+    <string name="settings_folders">Folders</string>
+    <string name="settings_folders_summary">Background, shape and small icons of a closed folder, glass of an open one</string>
+    <string name="folders_closed">Closed folder</string>
+    <string name="folders_open">Open folder</string>
+    <string name="folders_ground">Background</string>
+    <string name="folders_ground_none">No background</string>
+    <string name="folders_glass">Glass</string>
+    <string name="folders_opacity">Glass opacity</string>
+    <string name="folders_shape">Shape</string>
+    <string name="folders_shape_icons">Same as the icons</string>
+    <string name="folders_minis">Small icons</string>
+    <string name="folders_minis_up_to">Up to %1$d</string>
+    <string name="folders_margin">Margin</string>
+    <string name="folders_spacing">Space between small icons</string>
+    <string name="folders_show_name">Name underneath</string>
+    <string name="folders_columns">Columns</string>
+    <string name="folders_panel_spacing">Space between apps</string>
+    <string name="folders_panel_margin">Margin</string>
+    <string name="folders_best_fit">Best fit</string>
+    <string name="folders_panel_names">Names of the apps</string>
+    <string name="folders_panel_title">Folder name at the top</string>
+    <string name="folders_dim">Darken behind</string>
+    <string name="folders_reset">Back to the default</string>
+    <string name="folders_reset_summary">Every setting of this screen as it came</string>
+    <string name="folders_note">To make a folder, hold an app on the home screen and drop it on another. Opening and closing follow the speed chosen in Motion. One folder can have a background of its own: hold it and change Background.</string>
+</resources>

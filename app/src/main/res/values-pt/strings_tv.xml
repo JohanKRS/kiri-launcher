@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A tela inicial da TV -->
+    <string name="tv_all_apps">Todos os apps</string>
+    <string name="tv_all_caption">OK abre. Segure OK para pôr na tela inicial ou tirar. Os escondidos não aparecem aqui.</string>
+    <string name="tv_section_inputs">Entradas da TV</string>
+    <string name="tv_section_apps">Apps</string>
+    <string name="tv_kind_app">App</string>
+    <string name="tv_kind_input">Entrada %1$s</string>
+
+    <string name="tv_menu_move">Mover</string>
+    <string name="tv_menu_edit">Banner e nome</string>
+    <string name="tv_menu_remove">Tirar da tela inicial</string>
+    <string name="tv_menu_add">Pôr na tela inicial</string>
+    <string name="tv_menu_info">Informações</string>
+    <string name="tv_menu_store">Loja</string>
+
+    <string name="tv_toast_moving">Setas levam o item, OK solta</string>
+    <string name="tv_toast_dropped">Solto</string>
+    <string name="tv_toast_removed">%1$s continua em Todos os apps</string>
+    <string name="tv_toast_added">%1$s está na tela inicial</string>
+    <string name="tv_toast_hidden">%1$s escondido. Volta pelas configurações.</string>
+    <string name="tv_toast_no_input">A TV não deixou o Kiri mudar para %1$s</string>
+
+    <string name="tv_widget_clock">Relógio</string>
+    <string name="tv_kind_widget">Widget</string>
+    <string name="tv_menu_size">Tamanho: %1$s</string>
+    <string name="tv_menu_widget_settings">Ajustes do widget</string>
+    <string name="tv_menu_add_widget">Adicionar widget</string>
+    <string name="tv_add_widget_caption">Os widgets do Kiri</string>
+    <string name="tv_widget_size_small">Pequeno</string>
+    <string name="tv_widget_size_medium">Médio</string>
+    <string name="tv_widget_size_large">Grande</string>
+    <string name="tv_widget_off">Fora</string>
+    <string name="tv_toast_widget_moving">Esquerda e direita levam o widget, OK solta</string>
+    <string name="tv_toast_widget_removed">%1$s saiu da tela inicial. Volta pelas configurações.</string>
+    <string name="tv_editor_name">Nome</string>
+    <string name="tv_editor_ready">Banner pronto</string>
+    <string name="tv_editor_none">Nenhum</string>
+    <string name="tv_editor_style">Estilo</string>
+    <string name="tv_editor_drawing">Desenho</string>
+    <string name="tv_editor_color">Cor</string>
+    <string name="tv_editor_banner">Banner</string>
+    <string name="tv_banner_own">Do app</string>
+    <string name="tv_banner_kiri">Do Kiri</string>
+    <string name="tv_editor_everywhere">Vale aqui e em Todos os apps.</string>
+    <string name="tv_editor_original">Original</string>
+    <string name="tv_editor_done">Pronto</string>
+
+    <string name="tv_family_nintendo">Nintendo</string>
+    <string name="tv_family_playstation">PlayStation</string>
+    <string name="tv_family_xbox">Xbox</string>
+    <string name="tv_family_sega">Sega</string>
+    <string name="tv_family_others">Outros</string>
+    <string name="tv_family_pc">PC</string>
+    <string name="tv_console_computer">Computador</string>
+    <string name="tv_console_classic">Clássico</string>
+
+    <string name="tv_style_noite">Noite</string>
+    <string name="tv_style_cor">Cor</string>
+    <string name="tv_style_vidro">Vidro</string>
+    <string name="tv_style_retro">Retrô</string>
+    <string name="tv_style_faixas">Faixas</string>
+
+    <!-- Configurações da tela inicial da TV -->
+    <string name="settings_tv_screen">Tela da TV</string>
+    <string name="settings_tv_screen_summary">Grade ou carrossel, banners e papel de parede</string>
+    <string name="tv_look_arrangement">Arrumação</string>
+    <string name="tv_arrangement_grid">Grade</string>
+    <string name="tv_arrangement_carousel">Carrossel</string>
+    <string name="tv_look_align">Alinhamento</string>
+    <string name="tv_align_start">Esquerda</string>
+    <string name="tv_align_center">Centro</string>
+    <string name="tv_align_spread">Justificado</string>
+    <string name="tv_look_size">Tamanho dos banners</string>
+    <string name="tv_look_names">Nomes</string>
+    <string name="tv_names_always">Embaixo</string>
+    <string name="tv_names_focus">Só no foco</string>
+    <string name="tv_names_never">Ocultos</string>
+    <string name="tv_look_wallpaper">Papel de parede</string>
+    <string name="tv_wallpaper_aurora">Aurora</string>
+    <string name="tv_wallpaper_oceano">Oceano</string>
+    <string name="tv_wallpaper_grafite">Grafite</string>
+    <string name="tv_wallpaper_por_do_sol">Pôr do sol</string>
+    <string name="tv_wallpaper_system">Da TV</string>
+    <string name="tv_wallpaper_own">Imagem sua</string>
+    <string name="tv_look_widgets">Widgets</string>
+    <string name="tv_wallpaper_pick">Escolher imagem</string>
+    <string name="tv_wallpaper_pick_summary">Da TV, de um pendrive ou de outro app</string>
+    <string name="tv_picker_title">Imagem sua</string>
+    <string name="tv_picker_other_app">Abrir com outro app</string>
+    <string name="tv_picker_other_app_summary">Uma galeria ou gerenciador de arquivos da TV</string>
+    <string name="tv_picker_allow">Deixar o Kiri ver as imagens</string>
+    <string name="tv_picker_allow_summary">Imagens da TV e de pendrives</string>
+    <string name="tv_picker_none">Ainda não há imagens na TV. Copie algumas para um pendrive ou para a pasta Pictures da TV.</string>
+    <string name="tv_picker_failed">Não deu para ler essa imagem</string>
+    <string name="tv_settings_caption">Segure OK num banner da tela inicial da TV para mover, trocar o banner e o nome, ou tirar.</string>
+</resources>

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- One APK for phones, tablets and TVs: nothing here may be required. -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <!-- Only Kiri's own widgets use the network (the market widget fetches prices). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Lets the launcher see every app that has a launcher or TV launcher entry. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+        </intent>
+        <!-- Icon packs, so their icons can be chosen for an app. -->
+        <intent>
+            <action android:name="org.adw.launcher.THEMES" />
+        </intent>
+        <intent>
+            <action android:name="com.novalauncher.THEME" />
+        </intent>
+        <!-- Apps that offer widgets, so every one of them can be listed and shown. -->
+        <intent>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent>
+    </queries>
+
+    <!--
+        The query above does not reach every app with widgets: APPWIDGET_UPDATE is a broadcast
+        only the system may send, so Android leaves the receivers that wait for it out of what
+        it lets an app see. An app with widgets and no icon of its own in the launcher (Samsung's
+        Weather is one) would then be missing from the list of widgets. A launcher sees every
+        app, as Android's own launcher does.
+    -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!--
+        Lets Kiri read the wallpaper, to blur its own copy of it behind glass: Android hands the
+        wallpaper only to apps with access to all files. The person turns this on in settings;
+        without it, glass is only tinted. Up to Android 12 the ordinary permission is enough.
+    -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!--
+        Lets a TV show its own pictures, and those on a USB drive, to choose the wallpaper of its
+        home screen from: most TVs have no gallery or file picker to ask instead. Asked for only
+        there, when the person opens that list.
+    -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- Lets a picture chosen in Kiri become the wallpaper, and travel with the home pages. -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
+
+    <!-- Lets a gesture pull down the notification shade. -->
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
+
+    <!-- Lets the menu of an app ask Android to uninstall it (Android still asks to confirm). -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
+    <application
+        android:allowBackup="true"
+        android:banner="@drawable/tv_banner_lilac"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Kiri">
+
+        <activity
+            android:name=".MainActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:stateNotNeeded="true"
+            android:windowSoftInputMode="adjustNothing">
+
+            <!-- Offers Kiri as the home screen. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
+        <!--
+            How Kiri is opened like any app, on phones and on TVs: one entry per color of its
+            icon, all opening MainActivity. Exactly one is on at a time; the person picks the
+            color in Kiri's settings (see AppIcons). The home screen entry above never changes.
+        -->
+        <activity-alias
+            android:name=".IconLilac"
+            android:banner="@drawable/tv_banner_lilac"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_lilac"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconMist"
+            android:banner="@drawable/tv_banner_mist"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_mist"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconSmoke"
+            android:banner="@drawable/tv_banner_smoke"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_smoke"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconNight"
+            android:banner="@drawable/tv_banner_night"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_night"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconRose"
+            android:banner="@drawable/tv_banner_rose"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_rose"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconBlue"
+            android:banner="@drawable/tv_banner_blue"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_blue"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!--
+            Off until the person turns it on in Android's accessibility settings. It lets a
+            gesture lock the screen; it reads nothing on the screen.
+        -->
+        <service
+            android:name=".KiriAccessibilityService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/kiri_accessibility" />
+        </service>
+    </application>
+
+</manifest>

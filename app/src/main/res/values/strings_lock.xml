@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Locking the screen from a gesture, through Kiri's accessibility service. -->
+    <string name="action_lock_screen">Lock the screen</string>
+    <string name="accessibility_description">Lets Kiri lock the screen when you choose a gesture for it, such as a double tap on the home screen. Kiri does not read anything on the screen.</string>
+    <string name="lock_turn_on">Turn on screen locking</string>
+    <string name="lock_turn_on_summary">Android asks for Kiri to be turned on in Accessibility before it can lock the screen</string>
+</resources>

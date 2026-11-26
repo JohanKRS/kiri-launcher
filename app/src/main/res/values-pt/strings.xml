@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_hint_gesture">%1$s: %2$s</string>
+    <string name="home_hint_add">Na gaveta de apps, toque e segure um app para colocá-lo aqui.</string>
+
+    <string name="action_back">Voltar</string>
+    <string name="action_decrease">Diminuir %1$s</string>
+    <string name="action_increase">Aumentar %1$s</string>
+    <string name="action_previous">%1$s: anterior</string>
+    <string name="action_next">%1$s: próximo</string>
+    <string name="action_add_to_home">Adicionar à tela inicial</string>
+    <string name="action_remove_from_home">Remover da tela inicial</string>
+    <string name="action_app_info">Informações</string>
+    <string name="action_none">Nada</string>
+    <string name="action_open_drawer">Abrir a gaveta de apps</string>
+    <string name="action_open_settings">Abrir as configurações do Kiri</string>
+    <string name="action_open_notifications">Abrir as notificações</string>
+    <string name="action_launch_app">Abrir %1$s</string>
+
+    <string name="settings_title">Configurações</string>
+    <string name="settings_section_layout">Organização</string>
+    <string name="settings_home">Tela inicial</string>
+    <string name="settings_home_summary">Colunas, linhas, margens, espaçamento e tamanho dos ícones</string>
+    <string name="settings_drawer">Gaveta de apps</string>
+    <string name="settings_drawer_summary">Colunas, margens, espaçamento e tamanho dos ícones</string>
+
+    <string name="settings_section_gestures">Interação</string>
+    <string name="settings_gestures">Gestos da tela inicial</string>
+    <string name="settings_gestures_summary">O que acontece ao deslizar, tocar duas vezes e segurar</string>
+    <string name="gestures_caption">Gestos feitos num espaço vazio da tela inicial.</string>
+    <string name="gestures_settings_fallback">Nenhum gesto abre as configurações. Para você não ficar sem acesso, tocar e segurar continua abrindo.</string>
+    <string name="gesture_swipe_up">Deslizar para cima</string>
+    <string name="gesture_swipe_down">Deslizar para baixo</string>
+    <string name="gesture_double_tap">Tocar duas vezes</string>
+    <string name="gesture_long_press">Tocar e segurar</string>
+
+    <string name="grid_profile_caption">Ajustando: %1$s, %2$s</string>
+    <string name="device_phone">celular</string>
+    <string name="device_tablet">tablet</string>
+    <string name="device_tv">TV</string>
+    <string name="orientation_portrait">retrato</string>
+    <string name="orientation_landscape">paisagem</string>
+
+    <string name="grid_columns">Colunas</string>
+    <string name="grid_rows">Linhas</string>
+    <string name="grid_margin_horizontal">Margem lateral</string>
+    <string name="grid_margin_top">Margem superior</string>
+    <string name="grid_margin_bottom">Margem inferior</string>
+    <string name="grid_gap">Espaço entre ícones</string>
+    <string name="grid_gap_rows">Espaço entre linhas</string>
+    <string name="grid_icon_size">Tamanho do ícone</string>
+    <string name="grid_show_labels">Mostrar nome dos apps</string>
+    <string name="grid_page_dots">Pontinhos ao trocar de página</string>
+    <string name="grid_even_gaps">Mesmo espaço na vertical</string>
+    <string name="grid_row_gap">Espaço vertical</string>
+    <string name="grid_place">Posição da grade</string>
+    <string name="grid_place_top">Em cima</string>
+    <string name="grid_place_middle">No meio</string>
+    <string name="grid_place_bottom">Embaixo</string>
+
+    <string name="action_edit_app">Editar ícone e nome</string>
+    <string name="action_store_page">Play Store</string>
+    <string name="action_uninstall">Desinstalar</string>
+    <string name="action_widget_settings">Ajustes do widget</string>
+    <string name="widget_width">Largura</string>
+    <string name="widget_height">Altura</string>
+
+    <string name="settings_section_look">Aparência</string>
+    <string name="settings_drawer_look">Vidro e desfoque</string>
+    <string name="settings_drawer_look_summary">Tinta da gaveta, desfoque e de onde o desfoque vem</string>
+    <string name="settings_motion">Animações</string>
+    <string name="settings_motion_summary">Abrir apps, voltar, a gaveta e a velocidade de tudo</string>
+
+    <string name="motion_speed">Velocidade das animações</string>
+    <string name="motion_drawer">Abrir e fechar a gaveta</string>
+    <string name="motion_app_open">Abrir um app</string>
+    <string name="motion_home_return">Voltar para a tela inicial</string>
+    <string name="motion_home_return_note">O jeito como o app sai da tela é desenhado pelo próprio Android. O que se escolhe aqui é como a tela inicial reaparece atrás dele.</string>
+    <string name="motion_app_open_icon">Crescer a partir do ícone</string>
+    <string name="motion_slide_up">Deslizar de baixo</string>
+    <string name="motion_fade">Esmaecer</string>
+    <string name="motion_zoom">Zoom</string>
+    <string name="motion_none">Nenhuma</string>
+    <string name="motion_system">Padrão do aparelho</string>
+
+    <string name="drawer_look_tint">Tinta da gaveta</string>
+    <string name="drawer_look_opacity">Opacidade da tinta</string>
+    <string name="drawer_look_blur">Desfoque</string>
+
+    <string name="icon_picker_title">Editar %1$s</string>
+    <string name="app_name_label">Nome</string>
+    <string name="app_name_hint">Digite um novo nome</string>
+    <string name="icon_picker_original">Original</string>
+    <string name="icon_picker_suggested">Feitos para este app</string>
+    <string name="icon_picker_no_packs">Nenhum pacote de ícones instalado. Instale um pela Play Store e ele aparece aqui.</string>
+    <string name="icon_picker_empty_pack">Este pacote não lista os ícones de um jeito que o Kiri consiga ler.</string>
+    <string name="icon_picker_search">Buscar nos pacotes pelo nome do app</string>
+    <string name="icon_picker_search_clear">Limpar a busca</string>
+    <string name="icon_picker_nothing_found">Nenhum ícone com esse nome nos seus pacotes.</string>
+    <string name="icon_picker_packs">Pacotes de ícones</string>
+
+    <string name="blur_system_title">Desfoque do Android</string>
+    <string name="blur_system_on">Disponível neste aparelho. O Kiri usa atrás da gaveta quando não tem a imagem do papel de parede, como nos animados.</string>
+    <string name="blur_system_off">Indisponível agora. Ou este aparelho não oferece isso aos apps, ou está desligado pela economia de energia ou por “Reduzir transparência e desfoque”.</string>
+    <string name="blur_system_old">Precisa do Android 12 ou mais novo.</string>
+    <string name="blur_copy_title">Desfoque do próprio Kiri</string>
+    <string name="blur_copy_ready">O Kiri está lendo o papel de parede e desfoca a própria cópia: atrás da gaveta, dos widgets, dos menus e dos ícones.</string>
+    <string name="blur_copy_not_allowed">O Kiri ainda não pode ler o papel de parede. Permita uma vez e o vidro fica fosco atrás da gaveta, dos widgets, dos menus e dos ícones.</string>
+    <string name="blur_copy_animated">O papel de parede atual é animado, então não há imagem para ler. Só o desfoque do Android consegue acompanhar; sem ele, o vidro fica só com a tinta.</string>
+    <string name="blur_copy_unreadable">O Kiri tem permissão para ler o papel de parede, mas o aparelho não entregou a imagem.</string>
+    <string name="blur_allow">Permitir que o Kiri leia o papel de parede</string>
+    <string name="blur_allow_summary">Abre a permissão “acesso a todos os arquivos”. O Kiri só lê o papel de parede.</string>
+
+    <string name="settings_icons">Ícones</string>
+    <string name="settings_icons_summary">Forma, vidro, pastilha de vidro e tamanho do desenho</string>
+    <string name="icons_shape">Forma</string>
+    <string name="icon_shape_circle">Círculo</string>
+    <string name="icon_shape_rounded">Arredondado</string>
+    <string name="icon_shape_squircle">Squircle</string>
+    <string name="icon_shape_soft_square">Quadrado suave</string>
+    <string name="icons_glass_use">Fundo de vidro</string>
+    <string name="icons_glass_off">Desligado</string>
+    <string name="icons_glass_transparent">Só nos ícones de fundo transparente</string>
+    <string name="icons_glass_all">Em todos os ícones</string>
+    <string name="icons_glass_style">Vidro</string>
+    <string name="icons_border">Relevo</string>
+    <string name="icons_art">Tamanho do desenho no vidro</string>
+    <string name="icons_note">Para mudar o tamanho ou o fundo de um app só, segure o app e escolha “Ajustar ícone”.</string>
+    <string name="icon_picker_art">Zoom do desenho</string>
+    <string name="icon_picker_art_default">Padrão</string>
+    <string name="icon_picker_art_reset">Voltar ao zoom padrão</string>
+    <string name="icon_picker_ground">Fundo</string>
+    <string name="icon_picker_ground_shared">Igual aos outros ícones</string>
+    <string name="icon_picker_ground_own">O fundo do próprio ícone</string>
+    <string name="icon_picker_ground_glass">Vidro, sem o fundo do próprio ícone</string>
+    <string name="icons_clear_own_sizes">Deixar todos os apps iguais</string>
+    <string name="icons_clear_own_sizes_summary">Apps com tamanho ou fundo próprio: %1$d. Eles voltam ao visual acima.</string>
+
+    <string name="settings_wallpaper">Papel de parede</string>
+    <string name="settings_wallpaper_summary">Imagem, enquadramento e tela de bloqueio</string>
+    <string name="wallpaper_none">Nenhuma imagem escolhida ainda</string>
+    <string name="wallpaper_on_home">Tela inicial</string>
+    <string name="wallpaper_on_lock">Tela de bloqueio</string>
+    <string name="wallpaper_pick">Escolher uma imagem</string>
+    <string name="wallpaper_pick_summary">Das suas fotos. O Kiri guarda uma cópia só dele.</string>
+    <string name="wallpaper_live">Papéis de parede animados</string>
+    <string name="wallpaper_live_summary">Abre a lista de papéis animados do aparelho</string>
+    <string name="wallpaper_zoom">Zoom</string>
+    <string name="wallpaper_scroll">Rolar com as páginas</string>
+    <string name="wallpaper_dim">Escurecer</string>
+    <string name="wallpaper_blur">Desfocar a imagem</string>
+    <string name="wallpaper_target">Onde aplicar</string>
+    <string name="wallpaper_target_home">Só na tela inicial</string>
+    <string name="wallpaper_target_lock">Só na tela de bloqueio</string>
+    <string name="wallpaper_target_both">Inicial e bloqueio</string>
+    <string name="wallpaper_apply">Aplicar como papel de parede</string>
+    <string name="wallpaper_applying">Aplicando…</string>
+    <string name="wallpaper_applied">Pronto. O aparelho já está com o novo papel de parede.</string>
+    <string name="wallpaper_failed">O aparelho não aceitou o papel de parede.</string>
+    <string name="wallpaper_note">Arraste uma prévia para mover a imagem. Nada muda no aparelho antes de aplicar.</string>
+
+    <string name="settings_typography">Tipografia</string>
+    <string name="settings_typography_summary">Tamanho e peso dos nomes dos apps</string>
+    <string name="typography_label_size">Tamanho dos nomes</string>
+    <string name="typography_label_weight">Peso dos nomes</string>
+    <string name="typography_weight_light">Leve</string>
+    <string name="typography_weight_regular">Regular</string>
+    <string name="typography_weight_medium">Médio</string>
+
+    <string name="icons_shine">Reflexo ao rolar</string>
+    <string name="icons_shine_off">Nenhum</string>
+    <string name="icons_shine_light">Leve</string>
+    <string name="icons_shine_medium">Médio</string>
+    <string name="icons_shine_strong">Forte</string>
+    <string name="icons_tile">Pastilha de vidro</string>
+    <string name="icons_glass_opacity">Opacidade do vidro</string>
+    <string name="icons_edge_light">Brilho da borda</string>
+    <string name="icons_edge_width">Largura da borda</string>
+    <string name="icons_shadow">Sombra</string>
+    <string name="icons_shadow_off">Nenhuma</string>
+    <string name="icons_shadow_light">Leve</string>
+    <string name="icons_shadow_medium">Média</string>
+    <string name="icons_shadow_strong">Forte</string>
+
+    <string name="widgets_title">Widgets</string>
+    <string name="settings_widgets_summary">Colocar, ajustar e tirar os widgets da tela inicial</string>
+    <string name="widgets_on_home">Na tela inicial</string>
+    <string name="widgets_none_on_home">Nenhum widget na tela inicial ainda. Escolha um aqui embaixo.</string>
+    <string name="widgets_add">Adicionar</string>
+    <string name="widgets_none_offered">Nenhum app deste aparelho oferece widgets.</string>
+    <plurals name="widgets_count">
+        <item quantity="one">%1$d widget</item>
+        <item quantity="many">%1$d widgets</item>
+        <item quantity="other">%1$d widgets</item>
+    </plurals>
+    <string name="widgets_size">%1$d × %2$d</string>
+    <string name="widgets_place_summary">%1$s · %2$d × %3$d · página %4$d</string>
+    <string name="widgets_already_on_home">Já está na tela inicial</string>
+    <string name="widgets_add_action">Adicionar %1$s à tela inicial</string>
+    <string name="widgets_remove_action">Remover %1$s da tela inicial</string>
+    <string name="widgets_adjust_action">Ajustes de %1$s</string>
+    <string name="widget_look">Aparência</string>
+    <string name="widget_look_of">Aparência de %1$s</string>
+    <string name="widget_look_glass">Vidro</string>
+    <string name="widget_look_as_made">Do app</string>
+    <string name="widget_look_background">Fundo do app</string>
+    <string name="widget_look_hidden">Oculto</string>
+    <string name="widget_look_shown">Visível</string>
+    <string name="widget_look_colors">Cores</string>
+    <string name="widget_look_font">Fonte</string>
+    <string name="widget_look_margin">Margem</string>
+    <string name="widget_unavailable">Widget indisponível</string>
+    <string name="action_open_widgets">Abrir os widgets</string>
+    <string name="action_open_home_menu">Abrir o menu da tela inicial</string>
+</resources>
