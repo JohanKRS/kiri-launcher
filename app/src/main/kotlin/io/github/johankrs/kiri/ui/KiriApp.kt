@@ -23,7 +23,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
@@ -64,8 +63,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -508,6 +507,7 @@ fun KiriApp(
     // Still open while a settings screen is over it, so it is there again when that closes.
     val drawerOpen = Screen.DRAWER in stack
     val drawerMotion = remember { DrawerMotion(initiallyOpen = drawerOpen, scope = scope) }
+    val sheetEdge = remember(density) { SheetEdge(with(density) { SHEET_EDGE.toPx() }) }
     SideEffect { drawerMotion.stiffnessScale = motion.stiffnessScale }
     val flingPx = with(density) { 400.dp.toPx() }
     // Back, Home or an action changed whether the drawer is open: glide there.
@@ -1023,11 +1023,13 @@ fun KiriApp(
                             settle = { drawerMotion.progress },
                             // The sheet is what blurs the wallpaper: the blurred picture is part
                             // of it, cut to it, and stays put on the screen while the sheet moves.
-                            frost = {
-                                val picture = backdrop.image
-                                if (picture != null) {
-                                    clipRect {
-                                        heldStill(motion.drawer, drawerMotion.progress) {
+                            // As it rises its top edge is soft, never a line.
+                            sheet = { tint ->
+                                val progress = drawerMotion.progress
+                                drawerGlass(motion.drawer, progress, tint, sheetEdge) {
+                                    val picture = backdrop.image
+                                    if (picture != null) {
+                                        heldStill(motion.drawer, progress) {
                                             drawWallpaper(picture, backdrop.travel, size.width, size.height)
                                         }
                                     }
@@ -1986,7 +1988,8 @@ class DrawerPull(
  * [settle] says how far open the sheet is, for the apps to settle onto it a moment after it
  * arrives (see [drawerContents]). Without it the apps are simply there, as in a preview.
  *
- * [frost] draws what the glass of the sheet shows through itself: the blurred wallpaper.
+ * [sheet] draws the glass of the sheet, given its tint: what it shows through itself (the
+ * blurred wallpaper) under the tint. Without it the sheet is only the tint, as in a preview.
  */
 @Composable
 fun DrawerSurface(
@@ -2000,7 +2003,7 @@ fun DrawerSurface(
     pull: DrawerPull? = null,
     onLongPress: ((app: AppEntry, iconBounds: Rect) -> Unit)? = null,
     settle: (() -> Float)? = null,
-    frost: (DrawScope.() -> Unit)? = null,
+    sheet: (DrawScope.(tint: Color) -> Unit)? = null,
 ) {
     val glass = look.glass.spec(look.opacityPercent)
     val currentPull by rememberUpdatedState(pull)
@@ -2050,9 +2053,8 @@ fun DrawerSurface(
     Box(
         modifier = modifier
             .fillMaxSize()
-            // What the glass of the sheet shows through itself, under its tint.
-            .drawBehind { frost?.invoke(this) }
-            .background(glass.fill)
+            // The glass of the sheet: what it shows through itself, under its tint.
+            .drawBehind { sheet?.invoke(this, glass.fill) ?: drawRect(glass.fill) }
             .then(insetModifier),
     ) {
         // The sheet is the glass here, with the blurred wallpaper behind all of it. Glass on
