@@ -270,7 +270,9 @@ private fun androidx.compose.ui.unit.Density.revealRadius(progress: Float, cente
         hypot(size.width - center.x, size.height - center.y),
     )
     val past = maxOf(REVEAL_SOFT, REVEAL_LEAD + REVEAL_BAND).toPx()
-    return progress.coerceIn(0f, 1f) * (far + past)
+    // It grows ahead of the finger, so the apps at the far end show before the end of the drag.
+    val open = 1f - progress.coerceIn(0f, 1f)
+    return (1f - open * open) * (far + past)
 }
 
 /** How wide the soft rim of the circle of [DrawerStyle.REVEAL] is. */
@@ -328,13 +330,13 @@ private val REVEAL_LEAD = 60.dp
 private val REVEAL_BAND = 120.dp
 
 /** In [DrawerStyle.CASCADE], the bottom row starts to rise when the drawer is this far open, */
-private const val CASCADE_START = 0.16f
+private const val CASCADE_START = 0.06f
 
 /** the top row this much later, */
 private const val CASCADE_SPREAD = 0.4f
 
 /** and each row takes this much of the way to arrive. */
-private const val CASCADE_EACH = 0.44f
+private const val CASCADE_EACH = 0.5f
 
 /**
  * The soft top edge of a rising drawer sheet, [heightPx] tall, made once for a screen.
@@ -417,19 +419,20 @@ internal fun GraphicsLayerScope.homeAway(
             fadeBy(if (underDrawer) HOME_GONE else 0.6f)
         }
 
-        // The items move themselves; the screen stays.
-        HomeStyle.WAVE -> Unit
+        // The items move themselves; the screen stays, and under the drawer it still fades.
+        HomeStyle.WAVE -> if (underDrawer) fadeBy(HOME_GONE)
 
+        // Under the drawer it goes the whole way sooner, so as to be gone when the apps arrive.
         HomeStyle.FOCUS -> {
-            val scale = 1f - 0.05f * gone
+            val deep = if (underDrawer) (gone / HOME_GONE).coerceAtMost(1f) else gone
+            val scale = 1f - 0.05f * deep
             scaleX = scale
             scaleY = scale
-            val blur = FOCUS_BLUR.toPx() * gone
+            val blur = FOCUS_BLUR.toPx() * deep
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && blur > 0.5f) {
                 renderEffect = BlurEffect(blur, blur, TileMode.Decal)
             }
-            if (fades) alpha = (1f - (gone - 0.25f) / 0.75f).coerceIn(0f, 1f)
-            if (underDrawer) alpha = minOf(alpha, (1f - (gone - 0.1f) / 0.5f).coerceIn(0f, 1f))
+            if (fades) alpha = (1f - (deep - 0.25f) / 0.75f).coerceIn(0f, 1f)
         }
 
         HomeStyle.FADE -> fadeBy(if (underDrawer) HOME_GONE else 0.5f)
