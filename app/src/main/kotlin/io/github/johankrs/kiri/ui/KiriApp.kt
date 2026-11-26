@@ -380,6 +380,9 @@ fun KiriApp(
     // The home screen opens on the page chosen as the first one.
     var homePage by rememberSaveable { mutableIntStateOf(homeLayout.startPage) }
     val gestures = loaded.gestures
+    // The accessibility service is listed only while a gesture locks the screen, whatever changed
+    // the gestures (the settings, a backup put back).
+    LaunchedEffect(gestures.locksScreen) { KiriAccessibilityService.offer(context, gestures.locksScreen) }
     val motion = loaded.motion
     val drawerLook = loaded.drawerLook
     val labelLook = loaded.labelLook
@@ -488,6 +491,7 @@ fun KiriApp(
             LauncherAction.OpenNotifications -> context.expandNotifications()
             // Not on yet: Android's settings are where it is turned on.
             LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen()) {
+                KiriAccessibilityService.offer(context, true)
                 KiriAccessibilityService.openSettings(context)
             }
             LauncherAction.OpenWidgets -> push(Screen.WIDGETS)
@@ -1236,9 +1240,11 @@ fun KiriApp(
                                 appsByKey = appsByKey,
                                 onChange = { gesture, action ->
                                     scope.launch { settings.setGesture(gesture, action) }
-                                    // Chosen to lock the screen: straight to where that is turned on.
-                                    if (action == LauncherAction.LockScreen && !KiriAccessibilityService.isOn(context)) {
-                                        KiriAccessibilityService.openSettings(context)
+                                    // Chosen to lock the screen: straight to where that is turned on, with
+                                    // the service listed there before Android's settings open.
+                                    if (action == LauncherAction.LockScreen) {
+                                        KiriAccessibilityService.offer(context, true)
+                                        if (!KiriAccessibilityService.isOn(context)) KiriAccessibilityService.openSettings(context)
                                     }
                                 },
                                 onBack = pop,

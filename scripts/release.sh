@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# Builds the APK of a Kiri release, the same way on a computer and in the release workflow:
+# Builds the APK and the app bundle (AAB, for Google Play) of a Kiri release, the same way on a
+# computer and in the release workflow:
 #
 #   KIRI_RELEASE_STORE=/path/kiri-release.jks KIRI_RELEASE_PASSWORD=... scripts/release.sh
 #
 # (or with keystore.properties at the root of the repository, which git ignores).
 #
 # It builds the public app (without the folder `personal`), runs the tests, makes sure nothing of
-# `personal` went in, checks that the APK is signed with Kiri's release key, and leaves in
-# build/release/ the APK, its SHA-256 and the release notes taken from CHANGELOG.md.
+# `personal` went in, checks that the APK and the bundle are signed with Kiri's release key, and
+# leaves in build/release/ the APK, the bundle, their SHA-256 and the release notes taken from
+# CHANGELOG.md. The bundle is what Google Play takes; the APK is for everyone else.
 # Extra arguments go to Gradle.
 set -euo pipefail
 
@@ -60,11 +62,12 @@ awk -v v="$version" '
 ' CHANGELOG.md | sed -e '/./,$!d' > "$notes"
 [ -s "$notes" ] || { echo "CHANGELOG.md has no section \"## [$version]\"" >&2; exit 1; }
 
-./gradlew -Pkiri.public=true :core:test :app:assembleRelease "$@"
+./gradlew -Pkiri.public=true :core:test :app:assembleRelease :app:bundleRelease "$@"
 
 apk="app/build/outputs/apk/release/app-release.apk"
-[ -f "$apk" ] || {
-    echo "No signed APK: set KIRI_RELEASE_STORE and KIRI_RELEASE_PASSWORD, or keystore.properties" >&2
+aab="app/build/outputs/bundle/release/app-release.aab"
+[ -f "$apk" ] && [ -f "$aab" ] || {
+    echo "No signed APK or bundle: set KIRI_RELEASE_STORE and KIRI_RELEASE_PASSWORD, or keystore.properties" >&2
     exit 1
 }
 
@@ -77,7 +80,8 @@ if [ -f personal/release-markers.txt ]; then
         [ -n "$line" ] && markers="$markers|$line"
     done < personal/release-markers.txt
 fi
-if unzip -p "$apk" 'classes*.dex' | grep -a -q -E "$markers"; then
+if unzip -p "$apk" 'classes*.dex' | grep -a -q -E "$markers" \
+    || unzip -p "$aab" 'base/dex/classes*.dex' | grep -a -q -E "$markers"; then
     echo "The release holds code from the personal folder." >&2
     exit 1
 fi
@@ -103,8 +107,21 @@ if [ "$certs" != "$RELEASE_CERT_SHA256" ]; then
     exit 1
 fi
 
+# The bundle is signed the older way, like a jar: keytool reads its certificate.
+if ! jarsigner -verify "$aab" 2>&1 | grep -q '^jar verified'; then
+    echo "The bundle's signature does not verify." >&2
+    exit 1
+fi
+bundle_cert="$(keytool -printcert -jarfile "$aab" 2>/dev/null | sed -n 's/^[[:space:]]*SHA256: //p' | sort -u | tr -d ':' | tr 'A-F' 'a-f')"
+if [ "$bundle_cert" != "$RELEASE_CERT_SHA256" ]; then
+    echo "The bundle is not signed with Kiri's release key alone (certificate $bundle_cert)." >&2
+    exit 1
+fi
+
 name="kiri-launcher-$version.apk"
+bundle="kiri-launcher-$version.aab"
 cp "$apk" "$out/$name"
-(cd "$out" && sha256sum "$name" > "$name.sha256")
+cp "$aab" "$out/$bundle"
+(cd "$out" && sha256sum "$name" > "$name.sha256" && sha256sum "$bundle" > "$bundle.sha256")
 echo "Ready in $out/:"
 ls -l "$out"

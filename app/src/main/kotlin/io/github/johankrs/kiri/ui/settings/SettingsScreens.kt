@@ -581,8 +581,7 @@ fun GestureSettingsScreen(
                 )
             }
             // Locking the screen needs Kiri turned on in Android's accessibility settings.
-            val locks = Gesture.entries.any { gestures.chosenFor(it) == LauncherAction.LockScreen }
-            if (locks && !lockReady) {
+            if (gestures.locksScreen && !lockReady) {
                 SettingsLinkRow(
                     title = stringResource(R.string.lock_turn_on),
                     summary = stringResource(R.string.lock_turn_on_summary),

@@ -9,12 +9,35 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+## [0.2.0] - 2026-11-26
+
+Primeira versão também para o Google Play: o release traz, além do APK, o pacote do app
+(`kiri-launcher-0.2.0.aab`) para enviar no Play Console.
+
 ### Widgets
 - Tocar e segurar num widget acende o vidro até a borda, acompanhando os cantos arredondados,
   sem o corte reto de antes: vale para o Mercado e para os widgets de outros apps que usam o
   vidro do Kiri. Botão com forma própria (uma pílula, um círculo) continua com a luz dele (#3).
 - Mercado: quando há mais itens do que cabem, o widget rola com o dedo e sempre para num item
   inteiro, nunca pela metade, em qualquer tamanho. Uma marca fina à direita avisa que há mais (#3).
+- Mercado: um app instalado à parte pode oferecer ao widget uma fonte completa de preços (ações
+  do Brasil e dos EUA, moedas e gráficos). Ela aparece em "De onde vêm os preços", ao lado dos
+  serviços oficiais, dizendo de qual app vem, e só vale depois de escolhida; se o app for
+  removido, voltam os serviços oficiais. Como fazer um app assim:
+  [docs/fontes-de-cotacoes.md](docs/fontes-de-cotacoes.md) (#5).
+
+### Gestos
+- O serviço de acessibilidade do Kiri só existe para o Android enquanto um gesto bloqueia a tela.
+  Sem esse gesto ele some da lista de acessibilidade do aparelho, e os apps que se recusam a abrir
+  ao lado de um serviço assim (alguns bancos) deixam de ver um no Kiri. Escolher de novo
+  "Bloquear a tela" o traz de volta (#5).
+
+### Google Play
+- O Kiri passa a mirar o Android 16 (API 36), como o Google Play exige de todo app novo desde
+  31 de agosto de 2026 (#5).
+- Cada release traz também o `.aab`, assinado com a chave de release, e `scripts/release.sh`
+  confere a assinatura dele como confere a do APK (#5).
+- Política de privacidade: [docs/privacidade.md](docs/privacidade.md) (#5).
 
 ## [0.1.0] - 2026-11-26
 

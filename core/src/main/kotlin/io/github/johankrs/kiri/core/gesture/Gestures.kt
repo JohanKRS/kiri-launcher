@@ -86,6 +86,13 @@ data class GestureMap(private val chosen: Map<Gesture, LauncherAction> = emptyMa
         }
 
     /**
+     * True when a gesture locks the screen, the one thing Kiri needs its accessibility service
+     * for: without such a gesture the service is not offered to Android at all.
+     */
+    val locksScreen: Boolean
+        get() = Gesture.entries.any { chosenFor(it) == LauncherAction.LockScreen }
+
+    /**
      * What really happens on [gesture]. It is [chosenFor], with one safety net: when no gesture
      * opens the settings, the long press does, so the way back in can never be lost.
      */
