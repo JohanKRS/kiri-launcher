@@ -88,9 +88,18 @@ if [ -z "$sdk" ] && [ -f local.properties ]; then
 fi
 apksigner="$(ls -d "$sdk"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -n 1)"
 [ -x "$apksigner" ] || { echo "apksigner not found in the Android SDK ($sdk)" >&2; exit 1; }
-cert="$("$apksigner" verify --print-certs "$apk" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
-if [ "$cert" != "$RELEASE_CERT_SHA256" ]; then
-    echo "The APK is signed with another key ($cert), not Kiri's release key." >&2
+if ! signers="$("$apksigner" verify --print-certs "$apk" 2>&1)"; then
+    echo "apksigner could not verify the APK:" >&2
+    printf '%s\n' "$signers" >&2
+    exit 1
+fi
+# Each version of apksigner words the line its own way ("Signer #1 certificate SHA-256 digest: ..."
+# up to 36, "V2 Signer: certificate SHA-256 digest: ..." from 37), so any line with the digest
+# counts, and every signer it lists must be Kiri's release key.
+certs="$(printf '%s\n' "$signers" | sed -n 's/^.*certificate SHA-256 digest: //p' | sort -u)"
+if [ "$certs" != "$RELEASE_CERT_SHA256" ]; then
+    echo "The APK is not signed with Kiri's release key alone. apksigner says:" >&2
+    printf '%s\n' "$signers" >&2
     exit 1
 fi
 
