@@ -521,6 +521,17 @@ fun KiriApp(
             drawerMotion.settle(open, velocityY)
         },
     )
+    // The swipes of the home screen, also for one made beside an open folder.
+    val homeSwipes = HomeSwipes(
+        onGesture = { gesture -> if (current == Screen.HOME) perform(gestures.actionFor(gesture), null) },
+        // A swipe that opens the drawer carries the drawer along with the finger.
+        onSwipeStart = { swipe -> current == Screen.HOME && gestures.actionFor(swipe) == LauncherAction.OpenDrawer },
+        onSwipeMove = { alongPx -> drawerMotion.dragBy(-alongPx) },
+        onSwipeEnd = { velocityAlongPx ->
+            val open = drawerMotion.restsOpen(velocityUp = velocityAlongPx, wasOpen = false, flingPx = flingPx)
+            releaseDrawer(open, -velocityAlongPx)
+        },
+    )
     val drawerPull = remember(drawerMotion, flingPx) {
         DrawerPull(
             isPulled = { drawerMotion.progress < 1f },
@@ -951,19 +962,9 @@ fun KiriApp(
                             onGesture = { gesture, at ->
                                 if (current == Screen.HOME) perform(gestures.actionFor(gesture), at)
                             },
-                            // A swipe that opens the drawer carries the drawer along with the finger.
-                            onSwipeStart = { swipe ->
-                                current == Screen.HOME && gestures.actionFor(swipe) == LauncherAction.OpenDrawer
-                            },
-                            onSwipeMove = { alongPx -> drawerMotion.dragBy(-alongPx) },
-                            onSwipeEnd = { velocityAlongPx ->
-                                val open = drawerMotion.restsOpen(
-                                    velocityUp = velocityAlongPx,
-                                    wasOpen = false,
-                                    flingPx = flingPx,
-                                )
-                                releaseDrawer(open, -velocityAlongPx)
-                            },
+                            onSwipeStart = homeSwipes.onSwipeStart,
+                            onSwipeMove = homeSwipes.onSwipeMove,
+                            onSwipeEnd = homeSwipes.onSwipeEnd,
                             emptyHint = { homeHint(gestures, appsByKey) },
                             // The home screen steps back as the drawer comes over it. A folder
                             // opening over it leaves every icon where it is and as large.
@@ -1053,17 +1054,26 @@ fun KiriApp(
                         val editFolder: ((HomeLayout, GridSize) -> HomeLayout) -> Unit = { change ->
                             scope.launch { settings.editHome(homeProfile, isInstalled, folders = listOf(folderId), change = change) }
                         }
-                        FolderOverlay(
-                            opening = folderOpening,
-                            folder = folder,
-                            appsByKey = appsByKey,
-                            spec = homeSpec,
-                            repository = repository,
-                            onLaunch = launch,
-                            onRename = { name -> editFolder { layout, _ -> layout.renameFolder(folderId, name) } },
-                            onReorder = { order -> editFolder { layout, _ -> layout.reorderFolder(folderId, order) } },
-                            onCarryOut = { app, bounds -> drawerLift[0] = DrawerLift(app, bounds) },
-                        )
+                        // A swipe beside it takes the home screen back as the drawer comes, and the
+                        // folder closing there goes along with the rest of it.
+                        Box(Modifier.fillMaxSize().graphicsLayer { homeBehindDrawer(motion.drawer, drawerMotion.progress) }) {
+                            FolderOverlay(
+                                opening = folderOpening,
+                                folder = folder,
+                                appsByKey = appsByKey,
+                                spec = homeSpec,
+                                repository = repository,
+                                onLaunch = launch,
+                                onRename = { name -> editFolder { layout, _ -> layout.renameFolder(folderId, name) } },
+                                onReorder = { order -> editFolder { layout, _ -> layout.reorderFolder(folderId, order) } },
+                                onCarryOut = { app, bounds -> drawerLift[0] = DrawerLift(app, bounds) },
+                                // The same menu as an app has on the home screen, closed once it is carried.
+                                onAppLongPress = { app, bounds -> menuTarget = MenuTarget.App(app, bounds) },
+                                onAppDragStart = { menuTarget = null },
+                                // A swipe beside the folder closes it and does what it does on the home screen.
+                                homeSwipes = homeSwipes,
+                            )
+                        }
                     }
                 }
             }
