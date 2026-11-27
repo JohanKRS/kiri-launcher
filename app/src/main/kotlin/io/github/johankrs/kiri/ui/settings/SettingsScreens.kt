@@ -77,10 +77,13 @@ fun SettingsIndexScreen(
     /** Null where the home screen gestures do not exist (a TV, for now). */
     onOpenGestures: (() -> Unit)?,
     onOpenDrawerLook: (() -> Unit)?,
-    onOpenIcons: () -> Unit,
+    /** Null where there are no icons of Kiri's own to dress (a TV: its home screen has banners). */
+    onOpenIcons: (() -> Unit)?,
     onOpenMotion: () -> Unit,
-    onOpenWallpaper: () -> Unit,
-    onOpenTypography: () -> Unit,
+    /** Null where the wallpaper is chosen elsewhere (a TV: in "TV screen"). */
+    onOpenWallpaper: (() -> Unit)?,
+    /** Null where the names of apps are not written by these settings (a TV). */
+    onOpenTypography: (() -> Unit)?,
     /** Leads to the screen of the widgets. Null where there is no home screen to put them on. */
     onOpenWidgets: (() -> Unit)? = null,
     /** Kept by the caller, so the list is where it was left on the way back from a screen. */
@@ -124,11 +127,22 @@ fun SettingsIndexScreen(
 
             SectionTitle(stringResource(R.string.settings_section_look))
             SettingsGroup {
-                SettingsLinkRow(
-                    title = stringResource(R.string.settings_wallpaper),
-                    summary = stringResource(R.string.settings_wallpaper_summary),
-                    onClick = onOpenWallpaper,
-                )
+                // A TV has its own screen for how everything on it looks, and banners for icons.
+                val tv = onOpenTvScreen != null
+                if (onOpenTvScreen != null) {
+                    SettingsLinkRow(
+                        title = stringResource(R.string.settings_tv_screen),
+                        summary = stringResource(R.string.settings_tv_screen_summary),
+                        onClick = onOpenTvScreen,
+                    )
+                }
+                if (onOpenWallpaper != null) {
+                    SettingsLinkRow(
+                        title = stringResource(R.string.settings_wallpaper),
+                        summary = stringResource(R.string.settings_wallpaper_summary),
+                        onClick = onOpenWallpaper,
+                    )
+                }
                 if (onOpenDrawerLook != null) {
                     SettingsLinkRow(
                         title = stringResource(R.string.settings_drawer_look),
@@ -136,15 +150,17 @@ fun SettingsIndexScreen(
                         onClick = onOpenDrawerLook,
                     )
                 }
-                SettingsLinkRow(
-                    title = stringResource(R.string.settings_icons),
-                    summary = stringResource(R.string.settings_icons_summary),
-                    onClick = onOpenIcons,
-                )
+                if (onOpenIcons != null) {
+                    SettingsLinkRow(
+                        title = stringResource(R.string.settings_icons),
+                        summary = stringResource(R.string.settings_icons_summary),
+                        onClick = onOpenIcons,
+                    )
+                }
                 if (onOpenAppIcon != null) {
                     SettingsLinkRow(
-                        title = stringResource(R.string.settings_app_icon),
-                        summary = stringResource(R.string.settings_app_icon_summary),
+                        title = stringResource(if (tv) R.string.settings_app_banner else R.string.settings_app_icon),
+                        summary = stringResource(if (tv) R.string.settings_app_banner_summary else R.string.settings_app_icon_summary),
                         onClick = onOpenAppIcon,
                     )
                 }
@@ -155,27 +171,22 @@ fun SettingsIndexScreen(
                         onClick = onOpenFolders,
                     )
                 }
-                SettingsLinkRow(
-                    title = stringResource(R.string.settings_typography),
-                    summary = stringResource(R.string.settings_typography_summary),
-                    onClick = onOpenTypography,
-                )
+                if (onOpenTypography != null) {
+                    SettingsLinkRow(
+                        title = stringResource(R.string.settings_typography),
+                        summary = stringResource(R.string.settings_typography_summary),
+                        onClick = onOpenTypography,
+                    )
+                }
                 SettingsLinkRow(
                     title = stringResource(R.string.settings_motion),
-                    summary = stringResource(R.string.settings_motion_summary),
+                    summary = stringResource(if (tv) R.string.settings_motion_summary_tv else R.string.settings_motion_summary),
                     onClick = onOpenMotion,
                 )
             }
 
             SectionTitle(stringResource(R.string.settings_section_layout))
             SettingsGroup {
-                if (onOpenTvScreen != null) {
-                    SettingsLinkRow(
-                        title = stringResource(R.string.settings_tv_screen),
-                        summary = stringResource(R.string.settings_tv_screen_summary),
-                        onClick = onOpenTvScreen,
-                    )
-                }
                 if (onOpenHomeGrid != null) {
                     SettingsLinkRow(
                         title = stringResource(R.string.settings_home),
@@ -249,6 +260,11 @@ fun MotionSettingsScreen(
     motion: MotionSettings,
     onChange: (MotionSettings) -> Unit,
     onBack: () -> Unit,
+    /**
+     * On a TV there is no drawer, the screen goes as a whole (a wave would only be the flight
+     * back again) and apps open from their banner.
+     */
+    tv: Boolean = false,
 ) {
     var draft by remember { mutableStateOf(motion) }
     val change: (MotionSettings) -> Unit = { next ->
@@ -278,32 +294,36 @@ fun MotionSettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            val drawerStyles = DrawerStyle.entries
-            NamedChoice(
-                label = stringResource(R.string.motion_drawer),
-                choices = drawerStyles.map { stringResource(it.labelRes()) },
-                chosen = drawerStyles.indexOf(draft.drawer),
-                onChoose = { change(draft.copy(drawer = drawerStyles[it])) },
-            )
+            if (!tv) {
+                val drawerStyles = DrawerStyle.entries
+                NamedChoice(
+                    label = stringResource(R.string.motion_drawer),
+                    choices = drawerStyles.map { stringResource(it.labelRes()) },
+                    chosen = drawerStyles.indexOf(draft.drawer),
+                    onChoose = { change(draft.copy(drawer = drawerStyles[it])) },
+                )
+            }
 
-            val homeStyles = HomeStyle.entries
+            val homeStyles = if (tv) HomeStyle.entries - HomeStyle.WAVE else HomeStyle.entries
+            // A wave chosen on a phone is, on a TV, the flight back it becomes there.
+            val homeNow = if (tv && draft.home == HomeStyle.WAVE) HomeStyle.FLY_BACK else draft.home
             NamedChoice(
                 label = stringResource(R.string.motion_home),
                 choices = homeStyles.map { stringResource(it.labelRes()) },
-                chosen = homeStyles.indexOf(draft.home),
+                chosen = homeStyles.indexOf(homeNow),
                 onChoose = { change(draft.copy(home = homeStyles[it])) },
             )
 
             val openStyles = AppOpenStyle.entries
             NamedChoice(
                 label = stringResource(R.string.motion_app_open),
-                choices = openStyles.map { stringResource(it.labelRes()) },
+                choices = openStyles.map { stringResource(if (tv && it == AppOpenStyle.FROM_ICON) R.string.motion_app_open_banner else it.labelRes()) },
                 chosen = openStyles.indexOf(draft.appOpen),
                 onChoose = { change(draft.copy(appOpen = openStyles[it])) },
             )
             }
             BasicText(
-                text = stringResource(R.string.motion_home_return_note),
+                text = stringResource(if (tv) R.string.motion_home_return_note_tv else R.string.motion_home_return_note),
                 style = muted,
                 modifier = Modifier.padding(horizontal = 4.dp),
             )

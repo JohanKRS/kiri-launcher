@@ -64,7 +64,7 @@
 
     <!-- Configurações da tela inicial da TV -->
     <string name="settings_tv_screen">Tela da TV</string>
-    <string name="settings_tv_screen_summary">Grade ou carrossel, banners e papel de parede</string>
+    <string name="settings_tv_screen_summary">Grade ou carrossel, banners, sombra e papel de parede</string>
     <string name="tv_look_arrangement">Arrumação</string>
     <string name="tv_arrangement_grid">Grade</string>
     <string name="tv_arrangement_carousel">Carrossel</string>
@@ -73,10 +73,12 @@
     <string name="tv_align_center">Centro</string>
     <string name="tv_align_spread">Justificado</string>
     <string name="tv_look_size">Tamanho dos banners</string>
+    <string name="tv_look_gap">Espaço entre os banners</string>
     <string name="tv_look_names">Nomes</string>
     <string name="tv_names_always">Embaixo</string>
     <string name="tv_names_focus">Só no foco</string>
     <string name="tv_names_never">Ocultos</string>
+    <string name="tv_look_shadow">Sombra</string>
     <string name="tv_look_wallpaper">Papel de parede</string>
     <string name="tv_wallpaper_aurora">Aurora</string>
     <string name="tv_wallpaper_oceano">Oceano</string>
@@ -95,4 +97,9 @@
     <string name="tv_picker_none">Ainda não há imagens na TV. Copie algumas para um pendrive ou para a pasta Pictures da TV.</string>
     <string name="tv_picker_failed">Não deu para ler essa imagem</string>
     <string name="tv_settings_caption">Segure OK num banner da tela inicial da TV para mover, trocar o banner e o nome, ou tirar.</string>
+
+    <!-- Animações, na TV: sem gaveta, e o app abre do banner -->
+    <string name="settings_motion_summary_tv">Abrir apps, voltar e a velocidade de tudo</string>
+    <string name="motion_app_open_banner">Revelar do banner</string>
+    <string name="motion_home_return_note_tv">A tela inicial sai quando um app abre e volta quando ele fecha. Como o próprio app abre é desenhado pelo Android: o Kiri pede o jeito, e algumas TVs abrem todos os apps do mesmo jeito, seja qual for o pedido.</string>
 </resources>

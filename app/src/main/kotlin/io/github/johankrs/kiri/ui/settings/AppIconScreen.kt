@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import io.github.johankrs.kiri.R
+import io.github.johankrs.kiri.isTelevision
 import io.github.johankrs.kiri.data.AppIconColor
 import io.github.johankrs.kiri.data.AppIcons
 import io.github.johankrs.kiri.ui.theme.KiriTheme
@@ -54,11 +55,13 @@ private const val APPLY_DELAY_MS = 700L
 /**
  * The color of Kiri's own icon, as Android and other launchers show it. The picture follows
  * every change at once; Android is told only when the arrows rest (or on leaving the screen),
- * so the lists of apps are not redrawn at every step.
+ * so the lists of apps are not redrawn at every step. On a TV it is the banner that is seen,
+ * so the banners are shown instead of the icons.
  */
 @Composable
 fun AppIconScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val tv = remember(context) { context.isTelevision() }
     val appIcons = remember(context) { AppIcons(context) }
     var chosen by remember { mutableStateOf(appIcons.current()) }
     val latest by rememberUpdatedState(chosen)
@@ -72,13 +75,13 @@ fun AppIconScreen(onBack: () -> Unit) {
         onDispose { appIcons.choose(latest) }
     }
 
-    SettingsScaffold(title = stringResource(R.string.settings_app_icon), onBack = onBack) {
+    SettingsScaffold(title = stringResource(if (tv) R.string.settings_app_banner else R.string.settings_app_icon), onBack = onBack) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         ) {
-            IconGallery(chosen = chosen, onPick = { chosen = it })
+            IconGallery(chosen = chosen, onPick = { chosen = it }, banners = tv)
             Spacer(Modifier.height(12.dp))
             SettingsGroup {
                 StepperCard(
@@ -94,7 +97,7 @@ fun AppIconScreen(onBack: () -> Unit) {
                 )
                 InfoCard(
                     title = stringResource(R.string.app_icon_note_title),
-                    text = stringResource(R.string.app_icon_note),
+                    text = stringResource(if (tv) R.string.app_banner_note else R.string.app_icon_note),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -108,7 +111,7 @@ fun AppIconScreen(onBack: () -> Unit) {
  * has a short line under it. Only a picture for the eyes: the arrows below say the same aloud.
  */
 @Composable
-private fun IconGallery(chosen: AppIconColor, onPick: (AppIconColor) -> Unit) {
+private fun IconGallery(chosen: AppIconColor, onPick: (AppIconColor) -> Unit, banners: Boolean) {
     val colors = KiriTheme.colors
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,7 +123,7 @@ private fun IconGallery(chosen: AppIconColor, onPick: (AppIconColor) -> Unit) {
             .clearAndSetSemantics { },
     ) {
         Crossfade(targetState = chosen, animationSpec = tween(240), label = "app icon") { color ->
-            AppIconImage(color, 96.dp)
+            if (banners) AppBannerImage(color, 240.dp) else AppIconImage(color, 96.dp)
         }
         Spacer(Modifier.height(22.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -134,7 +137,7 @@ private fun IconGallery(chosen: AppIconColor, onPick: (AppIconColor) -> Unit) {
                         .clickable { onPick(color) }
                         .padding(vertical = 8.dp),
                 ) {
-                    AppIconImage(color, 38.dp)
+                    if (banners) AppBannerImage(color, 96.dp) else AppIconImage(color, 38.dp)
                     Spacer(Modifier.height(8.dp))
                     Box(
                         Modifier
@@ -148,6 +151,24 @@ private fun IconGallery(chosen: AppIconColor, onPick: (AppIconColor) -> Unit) {
                 }
             }
         }
+    }
+}
+
+/** The banner of [color], [width] wide, as a TV shows it in its list of apps. */
+@Composable
+private fun AppBannerImage(color: AppIconColor, width: Dp) {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val w = with(density) { width.roundToPx() }
+    val h = w * 9 / 16
+    val picture = remember(color, w) {
+        runCatching { context.getDrawable(color.banner)?.toBitmap(w, h)?.asImageBitmap() }.getOrNull()
+    }
+    val shape = RoundedCornerShape(width * (12f / 148f))
+    if (picture != null) {
+        Image(bitmap = picture, contentDescription = null, modifier = Modifier.size(width, width * (9f / 16f)).clip(shape))
+    } else {
+        Spacer(Modifier.size(width, width * (9f / 16f)))
     }
 }
 

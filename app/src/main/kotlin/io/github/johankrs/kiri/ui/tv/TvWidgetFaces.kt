@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,15 +38,18 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.zIndex
 import io.github.johankrs.kiri.R
+import io.github.johankrs.kiri.core.tv.TvArrange
 import io.github.johankrs.kiri.core.tv.TvBox
 import io.github.johankrs.kiri.core.tv.TvWidget
 import io.github.johankrs.kiri.core.tv.TvWidgetKind
@@ -59,6 +64,7 @@ import kotlinx.coroutines.delay
  * The widgets over the TV's home screen, each in its [boxes] place (units). [focused] and
  * [moving] are the keys of the widget with the focus and of the one being moved, if any.
  * [marketRows] gives the lines of stocks and currencies, kept up to date while they are shown.
+ * [shadow] is how dark their shadow is, as a share of the usual one (see `TvLook.shadowAmount`).
  */
 @Composable
 internal fun TvWidgetsBand(
@@ -67,11 +73,39 @@ internal fun TvWidgetsBand(
     focused: String?,
     moving: String?,
     marketRows: @Composable () -> List<MarketRow>?,
+    shadow: Float = 1f,
 ) {
     widgets.forEachIndexed { index, widget ->
         val box = boxes.getOrNull(index) ?: return@forEachIndexed
         androidx.compose.runtime.key(widget.kind) {
-            WidgetSlot(widget, box, focused == widget.key, moving == widget.key, marketRows)
+            WidgetSlot(widget, box, focused == widget.key, moving == widget.key, marketRows, shadow)
+        }
+    }
+}
+
+/**
+ * The stocks widget as the TV's home screen shows it, at its middle size and as large as fits
+ * in the space given: for its settings, where the widget of a phone would say nothing true.
+ */
+@Composable
+fun TvMarketPreview(rows: List<MarketRow>?, modifier: Modifier = Modifier) {
+    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        val widget = TvWidget(TvWidgetKind.MARKET, 1)
+        // Room around it for its shadow; never larger than on a TV twice as wide as usual.
+        val unit = minOf(maxWidth / (widget.width + 40f), maxHeight / (TvArrange.WIDGET_HEIGHT + 40f), 2.dp)
+        val density = LocalDensity.current
+        val units = remember(unit, density) { TvUnits(unit, density) }
+        CompositionLocalProvider(LocalTvUnits provides units) {
+            Box(Modifier.size(units.dp(widget.width), units.dp(TvArrange.WIDGET_HEIGHT))) {
+                WidgetSlot(
+                    widget = widget,
+                    box = TvBox(0f, 0f, widget.width, TvArrange.WIDGET_HEIGHT),
+                    focused = false,
+                    moving = false,
+                    marketRows = { rows },
+                    shadow = 1f,
+                )
+            }
         }
     }
 }
@@ -83,6 +117,7 @@ private fun WidgetSlot(
     focused: Boolean,
     moving: Boolean,
     marketRows: @Composable () -> List<MarketRow>?,
+    shadow: Float,
 ) {
     val units = LocalTvUnits.current
     val glide = spring<Float>(dampingRatio = 0.82f, stiffness = 240f)
@@ -108,12 +143,13 @@ private fun WidgetSlot(
                 translationY = if (moving) -units.px(4f) else 0f
             }
             .drawBehind {
+                if (shadow <= 0f) return@drawBehind
                 val r = units.px(corner)
                 // A soft shadow, deeper with the focus.
                 for (step in 1..4) {
                     val grow = units.px(3f + 4f * ring) * step / 4f
                     drawRoundRect(
-                        color = Color.Black.copy(alpha = 0.05f + 0.03f * ring),
+                        color = Color.Black.copy(alpha = ((0.05f + 0.03f * ring) * shadow).coerceAtMost(1f)),
                         topLeft = Offset(-grow, -grow + units.px(4f + 6f * ring)),
                         size = Size(size.width + 2f * grow, size.height + 2f * grow),
                         cornerRadius = CornerRadius(r + grow),

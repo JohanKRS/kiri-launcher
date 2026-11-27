@@ -43,6 +43,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
@@ -148,7 +149,8 @@ internal fun inputArt(banner: TvBanner?, input: TvInput, name: String): BannerAr
 
 /** What the TV's home screen asks of the launcher. */
 class TvHomeActions(
-    val launch: (AppEntry) -> Unit,
+    /** Opens an app; the rectangle is where its banner is on the screen, in pixels, when known. */
+    val launch: (AppEntry, Rect?) -> Unit,
     /** Shows the input; false when the TV would not. */
     val watch: (TvInput) -> Boolean,
     val openSettings: () -> Unit,
@@ -382,14 +384,17 @@ fun TvHome(
         }
         val widgetBoxes = remember(widgets, look) { TvArrange.widgets(widgets.list.map { it.width }, look.align, look.arrangement) }
 
-        // What each key does, as things are now.
-        fun activate(item: TvShown) {
+        // Where a box of the screen is, in pixels: an app opens from its banner.
+        fun pixels(box: TvBox?): Rect? = box?.let { Rect(units.px(it.left), units.px(it.top), units.px(it.right), units.px(it.bottom)) }
+
+        // What each key does, as things are now. [from] is where the item is on the screen.
+        fun activate(item: TvShown, from: TvBox?) {
             when {
                 item.key == ALL_APPS -> {
                     layer = TvLayer.ALL
                     allFocus = 0
                 }
-                item.app != null -> actions.launch(item.app)
+                item.app != null -> actions.launch(item.app, pixels(from))
                 item.input != null -> if (!actions.watch(item.input)) say(context.getString(R.string.tv_toast_no_input, item.name))
             }
         }
@@ -475,7 +480,7 @@ fun TvHome(
                         onGear -> actions.openSettings()
                         // A widget has no app of its own to open: OK shows what can be done with it.
                         widget != null -> openWidgetMenu(widget, widgetBoxes)
-                        else -> shown.getOrNull(focusIndex)?.let(::activate)
+                        else -> shown.getOrNull(focusIndex)?.let { activate(it, placement.boxes.getOrNull(focusIndex)) }
                     }
                 },
                 hold = {
@@ -530,7 +535,7 @@ fun TvHome(
                 },
             )
             layer == TvLayer.ALL -> TvKeyActions(
-                ok = { allList.getOrNull(allFocus)?.let(::activate) },
+                ok = { allList.getOrNull(allFocus)?.let { activate(it, allBox(allFocus, allPlaced)) } },
                 hold = {
                     val item = allList.getOrNull(allFocus)
                     val box = allBox(allFocus, allPlaced)
@@ -584,6 +589,7 @@ fun TvHome(
                         focused = widgetFocus.takeIf { homeFocus },
                         moving = moving,
                         marketRows = marketRows,
+                        shadow = look.shadowAmount,
                     )
                     TopBar(gearFocused = onGear && layer == TvLayer.HOME)
                 }
@@ -830,6 +836,7 @@ private fun TvBanners(
                 carousel = carousel,
                 outOfSight = box.top < placement.shownFrom,
                 repository = repository,
+                shadow = look.shadowAmount,
             )
         }
     }
@@ -847,6 +854,8 @@ private fun BannerSlot(
     carousel: Boolean,
     outOfSight: Boolean,
     repository: AppRepository?,
+    /** How dark the shadow around the banner is, as a share of the usual one (see `TvLook.shadowAmount`). */
+    shadow: Float,
 ) {
     val units = LocalTvUnits.current
     val glide = spring<Float>(dampingRatio = 0.82f, stiffness = 240f)
@@ -889,13 +898,13 @@ private fun BannerSlot(
                     onDrawBehind {
                         val r = ring.value
                         // A soft shadow only around the banner: glass banners would show one under them.
-                        clipPath(face, ClipOp.Difference) {
+                        if (shadow > 0f) clipPath(face, ClipOp.Difference) {
                             val reach = units.px(5f + 6f * r)
                             val drop = units.px(2f + 3f * r)
                             for (step in 1..SHADOW_STEPS) {
                                 val grow = reach * step / SHADOW_STEPS
                                 drawRoundRect(
-                                    color = Color.Black.copy(alpha = 0.07f + 0.03f * r),
+                                    color = Color.Black.copy(alpha = ((0.07f + 0.03f * r) * shadow).coerceAtMost(1f)),
                                     topLeft = Offset(-grow, -grow + drop),
                                     size = Size(size.width + 2f * grow, size.height + 2f * grow),
                                     cornerRadius = CornerRadius(corner + grow),
@@ -1364,7 +1373,7 @@ fun TvHomePreview(
         CompositionLocalProvider(LocalTvUnits provides units) {
             TvWallpaperArt(tv.look.wallpaper)
             TvBanners(shown, placement, tv.look, focusIndex = 0, moving = null, repository = repository)
-            TvWidgetsBand(widgets, widgetBoxes, focused = null, moving = null, marketRows = marketRows)
+            TvWidgetsBand(widgets, widgetBoxes, focused = null, moving = null, marketRows = marketRows, shadow = tv.look.shadowAmount)
             TopBar(gearFocused = false)
         }
     }

@@ -466,6 +466,8 @@ class SettingsStore private constructor(context: Context) {
             preferences[intKey(TvLook.KEY_SIZE)] = look.bannerSize
             preferences[strKey(TvLook.KEY_NAMES)] = look.names.key
             preferences[strKey(TvLook.KEY_WALLPAPER)] = look.wallpaper.key
+            preferences[intKey(TvLook.KEY_GAP)] = look.gap
+            preferences[strKey(TvLook.KEY_SHADOW)] = look.shadow.key
         }
     }
 

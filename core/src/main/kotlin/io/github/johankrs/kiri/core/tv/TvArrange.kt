@@ -113,8 +113,8 @@ object TvArrange {
         val nameRoom = if (look.names == TvNameShow.NEVER) 0f else NAME_ROOM
         val focused = focus.coerceIn(0, max(0, count - 1))
         return when (look.arrangement) {
-            TvArrangement.GRID -> grid(count, look.align, bw, bh, nameRoom, height, focused, scroll, withWidgets)
-            TvArrangement.CAROUSEL -> carousel(count, look.align, bw, bh, nameRoom, height, focused, scroll)
+            TvArrangement.GRID -> grid(count, look.align, bw, bh, nameRoom, height, focused, scroll, withWidgets, look.gapScale)
+            TvArrangement.CAROUSEL -> carousel(count, look.align, bw, bh, nameRoom, height, focused, scroll, look.gapScale)
         }
     }
 
@@ -128,11 +128,12 @@ object TvArrange {
         focus: Int,
         scroll: Float,
         withWidgets: Boolean,
+        gapScale: Float,
     ): TvPlacement {
         val top = if (withWidgets) TOP_WITH_WIDGETS else TOP
         val bottom = if (withWidgets) BOTTOM_WITH_WIDGETS else BOTTOM
-        val gx = GRID_GAP_X
-        val gy = (if (withWidgets) GRID_GAP_Y_WITH_WIDGETS else GRID_GAP_Y) - if (nameRoom == 0f) 8f else 0f
+        val gx = GRID_GAP_X * gapScale
+        val gy = ((if (withWidgets) GRID_GAP_Y_WITH_WIDGETS else GRID_GAP_Y) - if (nameRoom == 0f) 8f else 0f) * gapScale
         val cols = max(1, floor((WIDTH - 2 * MARGIN + gx) / (bw + gx)).toInt())
         val rows = max(1, ceil(count / cols.toFloat()).toInt())
         val cellH = bh + nameRoom
@@ -181,8 +182,9 @@ object TvArrange {
         height: Float,
         focus: Int,
         scroll: Float,
+        gapScale: Float,
     ): TvPlacement {
-        val g = CAROUSEL_GAP
+        val g = CAROUSEL_GAP * gapScale
         // Low on the screen, so the wallpaper shows above it.
         val y = height - CAROUSEL_FLOOR - bh - max(nameRoom, 26f)
         if (align == TvAlign.CENTER) {

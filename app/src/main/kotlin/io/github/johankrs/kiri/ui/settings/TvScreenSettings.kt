@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import io.github.johankrs.kiri.R
+import io.github.johankrs.kiri.core.look.GlassLevel
 import io.github.johankrs.kiri.core.tv.TvAlign
 import io.github.johankrs.kiri.core.tv.TvArrangement
 import io.github.johankrs.kiri.core.tv.TvLook
@@ -46,7 +47,8 @@ import io.github.johankrs.kiri.ui.theme.KiriType
 
 /**
  * How the TV's home screen looks as a whole: a grid or a carousel, where the banners sit, how
- * large they are, when their names show, the wallpaper and the widgets over it. [preview] is
+ * large they are and how far apart, when their names show, how dark their shadow is, the
+ * wallpaper and the widgets over it. [preview] is
  * the TV's home screen small, which follows every change as soon as it is saved.
  * [onPickPicture] opens the pictures to choose one for the wallpaper from.
  */
@@ -181,12 +183,30 @@ private fun TvLookControls(
                 onIncrease = { change(look.withBannerSize(look.bannerSize + 1)) },
                 modifier = Modifier.fillMaxWidth(),
             )
+            // A level, as everywhere: the middle one is the usual room.
+            StepperCard(
+                label = stringResource(R.string.tv_look_gap),
+                valueText = look.gap.toString(),
+                canDecrease = look.gap > TvLook.GAPS.first,
+                canIncrease = look.gap < TvLook.GAPS.last,
+                onDecrease = { change(look.withGap(look.gap - 1)) },
+                onIncrease = { change(look.withGap(look.gap + 1)) },
+                values = TvLook.GAPS.map { it.toString() },
+                modifier = Modifier.fillMaxWidth(),
+            )
             Named(
                 label = stringResource(R.string.tv_look_names),
                 values = TvNameShow.entries,
                 value = look.names,
                 name = { namesName(it) },
                 onPick = { change(look.copy(names = it)) },
+            )
+            Named(
+                label = stringResource(R.string.tv_look_shadow),
+                values = GlassLevel.entries,
+                value = look.shadow,
+                name = { shadowName(it) },
+                onPick = { change(look.copy(shadow = it)) },
             )
             Named(
                 label = stringResource(R.string.tv_look_wallpaper),
@@ -272,6 +292,16 @@ private fun namesName(value: TvNameShow): String = stringResource(
         TvNameShow.ALWAYS -> R.string.tv_names_always
         TvNameShow.FOCUS -> R.string.tv_names_focus
         TvNameShow.NEVER -> R.string.tv_names_never
+    },
+)
+
+@Composable
+private fun shadowName(value: GlassLevel): String = stringResource(
+    when (value) {
+        GlassLevel.OFF -> R.string.icons_shadow_off
+        GlassLevel.LIGHT -> R.string.icons_shadow_light
+        GlassLevel.MEDIUM -> R.string.icons_shadow_medium
+        GlassLevel.STRONG -> R.string.icons_shadow_strong
     },
 )
 
