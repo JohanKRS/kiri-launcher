@@ -380,6 +380,9 @@ fun KiriApp(
     // The home screen opens on the page chosen as the first one.
     var homePage by rememberSaveable { mutableIntStateOf(homeLayout.startPage) }
     val gestures = loaded.gestures
+    // The accessibility service is listed only while a gesture locks the screen, whatever changed
+    // the gestures (the settings, a backup put back).
+    LaunchedEffect(gestures.locksScreen) { KiriAccessibilityService.offer(context, gestures.locksScreen) }
     val motion = loaded.motion
     val drawerLook = loaded.drawerLook
     val labelLook = loaded.labelLook
@@ -486,9 +489,9 @@ fun KiriApp(
             LauncherAction.OpenDrawer -> push(Screen.DRAWER)
             LauncherAction.OpenSettings -> push(Screen.SETTINGS)
             LauncherAction.OpenNotifications -> context.expandNotifications()
-            // Not on yet: Android's settings are where it is turned on.
-            LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen()) {
-                KiriAccessibilityService.openSettings(context)
+            // Not on yet: Android's settings are where it is turned on (in a build that has it).
+            LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen() && KiriAccessibilityService.exists(context)) {
+                scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
             }
             LauncherAction.OpenWidgets -> push(Screen.WIDGETS)
             LauncherAction.OpenPages -> if (root == Screen.HOME) {
@@ -1246,14 +1249,20 @@ fun KiriApp(
                                 appsByKey = appsByKey,
                                 onChange = { gesture, action ->
                                     scope.launch { settings.setGesture(gesture, action) }
-                                    // Chosen to lock the screen: straight to where that is turned on.
-                                    if (action == LauncherAction.LockScreen && !KiriAccessibilityService.isOn(context)) {
-                                        KiriAccessibilityService.openSettings(context)
+                                    // Chosen to lock the screen: straight to where that is turned on, with
+                                    // the service listed there before Android's settings open.
+                                    if (action == LauncherAction.LockScreen && KiriAccessibilityService.exists(context)) {
+                                        if (KiriAccessibilityService.isOn(context)) {
+                                            KiriAccessibilityService.offer(context, true)
+                                        } else {
+                                            scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
+                                        }
                                     }
                                 },
                                 onBack = pop,
                                 lockReady = remember(refreshTick, gestures) { KiriAccessibilityService.isOn(context) },
                                 onTurnOnLock = { KiriAccessibilityService.openSettings(context) },
+                                canLock = remember(context) { KiriAccessibilityService.exists(context) },
                             )
 
                             Screen.MOTION_SETTINGS -> MotionSettingsScreen(
@@ -1269,6 +1278,8 @@ fun KiriApp(
                                 systemBlur = systemBlur,
                                 reading = wallpaper.reading,
                                 onAllowWallpaper = allowWallpaper,
+                                canAllowWallpaper = wallpaper.canAsk,
+                                onOpenWallpaper = { push(Screen.WALLPAPER_SETTINGS) },
                                 preview = { draft ->
                                     WallpaperStandIn(Modifier.fillMaxSize(), blurred = true) {
                                         DrawerSurface(
@@ -1484,6 +1495,7 @@ fun KiriApp(
                                 screen = backdrop.screenSize,
                                 canSeeFiles = wallpaper.canRead(),
                                 onAllowFiles = allowWallpaper,
+                                canAllowFiles = wallpaper.canAsk,
                                 onOpened = { push(Screen.BACKUP_RESTORE) },
                                 onBack = pop,
                             )

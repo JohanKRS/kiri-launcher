@@ -111,6 +111,7 @@ fun BackupScreen(
     /** Whether Kiri may see files it did not write itself, for the Download/Kiri list. */
     canSeeFiles: Boolean,
     onAllowFiles: () -> Unit,
+    canAllowFiles: Boolean = true,
     onOpened: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -334,7 +335,8 @@ fun BackupScreen(
                             onClick = { openFound(file) },
                         )
                     }
-                    if (!canSeeFiles) {
+                    // Not in a build without access to all files (Google Play's): opening one still works.
+                    if (!canSeeFiles && canAllowFiles) {
                         ActionRow(
                             glyph = Glyph.INFO,
                             title = stringResource(R.string.backup_allow_files),

@@ -7,9 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-// The owner's own module, when this build has it (see settings.gradle.kts).
-val personal: Project? = rootProject.findProject(":personal")
-
 // Kiri's version, written once in gradle.properties (`kiri.version`). The version code follows
 // from it, so the two never disagree: 1.4.2 is 10402. A release is tagged `v<version>` and told
 // in CHANGELOG.md under the same number.
@@ -46,12 +43,12 @@ val releaseKey: Map<String, String>? = run {
 
 android {
     namespace = "io.github.johankrs.kiri"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.johankrs.kiri"
         minSdk = 30
-        targetSdk = 35
+        targetSdk = 36
         versionCode = kiriVersionCode
         versionName = kiriVersionName
     }
@@ -88,6 +85,15 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release")
         }
+        // Google Play's build, the app bundle of a release: the release itself, less what Play
+        // asks to be declared and justified before it publishes even a test (all files, every
+        // app, photos and the accessibility service; see src/play/AndroidManifest.xml). Each
+        // screen that would offer one of those first asks whether this build has it. The APK of
+        // a release keeps them all.
+        create("play") {
+            initWith(getByName("release"))
+            matchingFallbacks += "release"
+        }
         // The build to judge smoothness with: optimized like a release, which a debug build is
         // not, but signed and named like the debug one so it installs over it and keeps its data.
         create("optimized") {
@@ -106,11 +112,6 @@ android {
     buildFeatures {
         compose = true
     }
-
-    sourceSets.getByName("main") {
-        // Without the owner's module, empty stand-ins take the place of what it would add.
-        if (personal == null) java.srcDir("src/standalone/kotlin")
-    }
 }
 
 kotlin {
@@ -125,7 +126,6 @@ composeCompiler {
 
 dependencies {
     implementation(project(":core"))
-    personal?.let { implementation(it) }
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)

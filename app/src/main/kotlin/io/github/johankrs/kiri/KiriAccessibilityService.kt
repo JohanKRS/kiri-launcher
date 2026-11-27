@@ -4,15 +4,23 @@ import android.accessibilityservice.AccessibilityService
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
+import kotlinx.coroutines.delay
 
 /**
  * Kiri's accessibility service. It does only what an app cannot do by itself and what the person
  * asked for: today, locking the screen from a gesture on the home screen ([lockScreen]). It
  * reads nothing on the screen and is sent no events. It stays off until the person turns it on
  * in Android's accessibility settings ([openSettings]).
+ *
+ * More than off, it is absent while nothing needs it ([offer]): the manifest leaves it disabled,
+ * and Kiri lets Android list it only while a gesture locks the screen. So a device where nobody
+ * chose that has no accessibility service from Kiri at all, which apps that refuse to work beside
+ * one (some banks do) can see.
  *
  * There is one service for all of Kiri: whatever else comes to need it, such as the buttons of
  * a TV remote, is added here rather than in a second one, so the person turns on only one.
@@ -40,13 +48,72 @@ class KiriAccessibilityService : AccessibilityService() {
         @Volatile
         private var running: KiriAccessibilityService? = null
 
+        /**
+         * Whether this build has the service at all. Google Play's build does not (see
+         * app/src/play/AndroidManifest.xml), and then no gesture can lock the screen.
+         */
+        fun exists(context: Context): Boolean = runCatching {
+            @Suppress("DEPRECATION")
+            context.packageManager.getServiceInfo(
+                ComponentName(context, KiriAccessibilityService::class.java),
+                PackageManager.MATCH_DISABLED_COMPONENTS,
+            )
+        }.isSuccess
+
         /** Locks the screen, as the power button does. False when the service is not on. */
         fun lockScreen(): Boolean = running?.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN) == true
+
+        /**
+         * Lets Android list the service ([wanted]) or takes it away again. Taken away, it is not
+         * only off but gone from the accessibility settings, and Android forgets it was on:
+         * offered again, the person turns it on once more (seen on a Galaxy S24, Android 17).
+         */
+        fun offer(context: Context, wanted: Boolean) {
+            if (!exists(context)) return
+            val me = ComponentName(context, KiriAccessibilityService::class.java)
+            val state = if (wanted) {
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            } else {
+                // The manifest's own state, which is disabled.
+                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
+            }
+            val pm = context.packageManager
+            runCatching {
+                if (pm.getComponentEnabledSetting(me) != state) {
+                    pm.setComponentEnabledSetting(me, state, PackageManager.DONT_KILL_APP)
+                }
+            }
+        }
+
+        /**
+         * Offers the service and opens Android's settings once they list it. Android takes a
+         * moment to see a component that was just turned on, and a settings page opened before
+         * that knows nothing of Kiri (One UI then shows only the general list).
+         */
+        suspend fun offerAndOpenSettings(context: Context) {
+            offer(context, true)
+            val manager = context.getSystemService(AccessibilityManager::class.java)
+            val me = ComponentName(context, KiriAccessibilityService::class.java)
+            fun listed(): Boolean = runCatching {
+                manager?.installedAccessibilityServiceList.orEmpty().any {
+                    val info = it.resolveInfo?.serviceInfo
+                    info != null && ComponentName(info.packageName, info.name) == me
+                }
+            }.getOrDefault(false)
+            // Two seconds at most: past that, the general list is still better than nothing.
+            for (attempt in 0 until 20) {
+                if (listed()) break
+                delay(100)
+            }
+            openSettings(context)
+        }
 
         /** True when the person turned the service on, even before Android has started it. */
         fun isOn(context: Context): Boolean {
             if (running != null) return true
             val me = ComponentName(context, KiriAccessibilityService::class.java)
+            val offered = runCatching { context.packageManager.getComponentEnabledSetting(me) }.getOrNull()
+            if (offered != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) return false
             val enabled = runCatching {
                 Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
             }.getOrNull() ?: return false

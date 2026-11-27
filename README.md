@@ -6,14 +6,15 @@ Launcher Android leve e muito personalizável, em um único app para celular, ta
 
 - `core`: regras e dados em Kotlin puro, sem Android. Testável na JVM.
 - `app`: o aplicativo Android (Jetpack Compose). Detecta o tipo de aparelho e mostra a interface certa.
-- `personal` (opcional): acréscimos do dono para o uso dele, que não fazem parte deste repositório.
-  Eles moram num repositório privado à parte, clonado nesta pasta (que o git ignora). Quando a
-  pasta existe, o build a inclui; sem ela o app compila do mesmo jeito, só sem esses acréscimos.
-  `./gradlew -Pkiri.public=true ...` compila como se ela não existisse.
+- `personal` (opcional): um app pequeno do dono, à parte do Kiri, que não faz parte deste
+  repositório. Ele mora num repositório privado, clonado nesta pasta (que o git ignora), e só
+  compartilha o `core`. O Kiri nunca leva nada dele: os dois são apps separados no aparelho, que
+  conversam como qualquer outro app faria (ver [fontes de cotações](docs/fontes-de-cotacoes.md)).
+  `./gradlew -Pkiri.public=true ...` compila como se a pasta não existisse.
 
 ## Como compilar
 
-Requer JDK 17 e o Android SDK (plataforma 35).
+Requer JDK 17 e o Android SDK (plataforma 36).
 
 ```
 ./gradlew :core:test :app:assembleDebug
@@ -28,8 +29,9 @@ repositório, então uma versão nova instala por cima da anterior.
 ## Releases
 
 Cada versão tem um release no GitHub com o APK público (sem a pasta `personal`), instalado como
-`io.github.johankrs.kiri` e assinado com a chave de release do Kiri. O que mudou em cada uma está
-no [CHANGELOG.md](CHANGELOG.md).
+`io.github.johankrs.kiri` e assinado com a chave de release do Kiri, e o pacote do app para o
+Google Play (`.aab`), assinado com a mesma chave. O que mudou em cada uma está no
+[CHANGELOG.md](CHANGELOG.md).
 
 Para lançar uma versão:
 
@@ -37,13 +39,21 @@ Para lançar uma versão:
 2. No `CHANGELOG.md`, passar o que está em "Não lançado" para uma seção `## [0.2.0] - <data>`.
 3. Mesclar em `main`. Quando a versão muda e ainda não tem release, o workflow `Release` compila,
    testa, confere que nada da pasta `personal` entrou, assina e publica o release `v0.2.0`, com a
-   tag e as notas do changelog.
+   tag, as notas do changelog, o APK e o `.aab`.
+4. Para o Google Play, enviar o `.aab` do release no Play Console (teste interno ou outra faixa).
+
+O `.aab` é a versão do Google Play (o tipo de build `play`): o mesmo Kiri sem o que o Play pede
+para declarar e justificar antes de publicar até um teste interno, que são o acesso a todos os
+arquivos, ver todos os apps, as fotos e o serviço de acessibilidade
+([app/src/play/AndroidManifest.xml](app/src/play/AndroidManifest.xml)). Cada tela que ofereceria
+um deles pergunta antes se a versão o tem (`declares`, `KiriAccessibilityService.exists`) e, se
+não tem, diz o que dá para fazer. O `scripts/release.sh` confere que nenhum ficou no `.aab`.
 
 Rodado à mão (Actions › Release › Run workflow), o workflow lança a versão que está na branch
 escolhida, ou, se ela já tem release, compila de novo e troca o APK e as notas.
 
 Sem o GitHub Actions, `scripts/release.sh` faz o mesmo build num computador e deixa em
-`build/release/` o APK, o SHA-256 dele e as notas, para anexar ao release à mão. Ele precisa da
+`build/release/` o APK, o `.aab`, o SHA-256 de cada um e as notas, para anexar ao release à mão. Ele precisa da
 chave: `KIRI_RELEASE_STORE` e `KIRI_RELEASE_PASSWORD` no ambiente, ou um `keystore.properties` na
 raiz (ignorado pelo git) com `storeFile=`, `password=` e, se não for `kiri`, `alias=`.
 
@@ -121,11 +131,28 @@ Nos ajustes do widget cada serviço tem um passo a passo: um botão abre o cadas
 a chave copiada lá é colada de volta com um toque e testada na hora, buscando um preço de verdade.
 Uma chave que o serviço recusa não é guardada.
 
-Um build pode acrescentar origens completas, que dão todos os mercados sozinhas (`CompleteSource`
-em `core`), a partir da pasta `personal`. Elas aparecem como escolha ao lado dos serviços oficiais.
+Outro app instalado no aparelho pode oferecer uma origem completa, que dá todos os mercados
+sozinha (`CompleteSource` em `core`). Ela aparece como escolha ao lado dos serviços oficiais e só é
+usada depois que a pessoa a escolhe. Como fazer um app assim:
+[docs/fontes-de-cotacoes.md](docs/fontes-de-cotacoes.md).
 
 Nenhuma chave vai dentro do app: cada pessoa cola a sua nos ajustes do widget, e ela fica guardada só
 no aparelho. As fontes ficam atrás de `MarketRepository`, então dá para trocar uma sem mexer no widget.
+
+## Acessibilidade
+
+O Kiri tem um serviço de acessibilidade, só para um gesto poder bloquear a tela (o Android não deixa
+um app fazer isso de outro jeito). Ele não lê nada da tela e não recebe eventos. Enquanto nenhum
+gesto bloqueia a tela, o serviço nem aparece para o Android: o manifesto o deixa desativado, e o
+Kiri só o oferece quando a pessoa escolhe "Bloquear a tela" para um gesto
+(`KiriAccessibilityService.offer`). Assim, quem não usa esse gesto não tem nenhum serviço de
+acessibilidade do Kiri no aparelho, o que alguns apps de banco exigem. A versão do Google Play não
+tem o serviço (ver Releases).
+
+## Privacidade
+
+O Kiri não coleta nada e não tem conta, anúncio nem análise de uso. Ver
+[docs/privacidade.md](docs/privacidade.md).
 
 ## Licença
 

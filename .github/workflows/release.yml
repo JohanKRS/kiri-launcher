@@ -1,8 +1,9 @@
 name: Release
 
 # A new version on main is released by itself: when kiri.version in gradle.properties changes
-# and there is no release v<version> yet, this builds the public APK, signs it with Kiri's
-# release key and publishes the release, with the tag and the version's notes from CHANGELOG.md.
+# and there is no release v<version> yet, this builds the public APK and the app bundle for
+# Google Play (AAB), signs both with Kiri's release key and publishes the release, with the tag
+# and the version's notes from CHANGELOG.md.
 #
 # Run by hand (Actions → Release → Run workflow) it releases the version on the chosen branch, or,
 # when that release already exists, builds it again and replaces its APK and notes.
@@ -69,7 +70,7 @@ jobs:
           printf '%s' "$KIRI_RELEASE_KEYSTORE" | base64 -d > "$RUNNER_TEMP/kiri-release.jks"
           echo "KIRI_RELEASE_STORE=$RUNNER_TEMP/kiri-release.jks" >> "$GITHUB_ENV"
 
-      - name: Test, build, check and sign the public APK
+      - name: Test, build, check and sign the public APK and bundle
         if: github.event_name != 'push' || steps.version.outputs.released == 'false'
         env:
           KIRI_RELEASE_PASSWORD: ${{ secrets.KIRI_RELEASE_PASSWORD }}
@@ -79,12 +80,13 @@ jobs:
         if: github.event_name != 'push' || steps.version.outputs.released == 'false'
         run: |
           apk="build/release/kiri-launcher-$VERSION.apk"
+          aab="build/release/kiri-launcher-$VERSION.aab"
           notes="build/release/notas-$VERSION.md"
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" "$apk" "$apk.sha256" --clobber
+            gh release upload "$TAG" "$apk" "$apk.sha256" "$aab" "$aab.sha256" --clobber
             gh release edit "$TAG" --notes-file "$notes"
           else
-            gh release create "$TAG" "$apk" "$apk.sha256" \
+            gh release create "$TAG" "$apk" "$apk.sha256" "$aab" "$aab.sha256" \
               --target "$GITHUB_SHA" \
               --title "Kiri $VERSION" \
               --notes-file "$notes" \

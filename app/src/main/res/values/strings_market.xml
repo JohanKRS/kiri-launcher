@@ -55,6 +55,7 @@
     <string name="market_section_source">Where prices come from</string>
     <string name="market_source_official">Official services</string>
     <string name="market_source_official_note">One official free service for each market, each with its own key: brapi for Brazil, Alpaca and Finnhub for the US, AwesomeAPI and Frankfurter for currencies.</string>
+    <string name="market_source_app_note">It comes from the app %1$s, installed apart: Kiri only asks it for prices.</string>
 
     <string name="market_keys_note">Keys are kept only on this device.</string>
     <string name="market_key_hint">Paste it here</string>

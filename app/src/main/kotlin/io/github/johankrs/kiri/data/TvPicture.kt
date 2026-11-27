@@ -123,6 +123,9 @@ interface TvPictureSource {
     /** The permission that lets Kiri see the pictures. */
     val permission: String
 
+    /** Whether this build can ask for [permission] at all (Google Play's cannot, see [declares]). */
+    val canAsk: Boolean get() = true
+
     /** The pictures, newest first, at most [limit] of them. */
     suspend fun list(limit: Int = 400): List<Uri>
 
@@ -137,6 +140,8 @@ class MediaPictures(private val context: Context) : TvPictureSource {
 
     override fun allowed(): Boolean =
         context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED || Environment.isExternalStorageManager()
+
+    override val canAsk: Boolean get() = context.declares(permission)
 
     override suspend fun list(limit: Int): List<Uri> = withContext(Dispatchers.IO) {
         if (!allowed()) return@withContext emptyList()

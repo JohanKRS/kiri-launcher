@@ -5,36 +5,38 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Finds the price of anything on the list: each market from its own official source, or all of
- * it from a [CompleteSource] the build added, as the person chose.
+ * it from a [CompleteSource], as the person chose.
  *
  * The sources sit behind this class, so one can be swapped without touching the widget.
  * Calls block: run them off the main thread.
  *
- * [extras] makes the complete sources a build adds (none in the public code), over the same
- * connection as the official ones.
+ * [complete] lists the complete sources there are right now (none in this code: they come from
+ * other apps, see [SourceApps]). It is asked again each time, so a source app installed or
+ * removed while Kiri runs is offered or dropped at once.
  */
 class MarketRepository(
     http: HttpFetcher = UrlConnectionFetcher(),
-    extras: (HttpFetcher) -> List<CompleteSource> = { emptyList() },
+    private val complete: () -> List<CompleteSource> = { emptyList() },
 ) {
     private val brapi = BrapiSource(http)
     private val finnhub = FinnhubSource(http)
     private val alpaca = AlpacaSource(http)
     private val fx = FxSource(http)
 
-    /** The complete sources this build has, in the order they are offered. */
-    val completeSources: List<CompleteSource> = extras(http).filter { it.key != MarketSource.OFFICIAL.key }
+    /** The complete sources there are now, in the order they are offered. */
+    val completeSources: List<CompleteSource>
+        get() = complete().filter { it.key != MarketSource.OFFICIAL.key }
 
     /** Company names of US stocks, looked up once and kept while the app is alive. */
     private val usNames = ConcurrentHashMap<String, String>()
 
     /**
-     * The complete source the saved [choice] stands for, or null for the official services. No
-     * choice yet means the first complete source; one this build does not have, the official ones.
+     * The complete source the saved [choice] stands for, or null for the official services. A
+     * complete source is another app, so it is used only once the person picked it: no choice
+     * yet means the official services, and so does a source that is no longer there.
      */
     fun completeSource(choice: MarketSource): CompleteSource? = when (choice) {
-        MarketSource.OFFICIAL -> null
-        MarketSource.DEFAULT -> completeSources.firstOrNull()
+        MarketSource.OFFICIAL, MarketSource.DEFAULT -> null
         else -> completeSources.firstOrNull { it.key == choice.key }
     }
 
