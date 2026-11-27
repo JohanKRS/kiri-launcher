@@ -1,0 +1,35 @@
+O Kiri é uma tela inicial (launcher) para celular, tablet e Android TV: leve, sem anúncios e de código aberto.
+
+<b>Vidro em tudo</b>
+Pastas, menus, painéis e widgets usam o mesmo vidro, Fumê, Cristal ou Névoa, sobre o seu papel de parede, com o desfoque feito pelo próprio Kiri. As animações acompanham o dedo, sem trancos.
+
+<b>A sua tela, do seu jeito</b>
+• Grade com linhas, colunas e tamanhos ajustáveis, sempre com prévia ao vivo.
+• Nomes de apps nunca cortados: quebram em até duas linhas.
+• Pastas na tela inicial, com um painel quadrado de vidro.
+• Ícones por app: forma (círculo, cantos arredondados ou squircle), tamanho, vidro no fundo e pacotes de ícones.
+• Várias páginas, que você adiciona, tira e reorganiza.
+• Esconda apps da gaveta e da tela inicial.
+• Apps novos vão só para a gaveta e nunca bagunçam a sua tela.
+
+<b>Gaveta em tela cheia</b>
+Todos os apps em ordem, abrindo com o dedo.
+
+<b>Widgets</b>
+• Mercado: ações e moedas com gráfico, num painel que se abre a partir do widget, e um conversor de moedas.
+• Widgets de outros apps, com o visual do Kiri se você quiser.
+• Todos redimensionáveis e sempre legíveis.
+
+<b>Gestos</b>
+Deslize para abrir a gaveta ou as notificações e escolha o que cada gesto faz, como tocar duas vezes para bloquear a tela.
+
+<b>Android TV</b>
+Uma tela inicial própria para a TV: banners em grade ou em carrossel, entradas HDMI com banners prontos, widgets de relógio e de mercado, papel de parede próprio e tudo pelo controle remoto.
+
+<b>Privacidade</b>
+O Kiri não tem conta, anúncios nem análise de uso, e não coleta dados. Os preços do Mercado vêm direto dos serviços de cotações que você escolhe. O backup é um arquivo seu, salvo onde você quiser.
+
+<b>Acessibilidade</b>
+O serviço de acessibilidade do Kiri é opcional e só existe para um gesto bloquear a tela. Ele não lê nada da tela e não coleta dados. O Kiri explica isso antes e só segue se você permitir.
+
+Código aberto, licença GPL-3.0: https://github.com/JohanKRS/kiri-launcher
