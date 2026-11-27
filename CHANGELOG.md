@@ -12,11 +12,11 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 ### TV
 - Botão Home: no Android 14 o Kiri não aparecia na lista da Acessibilidade da TV depois de
   "Permitir" (visto numa TV TCL). O jeito que já resolvia isso no Android 11 agora vale para todas
-  as versões.
+  as versões (#23).
 - A tela do Botão Home não pisca mais entre "Ligado" e "O Android não iniciou o Kiri" quando o
   Android para e reinicia o serviço num instante, logo depois de ligado. Ela também pergunta ao
   próprio Android se o serviço está rodando, então não diz mais "Falta ligar o Kiri na
-  Acessibilidade" com o Home já voltando ao Kiri.
+  Acessibilidade" com o Home já voltando ao Kiri (#23).
 
 ## [0.4.0] - 2026-11-27
 
