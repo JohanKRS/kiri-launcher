@@ -47,6 +47,8 @@ data class KiriColors(
     val onAccent: Color,
     /** Stands in for the wallpaper inside previews. */
     val previewBackdrop: Color,
+    /** Whether these are the colours of the dark theme. */
+    val dark: Boolean,
 )
 
 private val LightColors = KiriColors(
@@ -61,6 +63,7 @@ private val LightColors = KiriColors(
     accent = Color(0xFF1F6F78),
     onAccent = Color(0xFFFFFFFF),
     previewBackdrop = Color(0xFF5D8185),
+    dark = false,
 )
 
 private val DarkColors = KiriColors(
@@ -75,6 +78,7 @@ private val DarkColors = KiriColors(
     accent = Color(0xFF7FC4CC),
     onAccent = Color(0xFF06262B),
     previewBackdrop = Color(0xFF2B4A52),
+    dark = true,
 )
 
 private val LocalKiriColors = staticCompositionLocalOf { LightColors }

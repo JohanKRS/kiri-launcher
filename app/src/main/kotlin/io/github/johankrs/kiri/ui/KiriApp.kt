@@ -27,6 +27,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -127,6 +128,7 @@ import io.github.johankrs.kiri.core.look.GlassBevel
 import io.github.johankrs.kiri.core.look.HomeStyle
 import io.github.johankrs.kiri.core.look.IconSettings
 import io.github.johankrs.kiri.core.look.LabelLook
+import io.github.johankrs.kiri.core.look.Theme
 import io.github.johankrs.kiri.core.look.WidgetLook
 import io.github.johankrs.kiri.core.named
 import io.github.johankrs.kiri.core.shown
@@ -937,7 +939,11 @@ fun KiriApp(
         GlassPanes.prewarm(density.density, glassTile)
     }
 
-    KiriTheme(labelLook = labelLook, glassTile = glassTile) {
+    // Light or dark, as chosen. With nothing chosen, the device's; on a TV, dark.
+    val theme = loaded.theme ?: Theme.default(tv = root == Screen.TV_HOME)
+    val dark = theme.isDark(systemDark = isSystemInDarkTheme())
+
+    KiriTheme(dark = dark, labelLook = labelLook, glassTile = glassTile) {
         val settingsOpen = current != Screen.HOME && current != Screen.DRAWER && current != Screen.TV_HOME
         // The list keeps its place between its own screens, and starts from the top the next
         // time the settings are opened.
@@ -1357,6 +1363,8 @@ fun KiriApp(
                                 lastBackupAt = backups.last?.at,
                                 scroll = settingsIndexScroll,
                                 onOpenAppIcon = { push(Screen.APP_ICON_SETTINGS) },
+                                theme = theme,
+                                onTheme = { chosen -> scope.launch { settings.setTheme(chosen) } },
                                 onOpenTvScreen = if (root == Screen.TV_HOME) { { push(Screen.TV_SCREEN_SETTINGS) } } else null,
                                 onOpenTvHomeButton = if (root == Screen.TV_HOME) { { push(Screen.TV_HOME_BUTTON) } } else null,
                                 tvHomeButtonSummary = if (root == Screen.TV_HOME) {

@@ -59,6 +59,7 @@ import io.github.johankrs.kiri.core.look.DrawerLook
 import io.github.johankrs.kiri.core.look.DrawerStyle
 import io.github.johankrs.kiri.core.look.HomeStyle
 import io.github.johankrs.kiri.core.look.MotionSettings
+import io.github.johankrs.kiri.core.look.Theme
 import io.github.johankrs.kiri.data.WallpaperReading
 import io.github.johankrs.kiri.ui.actionLabel
 import io.github.johankrs.kiri.ui.gestureLabel
@@ -106,6 +107,9 @@ fun SettingsIndexScreen(
     onOpenTvHomeButton: (() -> Unit)? = null,
     /** What the Home button opens now, for the row that leads there. */
     tvHomeButtonSummary: String? = null,
+    /** Light or dark, chosen right here; the row is left out without [onTheme]. */
+    theme: Theme = Theme.SYSTEM,
+    onTheme: ((Theme) -> Unit)? = null,
 ) {
     SettingsScaffold(title = stringResource(R.string.settings_title), onBack = onBack, focusFirst = true) {
         Column(
@@ -183,6 +187,22 @@ fun SettingsIndexScreen(
                     summary = stringResource(if (tv) R.string.settings_motion_summary_tv else R.string.settings_motion_summary),
                     onClick = onOpenMotion,
                 )
+                // These very screens are its preview: they turn light or dark at once.
+                if (onTheme != null) {
+                    val themes = Theme.entries
+                    val at = themes.indexOf(theme)
+                    StepperCard(
+                        label = stringResource(R.string.settings_theme),
+                        valueText = themeName(theme),
+                        canDecrease = true,
+                        canIncrease = true,
+                        onDecrease = { onTheme(themes[Math.floorMod(at - 1, themes.size)]) },
+                        onIncrease = { onTheme(themes[(at + 1) % themes.size]) },
+                        values = themes.map { themeName(it) },
+                        named = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             SectionTitle(stringResource(R.string.settings_section_layout))
@@ -562,6 +582,15 @@ private fun DrawerStyle.labelRes(): Int = when (this) {
     DrawerStyle.CASCADE -> R.string.motion_drawer_cascade
     DrawerStyle.FADE -> R.string.motion_fade
 }
+
+@Composable
+private fun themeName(theme: Theme): String = stringResource(
+    when (theme) {
+        Theme.SYSTEM -> R.string.theme_system
+        Theme.LIGHT -> R.string.theme_light
+        Theme.DARK -> R.string.theme_dark
+    },
+)
 
 /**
  * One of [choices], by name, stepped through with the arrows and round again at either end. The

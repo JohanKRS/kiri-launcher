@@ -9,6 +9,14 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Configurações
+- "Tema" em Configurações › Aparência: Do sistema, Claro ou Escuro. As próprias configurações
+  mudam na hora. Sem escolha, o celular segue o aparelho e a TV fica no escuro, porque quase
+  nenhuma TV tem modo escuro e muita gente assiste com a luz apagada (#16).
+- Em cada tela de configurações, os seletores dão ao valor o mesmo espaço, o do maior valor da
+  tela, e assim o menos e a seta para a esquerda de todas as linhas ficam numa coluna só, como o
+  mais e a seta para a direita (#16).
+
 ### TV
 - Botão Home: em Configurações › Botão Home (e sozinho, uma vez, quando o Kiri abre na TV pela
   primeira vez) o Kiri mostra o que o Home do controle abre e se oferece para ser a tela inicial.

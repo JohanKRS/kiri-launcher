@@ -70,6 +70,10 @@
     <string name="settings_drawer_look_summary">Tinta da gaveta, desfoque e de onde o desfoque vem</string>
     <string name="settings_motion">Animações</string>
     <string name="settings_motion_summary">Abrir apps, voltar, a gaveta e a velocidade de tudo</string>
+    <string name="settings_theme">Tema</string>
+    <string name="theme_system">Do sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
 
     <string name="motion_speed">Velocidade das animações</string>
     <string name="motion_drawer">Abrir e fechar a gaveta</string>

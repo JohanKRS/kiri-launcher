@@ -45,6 +45,7 @@ import io.github.johankrs.kiri.core.look.IconLook
 import io.github.johankrs.kiri.core.look.IconSettings
 import io.github.johankrs.kiri.core.look.LabelLook
 import io.github.johankrs.kiri.core.look.MotionSettings
+import io.github.johankrs.kiri.core.look.Theme
 import io.github.johankrs.kiri.core.look.WallpaperSetup
 import io.github.johankrs.kiri.core.look.WidgetLook
 import io.github.johankrs.kiri.core.tv.TvBanner
@@ -92,6 +93,8 @@ data class LauncherSettings(
     val hiddenApps: Set<String> = emptySet(),
     /** The TV's home screen. */
     val tv: TvSettings = TvSettings(),
+    /** Light or dark, as the person chose; null where nothing was chosen. */
+    val theme: Theme? = null,
 )
 
 /** The launcher's saved settings. Which keys exist and what they mean is decided in `core`. */
@@ -139,6 +142,7 @@ class SettingsStore private constructor(context: Context) {
                 ),
                 hiddenApps = preferences.readHiddenApps(),
                 tv = preferences.readTvSettings(),
+                theme = Theme.fromKey(preferences[strKey(Theme.KEY)]),
             )
         }
         .distinctUntilChanged()
@@ -349,6 +353,10 @@ class SettingsStore private constructor(context: Context) {
             preferences[KEY_DRAWER_OPACITY] = look.opacityPercent
             preferences[KEY_DRAWER_BLUR] = look.blurDp
         }
+    }
+
+    suspend fun setTheme(theme: Theme) {
+        store.edit { preferences -> preferences[strKey(Theme.KEY)] = theme.key }
     }
 
     suspend fun setLabelLook(look: LabelLook) {
