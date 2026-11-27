@@ -2,7 +2,7 @@
 <resources>
     <!-- The TV's home screen -->
     <string name="tv_all_apps">All apps</string>
-    <string name="tv_all_caption">OK opens. Hold OK to put it on the home screen or take it off. Hidden apps are not here.</string>
+    <string name="tv_all_caption">OK opens. Hold OK to add it to the home screen or remove it. Hidden apps are not listed.</string>
     <string name="tv_section_inputs">TV inputs</string>
     <string name="tv_section_apps">Apps</string>
     <string name="tv_kind_app">App</string>
@@ -10,12 +10,12 @@
 
     <string name="tv_menu_move">Move</string>
     <string name="tv_menu_edit">Banner and name</string>
-    <string name="tv_menu_remove">Take off the home screen</string>
-    <string name="tv_menu_add">Put on the home screen</string>
+    <string name="tv_menu_remove">Remove from home screen</string>
+    <string name="tv_menu_add">Add to home screen</string>
     <string name="tv_menu_info">Info</string>
     <string name="tv_menu_store">Store</string>
 
-    <string name="tv_toast_moving">The arrows move it, OK drops it</string>
+    <string name="tv_toast_moving">Arrows move it, OK drops it</string>
     <string name="tv_toast_dropped">Dropped</string>
     <string name="tv_toast_removed">%1$s is still in All apps</string>
     <string name="tv_toast_added">%1$s is on the home screen</string>
@@ -32,7 +32,7 @@
     <string name="tv_widget_size_medium">Medium</string>
     <string name="tv_widget_size_large">Large</string>
     <string name="tv_widget_off">Off</string>
-    <string name="tv_toast_widget_moving">Left and right carry the widget, OK drops it</string>
+    <string name="tv_toast_widget_moving">Left and right move the widget, OK drops it</string>
     <string name="tv_toast_widget_removed">%1$s is off the home screen. It comes back from the settings.</string>
     <string name="tv_editor_name">Name</string>
     <string name="tv_editor_ready">Ready-made banner</string>
@@ -43,7 +43,7 @@
     <string name="tv_editor_banner">Banner</string>
     <string name="tv_banner_own">The app\'s</string>
     <string name="tv_banner_kiri">Kiri\'s</string>
-    <string name="tv_editor_everywhere">It shows here and in All apps.</string>
+    <string name="tv_editor_everywhere">Applies here and in All apps.</string>
     <string name="tv_editor_original">Original</string>
     <string name="tv_editor_done">Done</string>
 
@@ -75,7 +75,7 @@
     <string name="tv_look_size">Banner size</string>
     <string name="tv_look_names">Names</string>
     <string name="tv_names_always">Below</string>
-    <string name="tv_names_focus">In focus</string>
+    <string name="tv_names_focus">When focused</string>
     <string name="tv_names_never">Hidden</string>
     <string name="tv_look_wallpaper">Wallpaper</string>
     <string name="tv_wallpaper_aurora">Aurora</string>
@@ -94,5 +94,5 @@
     <string name="tv_picker_allow_summary">Pictures on the TV and on USB drives</string>
     <string name="tv_picker_none">No pictures on the TV yet. Copy some to a USB drive or the TV\'s Pictures folder.</string>
     <string name="tv_picker_failed">That picture could not be read</string>
-    <string name="tv_settings_caption">Hold OK on a banner on the TV\'s home screen to move it, change its banner and name, or take it off.</string>
+    <string name="tv_settings_caption">Hold OK on a banner on the TV’s home screen to move it, change its banner and name, or remove it.</string>
 </resources>

@@ -52,6 +52,7 @@ import io.github.johankrs.kiri.widgets.market.MarketRow
 import io.github.johankrs.kiri.widgets.market.Trend
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.delay
 
 /**
@@ -254,7 +255,7 @@ private fun MarketFace(rows: List<MarketRow>?) {
     )
     val line = TextStyle(fontFamily = TvFont, fontSize = units.sp(15f), lineHeight = units.sp(19f), color = Color.White, fontFeatureSettings = "tnum")
     val shown = rows.orEmpty().take(MARKET_LINES)
-    val labels = shortLabels(shown)
+    val labels = shortLabels(shown, LocalConfiguration.current.locales[0])
     Column(verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
         BasicText(stringResource(R.string.market_title).uppercase(), maxLines = 1, style = title)
         Spacer(Modifier.height(units.dp(8f)))
@@ -293,13 +294,19 @@ private fun MarketFace(rows: List<MarketRow>?) {
 /** How many lines of stocks and currencies fit in a widget as high as the TV's are. */
 private const val MARKET_LINES = 3
 
+/** Languages that name a currency with the noun last ("US Dollar", "Britisches Pfund"). */
+private val NAME_LAST = setOf("en", "de", "nl", "sv", "da", "nb", "no")
+
 /**
- * What each line is called where room is short: a currency by the first word of its name
- * ("Dólar"), a stock by its symbol. When two currencies would read the same, both keep their code.
+ * What each line is called where room is short: a currency by the word of its name that says what
+ * it is ("Dólar" of "Dólar americano", "Dollar" of "US Dollar"), a stock by its symbol. When two
+ * currencies would read the same, both keep their code.
  */
-private fun shortLabels(rows: List<MarketRow>): List<String> {
+private fun shortLabels(rows: List<MarketRow>, locale: Locale): List<String> {
+    val last = locale.language in NAME_LAST
     val short = rows.map { row ->
-        if (row.currency != null) row.name.substringBefore(' ').ifBlank { row.symbol } else row.symbol
+        val word = if (last) row.name.substringAfterLast(' ') else row.name.substringBefore(' ')
+        if (row.currency != null) word.ifBlank { row.symbol } else row.symbol
     }
     return short.mapIndexed { i, label ->
         if (rows[i].currency != null && short.count { it == label } > 1) rows[i].symbol else label

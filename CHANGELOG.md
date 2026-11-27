@@ -31,6 +31,13 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 - As escolhas de Animações são passadas com as setas, como os outros nomes das configurações, com
   o nome em cima e as setas alinhadas de uma linha para a outra (#9).
 
+### Idiomas
+- O Kiri inteiro em inglês revisado, para quem usa o aparelho em inglês: os textos foram
+  reescritos para soar natural (configurações, menus, backup, pastas, Mercado e a TV). Em
+  português nada muda, a não ser dois avisos que citavam nomes antigos de telas.
+- No Android 13 ou mais novo dá para escolher o idioma só do Kiri, sem mudar o do aparelho:
+  Configurações › Apps › Kiri › Idioma (inglês ou português).
+
 ## [0.2.1] - 2026-11-27
 
 ### Gestos

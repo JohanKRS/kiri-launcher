@@ -15,7 +15,7 @@
     <string name="lock_disclosure_not_title">What it does not do</string>
     <string name="lock_disclosure_not">It reads nothing on the screen, does not see what you type, receives nothing from other apps, and collects or sends no data.</string>
     <string name="lock_disclosure_off_title">How to turn it off</string>
-    <string name="lock_disclosure_off">Give the gesture another action: the service leaves Android\'s list.</string>
+    <string name="lock_disclosure_off">Choose another action for the gesture: the service then leaves Android’s list.</string>
     <string name="lock_disclosure_allow">Allow</string>
     <string name="lock_disclosure_allow_summary">Opens Android\'s Accessibility, where you turn Kiri on</string>
     <string name="lock_disclosure_decline">Not now</string>
