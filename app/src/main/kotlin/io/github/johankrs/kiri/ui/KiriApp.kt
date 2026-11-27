@@ -166,6 +166,7 @@ import io.github.johankrs.kiri.ui.settings.SettingsIndexScreen
 import io.github.johankrs.kiri.ui.settings.HomeButtonStep
 import io.github.johankrs.kiri.ui.settings.LockDisclosureScreen
 import io.github.johankrs.kiri.ui.settings.TvHomeButtonScreen
+import io.github.johankrs.kiri.ui.settings.rememberServiceSeen
 import io.github.johankrs.kiri.ui.settings.TvPictureScreen
 import io.github.johankrs.kiri.ui.settings.TvScreenSettings
 import io.github.johankrs.kiri.ui.settings.TypographyScreen
@@ -253,9 +254,6 @@ private enum class Screen {
     /** What the accessibility service is for, before Android's settings open for it. */
     LOCK_DISCLOSURE,
 }
-
-/** How long Android may take to start the accessibility service once it is turned on. */
-private const val START_GRACE_MS = 1_500L
 
 private val ScreenStackSaver = Saver<List<Screen>, String>(
     save = { stack -> stack.joinToString(",") { it.name } },
@@ -1380,8 +1378,10 @@ fun KiriApp(
                                 onOpenTvHomeButton = if (root == Screen.TV_HOME) { { push(Screen.TV_HOME_BUTTON) } } else null,
                                 tvHomeButtonSummary = if (root == Screen.TV_HOME) {
                                     val home = remember(refreshTick, resumeTick) { HomeButton.state(context) }
+                                    // Asked of Android only while Kiri is to come in place of the other.
+                                    val serviceRunning = if (tvHomeButton) rememberServiceSeen(refreshTick, resumeTick).running else false
                                     when {
-                                        home.route == HomeRoute.KIRI || (tvHomeButton && KiriAccessibilityService.connected && home.other != null) ->
+                                        home.route == HomeRoute.KIRI || (serviceRunning && home.other != null) ->
                                             stringResource(R.string.tv_home_summary_kiri)
                                         tvHomeButton -> stringResource(R.string.tv_home_summary_waiting)
                                         else -> stringResource(
@@ -1442,16 +1442,11 @@ fun KiriApp(
                                     asked = true
                                     looks++
                                 }
-                                val connected = KiriAccessibilityService.connected
-                                val takenOver = tvHomeButton && connected && home.other != null
+                                val service = rememberServiceSeen(refreshTick, resumeTick)
+                                val takenOver = tvHomeButton && service.running && home.other != null
                                 // On in Android's settings, yet not started: after the moment it
                                 // takes to start, the screen says what helps.
-                                var settled by remember(refreshTick, resumeTick) { mutableStateOf(false) }
-                                LaunchedEffect(refreshTick, resumeTick) {
-                                    delay(START_GRACE_MS)
-                                    settled = true
-                                }
-                                val stuck = tvHomeButton && serviceOn && !connected && settled
+                                val stuck = tvHomeButton && serviceOn && service.stopped
                                 val step = when {
                                     home.route == HomeRoute.KIRI || takenOver -> HomeButtonStep.DONE
                                     tvHomeButton -> HomeButtonStep.WAITING
