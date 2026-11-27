@@ -43,5 +43,5 @@
     <string name="folders_dim">Escurecer atrás</string>
     <string name="folders_reset">Voltar ao padrão</string>
     <string name="folders_reset_summary">Tudo desta tela como veio</string>
-    <string name="folders_note">Para criar uma pasta, segure um app na tela inicial e solte em cima de outro. Abrir e fechar seguem a velocidade escolhida em Movimento. Uma pasta pode ter o fundo próprio: segure nela e mude o Fundo.</string>
+    <string name="folders_note">Para criar uma pasta, segure um app na tela inicial e solte em cima de outro. Abrir e fechar seguem a velocidade escolhida em Animações. Uma pasta pode ter o fundo próprio: segure nela e mude o Fundo.</string>
 </resources>

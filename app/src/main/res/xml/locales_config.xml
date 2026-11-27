@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The languages Kiri speaks, for Android's per-app language (Settings › Apps › Kiri › Language,
+    on Android 13 and newer): English, the default in values/, and Portuguese, in values-pt/.
+    A language added to res/ goes here too.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="pt-BR" />
+</locale-config>
