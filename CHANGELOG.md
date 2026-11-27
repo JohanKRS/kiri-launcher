@@ -9,6 +9,8 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+## [0.4.1] - 2026-11-27
+
 ### TV
 - Botão Home: no Android 14 o Kiri não aparecia na lista da Acessibilidade da TV depois de
   "Permitir" (visto numa TV TCL). O jeito que já resolvia isso no Android 11 agora vale para todas
@@ -22,6 +24,10 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 - No tema escuro, o item com o foco do controle ganha um contorno na cor do Kiri e um fundo mais
   claro, redondo nos botões redondos. Antes ele só clareava um pouco e, numa TV, mal dava para ver
   onde estava o foco. No tema claro o foco ganha o mesmo contorno (#21).
+
+### Google Play
+- As notas desta versão para a Play ficam em `fastlane/metadata/android/*/changelogs/401.txt`.
+  Como a 0.4.0 não chegou à Play, elas contam tudo o que mudou desde a 0.3.0 (#22).
 
 ## [0.4.0] - 2026-11-27
 
