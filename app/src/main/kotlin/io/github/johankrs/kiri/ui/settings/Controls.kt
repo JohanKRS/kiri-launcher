@@ -630,15 +630,15 @@ private fun stepperLayout(nameAbove: Boolean) = MeasurePolicy { measurables, con
             placedButtons.placeRelative(width - end - placedButtons.width, (height - placedButtons.height) / 2)
         }
     } else {
-        val side = 14.dp.roundToPx()
         val top = 10.dp.roundToPx()
         val inner = (constraints.maxWidth - 2 * end).coerceAtLeast(0)
-        val placedName = name.measure(Constraints(maxWidth = (constraints.maxWidth - 2 * side).coerceAtLeast(0)))
+        // Where the name would start beside the buttons, so it lines up with the rows around it.
+        val placedName = name.measure(Constraints(maxWidth = (constraints.maxWidth - 2 * start).coerceAtLeast(0)))
         val placedButtons = buttons.measure(Constraints(minWidth = inner, maxWidth = inner))
         val height = (top + placedName.height + placedButtons.height + end)
             .coerceIn(constraints.minHeight, constraints.maxHeight)
         layout(constraints.maxWidth, height) {
-            placedName.placeRelative(side, top)
+            placedName.placeRelative(start, top)
             // At the bottom, so in a row of blocks the buttons line up whatever the names take.
             placedButtons.placeRelative(end, height - end - placedButtons.height)
         }
