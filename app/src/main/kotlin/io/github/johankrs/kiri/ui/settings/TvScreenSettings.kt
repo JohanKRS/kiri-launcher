@@ -34,6 +34,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import io.github.johankrs.kiri.R
 import io.github.johankrs.kiri.core.look.GlassLevel
+import io.github.johankrs.kiri.core.look.LiveColor
+import io.github.johankrs.kiri.core.look.LiveMotion
 import io.github.johankrs.kiri.core.tv.TvAlign
 import io.github.johankrs.kiri.core.tv.TvArrangement
 import io.github.johankrs.kiri.core.tv.TvLook
@@ -215,6 +217,23 @@ private fun TvLookControls(
                 name = { wallpaperName(it) },
                 onPick = { change(look.copy(wallpaper = it)) },
             )
+            // A live one comes in the six colors of Kiri's icon, and can move slower or stop.
+            if (look.wallpaper.live != null) {
+                Named(
+                    label = stringResource(R.string.live_color),
+                    values = LiveColor.entries,
+                    value = look.liveColor,
+                    name = { liveColorName(it) },
+                    onPick = { change(look.copy(liveColor = it)) },
+                )
+                Named(
+                    label = stringResource(R.string.live_motion),
+                    values = LiveMotion.entries,
+                    value = look.liveMotion,
+                    name = { liveMotionName(it) },
+                    onPick = { change(look.copy(liveMotion = it)) },
+                )
+            }
             SettingsLinkRow(
                 title = stringResource(R.string.tv_wallpaper_pick),
                 summary = stringResource(R.string.tv_wallpaper_pick_summary),
@@ -246,7 +265,7 @@ private fun TvLookControls(
 
 /** A value that is a name, between ‹ and ›, going round. */
 @Composable
-private fun <T> Named(
+internal fun <T> Named(
     label: String,
     values: List<T>,
     value: T,
@@ -308,6 +327,12 @@ private fun shadowName(value: GlassLevel): String = stringResource(
 @Composable
 private fun wallpaperName(value: TvWallpaper): String = stringResource(
     when (value) {
+        TvWallpaper.LIVE_AURORA -> R.string.live_scene_aurora
+        TvWallpaper.LIVE_BRUMA -> R.string.live_scene_bruma
+        TvWallpaper.LIVE_FIOS -> R.string.live_scene_fios
+        TvWallpaper.LIVE_PASTILHAS -> R.string.live_scene_pastilhas
+        TvWallpaper.LIVE_SERRA -> R.string.live_scene_serra
+        TvWallpaper.LIVE_FLORES -> R.string.live_scene_flores
         TvWallpaper.AURORA -> R.string.tv_wallpaper_aurora
         TvWallpaper.OCEANO -> R.string.tv_wallpaper_oceano
         TvWallpaper.GRAFITE -> R.string.tv_wallpaper_grafite

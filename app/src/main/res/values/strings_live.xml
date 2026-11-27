@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Kiri's live wallpapers: six scenes that move slowly, on the TV's home screen and as the wallpaper of a phone or tablet. -->
+    <string name="live_scene_aurora">Living aurora</string>
+    <string name="live_scene_bruma">Haze</string>
+    <string name="live_scene_fios">Mist threads</string>
+    <string name="live_scene_pastilhas">Tiles of light</string>
+    <string name="live_scene_serra">Misty hills</string>
+    <string name="live_scene_flores">Kiri blossoms</string>
+
+    <string name="live_scene">Scene</string>
+    <string name="live_color">Color</string>
+    <string name="live_motion">Motion</string>
+    <string name="live_motion_still">Still</string>
+    <string name="live_motion_slow">Slow</string>
+    <string name="live_motion_normal">Normal</string>
+
+    <!-- In Android's own list of live wallpapers. -->
+    <string name="live_wallpaper_name">Kiri</string>
+    <string name="live_wallpaper_description">Soft scenes that move slowly: an aurora, haze, threads of mist, tiles of light, hills and blossoms. Choose one in Kiri\'s settings.</string>
+
+    <!-- The wallpaper settings of a phone or tablet. -->
+    <string name="wallpaper_kiri_live">Kiri\'s live wallpaper</string>
+    <string name="wallpaper_kiri_live_summary">Six scenes that move slowly, in the colors of Kiri\'s icon</string>
+    <string name="live_title">Kiri\'s live wallpaper</string>
+    <string name="live_set">Set as wallpaper</string>
+    <string name="live_on">This is your wallpaper now. Changes show on it right away.</string>
+    <string name="live_note">Android shows the wallpaper first and asks you to confirm. On some devices you can put it on the lock screen there too.</string>
+    <string name="live_failed">This device did not open its wallpaper screen.</string>
+</resources>

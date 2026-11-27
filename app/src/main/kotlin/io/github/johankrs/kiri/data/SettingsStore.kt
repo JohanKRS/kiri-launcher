@@ -44,6 +44,7 @@ import io.github.johankrs.kiri.core.look.IconGround
 import io.github.johankrs.kiri.core.look.IconLook
 import io.github.johankrs.kiri.core.look.IconSettings
 import io.github.johankrs.kiri.core.look.LabelLook
+import io.github.johankrs.kiri.core.look.LiveLook
 import io.github.johankrs.kiri.core.look.MotionSettings
 import io.github.johankrs.kiri.core.look.Theme
 import io.github.johankrs.kiri.core.look.WallpaperSetup
@@ -95,6 +96,8 @@ data class LauncherSettings(
     val tv: TvSettings = TvSettings(),
     /** Light or dark, as the person chose; null where nothing was chosen. */
     val theme: Theme? = null,
+    /** Kiri's own live wallpaper on a phone or tablet. */
+    val liveLook: LiveLook = LiveLook(),
 )
 
 /** The launcher's saved settings. Which keys exist and what they mean is decided in `core`. */
@@ -143,6 +146,7 @@ class SettingsStore private constructor(context: Context) {
                 hiddenApps = preferences.readHiddenApps(),
                 tv = preferences.readTvSettings(),
                 theme = Theme.fromKey(preferences[strKey(Theme.KEY)]),
+                liveLook = LiveLook.fromStored(preferences[KEY_LIVE_LOOK]),
             )
         }
         .distinctUntilChanged()
@@ -366,6 +370,16 @@ class SettingsStore private constructor(context: Context) {
         }
     }
 
+    /** Kiri's own live wallpaper on a phone or tablet: the scene, its color and how fast it moves. */
+    fun liveLook(): Flow<LiveLook> = store.data
+        .catch { emit(emptyPreferences()) }
+        .map { preferences -> LiveLook.fromStored(preferences[KEY_LIVE_LOOK]) }
+        .distinctUntilChanged()
+
+    suspend fun setLiveLook(look: LiveLook) {
+        store.edit { preferences -> preferences[KEY_LIVE_LOOK] = look.stored }
+    }
+
     suspend fun setWallpaperSetup(setup: WallpaperSetup) {
         store.edit { preferences -> preferences[KEY_WALLPAPER_SETUP] = setup.stored }
     }
@@ -476,6 +490,8 @@ class SettingsStore private constructor(context: Context) {
             preferences[strKey(TvLook.KEY_WALLPAPER)] = look.wallpaper.key
             preferences[intKey(TvLook.KEY_GAP)] = look.gap
             preferences[strKey(TvLook.KEY_SHADOW)] = look.shadow.key
+            preferences[strKey(TvLook.KEY_LIVE_COLOR)] = look.liveColor.key
+            preferences[strKey(TvLook.KEY_LIVE_MOTION)] = look.liveMotion.key
         }
     }
 
@@ -745,6 +761,7 @@ class SettingsStore private constructor(context: Context) {
         private val KEY_LABEL_WEIGHT = stringPreferencesKey(LabelLook.KEY_WEIGHT)
 
         private val KEY_WALLPAPER_SETUP = stringPreferencesKey(WallpaperSetup.KEY)
+        private val KEY_LIVE_LOOK = stringPreferencesKey(LiveLook.KEY)
 
         private val KEY_TV_HOME = stringPreferencesKey(TvHomeItems.KEY)
         private val KEY_TV_WIDGETS = stringPreferencesKey(TvWidgets.KEY)

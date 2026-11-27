@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kiri's live wallpaper: which scene, color and motion are chosen in Kiri's settings. -->
+<wallpaper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/live_wallpaper_description"
+    android:showMetadataInPreview="false"
+    android:thumbnail="@mipmap/ic_launcher" />

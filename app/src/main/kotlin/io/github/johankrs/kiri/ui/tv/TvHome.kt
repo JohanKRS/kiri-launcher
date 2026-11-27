@@ -567,8 +567,8 @@ fun TvHome(
             }
         }
 
-        CompositionLocalProvider(LocalTvUnits provides units) {
-            TvWallpaperArt(look.wallpaper)
+        CompositionLocalProvider(LocalTvUnits provides units, LocalTvInk provides tvInk(look)) {
+            TvBackdrop(look, running = active)
             // "All apps" covers the home screen, which fades out under it.
             val allOpen = layer == TvLayer.ALL || (layer != TvLayer.HOME && (menu?.from == TvLayer.ALL || editor?.from == TvLayer.ALL))
             val homeAway by animateFloatAsState(if (allOpen) 1f else 0f, tween(220), label = "homeAway")
@@ -945,6 +945,7 @@ private fun BannerSlot(
         if (names != TvNameShow.NEVER) {
             val shift = if (focused) (if (carousel) 12f else 6f) else 0f
             val nameShift = animateFloatAsState(shift, spring(dampingRatio = 0.6f, stiffness = 420f), label = "nameShift")
+            val ink = LocalTvInk.current
             BasicText(
                 text = item.name,
                 maxLines = 1,
@@ -955,9 +956,9 @@ private fun BannerSlot(
                     fontWeight = FontWeight(500),
                     fontSize = units.sp(if (focused && carousel) 16f else 14f),
                     lineHeight = units.sp(17f),
-                    color = Color.White,
+                    color = ink,
                     textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, units.px(1f)), units.px(4f)),
+                    shadow = if (ink == Color.White) Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, units.px(1f)), units.px(4f)) else null,
                 ),
                 modifier = Modifier
                     .width(bw)
@@ -984,6 +985,9 @@ private fun TopBar(gearFocused: Boolean) {
     }
     val scale by animateFloatAsState(if (gearFocused) 1.18f else 1f, spring(dampingRatio = 0.55f, stiffness = 420f), label = "gear")
     val lit by animateFloatAsState(if (gearFocused) 1f else 0f, tween(200), label = "gearLit")
+    val ink = LocalTvInk.current
+    // Dark writing on a pale wallpaper needs no shadow to stand out.
+    val shadow = if (ink == Color.White) Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, units.px(1f)), units.px(6f)) else null
     Box(Modifier.fillMaxSize().zIndex(5f)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -996,9 +1000,9 @@ private fun TopBar(gearFocused: Boolean) {
                 style = TextStyle(
                     fontFamily = TvFont,
                     fontSize = units.sp(20f),
-                    color = Color.White,
+                    color = ink,
                     fontFeatureSettings = "tnum",
-                    shadow = Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, units.px(1f)), units.px(6f)),
+                    shadow = shadow,
                 ),
             )
             Spacer(Modifier.width(units.dp(14f)))
@@ -1012,12 +1016,12 @@ private fun TopBar(gearFocused: Boolean) {
                     }
                     .drawBehind {
                         if (lit > 0f) {
-                            drawCircle(Color.White.copy(alpha = 0.16f * lit))
-                            drawCircle(Color.White.copy(alpha = 0.85f * lit), style = Stroke(units.px(2f)))
+                            drawCircle(ink.copy(alpha = 0.16f * lit))
+                            drawCircle(ink.copy(alpha = 0.85f * lit), style = Stroke(units.px(2f)))
                         }
                     },
             ) {
-                TvLineIcon(TvIcons.GEAR, Color.White, Modifier.size(units.dp(20f)))
+                TvLineIcon(TvIcons.GEAR, ink, Modifier.size(units.dp(20f)))
             }
         }
     }
@@ -1370,8 +1374,8 @@ fun TvHomePreview(
             TvArrange.place(shown.size, tv.look, screenH, 0, 0f, withWidgets = widgets.isNotEmpty())
         }
         val widgetBoxes = remember(widgets, tv.look) { TvArrange.widgets(widgets.map { it.width }, tv.look.align, tv.look.arrangement) }
-        CompositionLocalProvider(LocalTvUnits provides units) {
-            TvWallpaperArt(tv.look.wallpaper)
+        CompositionLocalProvider(LocalTvUnits provides units, LocalTvInk provides tvInk(tv.look)) {
+            TvBackdrop(tv.look, running = false, small = true)
             TvBanners(shown, placement, tv.look, focusIndex = 0, moving = null, repository = repository)
             TvWidgetsBand(widgets, widgetBoxes, focused = null, moving = null, marketRows = marketRows, shadow = tv.look.shadowAmount)
             TopBar(gearFocused = false)

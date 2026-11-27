@@ -24,11 +24,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntSize
+import io.github.johankrs.kiri.KiriLiveWallpaper
 import io.github.johankrs.kiri.core.look.BoxBlur
+import io.github.johankrs.kiri.ui.live.LIVE_TRAVEL
+import io.github.johankrs.kiri.ui.live.LiveClock
+import io.github.johankrs.kiri.ui.live.LivePainter
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -54,8 +59,8 @@ enum class WallpaperReading {
  *
  * A wallpaper made in Kiri needs nothing: Kiri kept its own copy of it (see [WallpaperStudio]).
  * Any other one Android only hands to an app that was given access to all files, so that is
- * asked of the person once. A live wallpaper cannot be read at all: only the device itself can
- * blur that one.
+ * asked of the person once. A live wallpaper cannot be read at all, and only the device itself
+ * can blur one, except Kiri's own: Kiri knows what it draws.
  *
  * There is one for the whole app, so what it knows survives the screen being rebuilt.
  */
@@ -154,8 +159,15 @@ class WallpaperSource private constructor(private val appContext: Context) {
         var found: WallpaperReading = WallpaperReading.UNREADABLE
         val picture = withContext(Dispatchers.Default) {
             lock.withLock {
-                val live = runCatching { manager.wallpaperInfo }.getOrNull() != null
-                val sharp = if (live) null else currentCopy(screen)
+                val info = runCatching { manager.wallpaperInfo }.getOrNull()
+                // Kiri's own live wallpaper is known: a still picture of it serves the glass.
+                val ours = info != null && info.component == KiriLiveWallpaper.component(appContext)
+                val live = info != null && !ours
+                val sharp = when {
+                    live -> null
+                    ours -> liveCopy(screen)
+                    else -> currentCopy(screen)
+                }
                 found = when {
                     live -> WallpaperReading.ANIMATED
                     sharp != null -> WallpaperReading.READY
@@ -206,6 +218,30 @@ class WallpaperSource private constructor(private val appContext: Context) {
             lastOffsetToken = token
         }
         return along
+    }
+
+    /**
+     * A still picture of Kiri's own live wallpaper, half the size of the screen and as much
+     * wider as the wallpaper is, to follow the pages. Made again only when its look changed.
+     */
+    private suspend fun liveCopy(screen: IntSize): Bitmap? {
+        val look = runCatching { SettingsStore.of(appContext).liveLook().first() }.getOrNull() ?: return null
+        val key = "live/${look.stored}/$changes/${screen.width}x${screen.height}"
+        if (key != copyKey || copy == null) {
+            val height = (screen.height / COPY_SHRINK).coerceAtLeast(1)
+            val width = ((screen.width / COPY_SHRINK) * (1f + LIVE_TRAVEL)).roundToInt().coerceAtLeast(1)
+            val made = runCatching {
+                Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmap ->
+                    val painter = LivePainter()
+                    painter.draw(Canvas(bitmap), width, height, LiveClock.seconds, look.scene, look.color)
+                    painter.release()
+                }
+            }.getOrNull()
+            copy?.recycle()
+            copy = made
+            copyKey = key
+        }
+        return copy
     }
 
     /** The copy for this wallpaper and screen, read again only when one of them changed. */
