@@ -1,0 +1,5 @@
+• Toque duplo para bloquear a tela, com um aviso claro antes de ligar a acessibilidade.
+• O Kiri inteiro em inglês revisado, e idioma só do Kiri no Android 13 ou mais novo.
+• Novas animações: a gaveta se revela a partir do dedo ou chega em cascata, e a tela inicial sai e volta em voo, em onda, com foco ou esmaecendo.
+• A borda de cima da gaveta abre num degradê suave.
+• App que troca o próprio ícone continua no mesmo lugar da tela inicial.

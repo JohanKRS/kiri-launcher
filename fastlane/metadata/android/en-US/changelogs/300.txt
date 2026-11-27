@@ -1,0 +1,5 @@
+• Double tap to lock the screen, with a clear notice before you turn on accessibility.
+• Kiri fully in revised English, and a Kiri-only language setting on Android 13 and newer.
+• New animations: the drawer can reveal from your finger or arrive in a cascade, and the home screen can leave and return with fly-back, wave, focus or fade.
+• The top edge of the drawer opens in a soft gradient.
+• Apps that change their own icon stay in place on the home screen.

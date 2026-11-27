@@ -9,6 +9,8 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+## [0.3.0] - 2026-11-27
+
 ### Tela inicial
 - Um app que troca o próprio ícone por dentro (os que oferecem vários ícones para escolher)
   continua no mesmo lugar da tela inicial ou da pasta, com o nome, o ícone e o fundo que você
@@ -18,7 +20,9 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ### Google Play
 - A ficha da loja fica no repositório, em `fastlane/metadata/android/pt-BR/`: nome, descrições,
-  ícone, imagem de destaque, banner da TV e capturas do celular e da TV, e a ficha inteira também em inglês, em `en-US/` (#12).
+  ícone, imagem de destaque, banner da TV e capturas do celular e da TV. A ficha inteira também
+  existe em inglês, em `en-US/`, e as notas desta versão para a Play ficam em `changelogs/300.txt`
+  nos dois idiomas (#12).
 
 ### Gaveta
 - Abrindo ou fechando a gaveta, a borda de cima da folha não é mais uma linha reta: o vidro
