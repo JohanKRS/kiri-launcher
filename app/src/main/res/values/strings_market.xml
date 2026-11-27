@@ -18,10 +18,10 @@
     <string name="market_extended_pre_long">Pre-market</string>
     <string name="market_extended_post_long">After hours</string>
 
-    <string name="market_preview_size">Size to try</string>
+    <string name="market_preview_size">Preview size</string>
     <string name="market_preview_width">Width (cells)</string>
     <string name="market_preview_height">Height (cells)</string>
-    <string name="market_preview_note">The widget adapts to any size: it shows more or less, and the text never shrinks. Tap a stock to see its details or a currency to open the converter. To refresh right away, tap the arrows at the top of either one, or the title of the widget when it is there.</string>
+    <string name="market_preview_note">The widget adapts to any size: it shows more or less, and the text never shrinks. Tap a stock to see its details or a currency to open the converter. To refresh right away, tap the arrows at the top of either one, or the widget’s title when it is shown.</string>
 
     <string name="market_section_glass">Glass</string>
     <string name="market_glass_fume">Smoked</string>
@@ -50,12 +50,12 @@
     <string name="market_add_hint_us" translatable="false">AAPL</string>
     <string name="market_add_hint_fx" translatable="false">EUR</string>
     <string name="market_add">Add</string>
-    <string name="market_add_invalid">This does not look like a code of this kind.</string>
+    <string name="market_add_invalid">This does not look like a code of this type.</string>
 
     <string name="market_section_source">Where prices come from</string>
     <string name="market_source_official">Official services</string>
     <string name="market_source_official_note">One official free service for each market, each with its own key: brapi for Brazil, Alpaca and Finnhub for the US, AwesomeAPI and Frankfurter for currencies.</string>
-    <string name="market_source_app_note">It comes from the app %1$s, installed apart: Kiri only asks it for prices.</string>
+    <string name="market_source_app_note">Prices come from %1$s, an app installed separately: Kiri only asks it for prices.</string>
 
     <string name="market_keys_note">Keys are kept only on this device.</string>
     <string name="market_key_hint">Paste it here</string>
@@ -95,7 +95,7 @@
     <string name="market_keys_open">Open %1$s</string>
     <string name="market_keys_copy_token">Copy the token</string>
     <string name="market_keys_copy_key">Copy the key</string>
-    <string name="market_keys_make_key">Make the key</string>
+    <string name="market_keys_make_key">Create the key</string>
     <string name="market_keys_paste_here">Paste it here</string>
     <string name="market_keys_paste">Paste</string>
     <string name="market_keys_token">Token</string>
@@ -103,7 +103,7 @@
     <string name="market_keys_copied_hint">You copied something just now. Tap Paste.</string>
     <string name="market_keys_testing">Trying the key…</string>
     <string name="market_keys_testing_on">Asking for the price of %1$s</string>
-    <string name="market_keys_works">Working</string>
+    <string name="market_keys_works">It works</string>
     <string name="market_keys_works_sample">%1$s now: %2$s</string>
     <string name="market_keys_refused">%1$s refused this key</string>
     <string name="market_keys_refused_text">Check that you copied the whole key, with no space at the end, and paste it again. Nothing was saved.</string>
@@ -131,22 +131,22 @@
     <string name="market_keys_alpaca_row">US stocks · Alpaca</string>
     <string name="market_keys_alpaca_without">No key · price, pre-market and after hours, and charts</string>
     <string name="market_keys_alpaca_intro">US stocks: price, pre-market and after hours, and charts of every range. Free; prices arrive 15 minutes late.</string>
-    <string name="market_keys_alpaca_create">Free, with e-mail. No deposit and no real brokerage account needed: the paper trading account is enough.</string>
+    <string name="market_keys_alpaca_create">Free, with email. No deposit and no real brokerage account needed: the paper trading account is enough.</string>
     <string name="market_keys_alpaca_copy">In the dashboard, under API Keys, tap Generate New Keys. Two parts appear, Key and Secret: copy one at a time. The Secret is shown only once.</string>
 
     <string name="market_keys_finnhub" translatable="false">Finnhub</string>
     <string name="market_keys_finnhub_site" translatable="false">finnhub.io</string>
     <string name="market_keys_finnhub_row">US stocks with no delay · Finnhub</string>
-    <string name="market_keys_finnhub_without">Optional · price on the spot and company names</string>
+    <string name="market_keys_finnhub_without">Optional · real-time prices and company names</string>
     <string name="market_keys_finnhub_intro">US stocks during regular hours, with no delay, and the names of the companies. No charts on the free plan: those come from Alpaca.</string>
-    <string name="market_keys_finnhub_create">Free, with e-mail.</string>
+    <string name="market_keys_finnhub_create">Free, with email.</string>
     <string name="market_keys_finnhub_copy">The key is on the dashboard right after signing up.</string>
 
     <string name="market_keys_awesome" translatable="false">AwesomeAPI</string>
     <string name="market_keys_awesome_site" translatable="false">awesomeapi.com.br</string>
     <string name="market_keys_awesome_row">Currencies · AwesomeAPI</string>
     <string name="market_keys_awesome_without">Works without a key · with it, the chart shows the last hours</string>
-    <string name="market_keys_awesome_intro">Currencies in reais work without any key: the price of the moment and charts of the last days, from AwesomeAPI and Frankfurter. With the AwesomeAPI key the chart also shows the last hours and the last 24 hours.</string>
-    <string name="market_keys_awesome_create">Free, up to 100 thousand requests a month.</string>
+    <string name="market_keys_awesome_intro">Currencies in reais work without any key: the current price and charts of the last few days, from AwesomeAPI and Frankfurter. With the AwesomeAPI key the chart also shows the last few hours and the last 24 hours.</string>
+    <string name="market_keys_awesome_create">Free, up to 100,000 requests a month.</string>
     <string name="market_keys_awesome_copy">In your account, open API Keys and copy the key.</string>
 </resources>

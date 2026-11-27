@@ -134,7 +134,7 @@
     <string name="icons_glass_style">Vidro</string>
     <string name="icons_border">Relevo</string>
     <string name="icons_art">Tamanho do desenho no vidro</string>
-    <string name="icons_note">Para mudar o tamanho ou o fundo de um app só, segure o app e escolha “Ajustar ícone”.</string>
+    <string name="icons_note">Para mudar o tamanho ou o fundo de um app só, segure o app e escolha “Editar ícone e nome”.</string>
     <string name="icon_picker_art">Zoom do desenho</string>
     <string name="icon_picker_art_default">Padrão</string>
     <string name="icon_picker_art_reset">Voltar ao zoom padrão</string>

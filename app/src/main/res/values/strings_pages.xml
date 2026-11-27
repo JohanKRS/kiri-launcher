@@ -9,10 +9,10 @@
     <string name="pages_page">Page %1$d</string>
     <string name="pages_is_main">Page %1$d is the start page</string>
     <string name="pages_make_main">Make page %1$d the start page</string>
-    <string name="pages_remove">Take page %1$d away</string>
-    <string name="pages_ask">Take this page away?</string>
+    <string name="pages_remove">Remove page %1$d</string>
+    <string name="pages_ask">Remove this page?</string>
     <string name="pages_ask_note">The apps stay in the drawer.</string>
-    <string name="pages_ask_yes">Take away</string>
+    <string name="pages_ask_yes">Remove</string>
     <string name="pages_ask_no">Keep</string>
     <string name="action_open_pages">Show the pages</string>
 </resources>
