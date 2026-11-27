@@ -9,6 +9,14 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### TV
+- As sombras dos banners e dos widgets da tela inicial ficaram mais leves e sem faixas. Elas eram
+  feitas de cinco camadas empilhadas, e cada degrau aparecia como uma linha, ainda mais numa TV
+  grande. Agora cada uma é uma sombra só, desfocada pela placa de vídeo, que some aos poucos; e é
+  desenhada uma vez por banner, não cinco (#24).
+- O ícone das entradas HDMI agora é a porta HDMI, mais larga em cima e com a lingueta dentro.
+  Antes ele tinha "perninhas" e parecia uma mesa (#24).
+
 ## [0.4.1] - 2026-11-27
 
 ### TV
