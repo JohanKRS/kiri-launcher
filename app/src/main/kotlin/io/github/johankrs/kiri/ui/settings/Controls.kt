@@ -429,8 +429,8 @@ fun SettingsScaffold(
     // The steppers of this screen give their values the same room (see StepperCard).
     val stepRooms = remember { StepRooms() }
     // A shade that shows on either theme where a row or a button is pressed or has the focus.
-    val dark = KiriTheme.colors.dark
-    val shade = remember(dark) { ShadeIndication.of(dark) }
+    val colors = KiriTheme.colors
+    val shade = remember(colors) { ShadeIndication.of(colors) }
     CompositionLocalProvider(LocalStepRooms provides stepRooms, LocalIndication provides shade) {
         ScaffoldColumn(title, onBack, focusFirst, content)
     }

@@ -18,6 +18,11 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   próprio Android se o serviço está rodando, então não diz mais "Falta ligar o Kiri na
   Acessibilidade" com o Home já voltando ao Kiri (#23).
 
+### Configurações
+- No tema escuro, o item com o foco do controle ganha um contorno na cor do Kiri e um fundo mais
+  claro, redondo nos botões redondos. Antes ele só clareava um pouco e, numa TV, mal dava para ver
+  onde estava o foco. No tema claro o foco ganha o mesmo contorno (#21).
+
 ## [0.4.0] - 2026-11-27
 
 ### Papéis de parede animados
