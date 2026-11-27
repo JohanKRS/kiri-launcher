@@ -1,14 +1,15 @@
 package io.github.johankrs.kiri
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import androidx.compose.runtime.getValue
@@ -59,6 +60,7 @@ class KiriAccessibilityService : AccessibilityService() {
     private var lastReturn: Long? = null
 
     override fun onServiceConnected() {
+        Log.i(TAG, "connected")
         running = this
         connected = true
         if (isTelevision()) {
@@ -91,6 +93,11 @@ class KiriAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val other = watched ?: return
+        // Events come only to a service Android runs: whatever was missed of its start, it runs.
+        if (running !== this) {
+            running = this
+            connected = true
+        }
         if (event == null || event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         if (!other.isShowing(event.packageName?.toString(), event.className?.toString())) return
         val now = SystemClock.uptimeMillis()
@@ -107,11 +114,13 @@ class KiriAccessibilityService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onUnbind(intent: Intent?): Boolean {
+        Log.i(TAG, "unbound")
         forget()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
+        Log.i(TAG, "destroyed")
         forget()
         scope.cancel()
         super.onDestroy()
@@ -129,12 +138,30 @@ class KiriAccessibilityService : AccessibilityService() {
         private var running: KiriAccessibilityService? = null
 
         /**
-         * Whether Android has the service running now, for screens to follow. Turned on in
-         * Android's settings is not enough: Android 11 can keep a service on that it no longer
-         * starts (it counts it as crashed) until it is turned off and on again there.
+         * Whether this copy of Kiri has the service running now, for screens to follow (with
+         * [isRunning], which asks Android). Turned on in Android's settings is not enough:
+         * Android 11 can keep a service on that it no longer starts (it counts it as crashed)
+         * until it is turned off and on again there.
          */
         var connected by mutableStateOf(false)
             private set
+
+        /**
+         * Whether Android runs the service now, as its own accessibility settings count it (a
+         * service Android counts as crashed is not running), or Kiri saw it start. Asks Android,
+         * so not on the main thread in a loop.
+         */
+        fun isRunning(context: Context): Boolean {
+            if (connected) return true
+            val manager = context.getSystemService(AccessibilityManager::class.java) ?: return false
+            val me = ComponentName(context, KiriAccessibilityService::class.java)
+            return runCatching {
+                manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK).any {
+                    val info = it.resolveInfo?.serviceInfo
+                    info != null && ComponentName(info.packageName, info.name) == me
+                }
+            }.getOrDefault(false)
+        }
 
         /**
          * Whether this build has the service at all. Google Play's build does not (see
@@ -178,19 +205,22 @@ class KiriAccessibilityService : AccessibilityService() {
                     // 11 would not start it again once offered anew.
                     if (!wanted) running?.disableSelf()
                     pm.setComponentEnabledSetting(me, state, PackageManager.DONT_KILL_APP)
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) tellAndroid11(context)
+                    Log.i(TAG, if (wanted) "offered" else "taken away")
+                    tellAccessibilitySettings(context)
                 }
             }
         }
 
         /**
-         * Makes Android 11 look at Kiri's services again. Up to Android 11 the accessibility
-         * settings only look again when a whole app changes, not one of its parts: a service
-         * just turned on stays out of the list (seen on a Hisense TV, Android 11). Kiri switches
-         * between the two ways of being enabled that mean the same (on by default, on by choice),
-         * which Android tells as a change of the whole app, without stopping it.
+         * Makes Android's accessibility settings look at Kiri's services again. They look again
+         * when a whole app changes, but on many devices not when one of its parts does: a service
+         * just turned on stays out of the list (seen on a Hisense TV with Android 11 and a TCL TV
+         * with Android 14). Kiri switches between the two ways of being enabled that mean the
+         * same (on by default, on by choice), which Android tells as a change of the whole app,
+         * without stopping it. Done only as the service is offered or taken away, so never while
+         * it runs and is wanted.
          */
-        private fun tellAndroid11(context: Context) {
+        private fun tellAccessibilitySettings(context: Context) {
             val pm = context.packageManager
             val now = pm.getApplicationEnabledSetting(context.packageName)
             val next = if (now == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
@@ -256,6 +286,8 @@ class KiriAccessibilityService : AccessibilityService() {
             context.openFirstReal(ways)
         }
 
+        /** For `adb logcat -s KiriA11y`: when Android starts and stops the service, and why Kiri asked. */
+        private const val TAG = "KiriA11y"
         private const val DETAILS_SETTINGS = "android.settings.ACCESSIBILITY_DETAILS_SETTINGS"
         private const val TV_SETTINGS = "android.settings.ACCESSIBILITY_TV_OEM_LINK"
         private const val FRAGMENT_ARGS_KEY = ":settings:fragment_args_key"
