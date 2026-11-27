@@ -13,8 +13,9 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 - Seis papéis de parede animados que o próprio Kiri desenha: Aurora viva, Bruma, Fios de névoa,
   Pastilhas de luz, Serra na névoa e Flores de kiri. Cada um vem nas seis cores do ícone do Kiri
   e com movimento Normal, Lento ou Parado. Não são vídeo nem imagem: cada cena é desenhada pequena,
-  separada do resto da tela inicial, e a tela estica. Por isso pesam pouco até numa TV fraca, e
-  param de desenhar quando não estão à vista (#18).
+  separada do resto da tela inicial, e a tela estica. Como se mexem devagar, desenham no máximo 30
+  quadros por segundo, mesmo numa tela de 120 Hz. Por isso pesam pouco até numa TV fraca, e param
+  de desenhar quando não estão à vista (#18).
 - Na TV, a Aurora viva é o novo fundo padrão da tela inicial. Quem estava com a Aurora de antes, que
   era o padrão, passa para a viva; a de antes continua na lista como "Aurora parada", e os outros
   fundos escolhidos ficam como estão. Em Tela da TV aparecem Cor e Movimento quando o fundo é

@@ -87,6 +87,13 @@ data class LiveLook(
         /** The live wallpaper of a phone or tablet. The TV keeps its own in [io.github.johankrs.kiri.core.tv.TvLook]. */
         const val KEY = "wallpaper.live"
 
+        /**
+         * How many times a second a live wallpaper is drawn at most. The scenes move slowly (a
+         * flower falls a pixel or so between two of these), so more would only cost: a screen
+         * at 120 Hz would draw each scene four times as often for nothing anyone sees.
+         */
+        const val FRAMES_PER_SECOND = 30
+
         fun fromStored(text: String?): LiveLook {
             val parts = text?.split(',') ?: return LiveLook()
             val default = LiveLook()

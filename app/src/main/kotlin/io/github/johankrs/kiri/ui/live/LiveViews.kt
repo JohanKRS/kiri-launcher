@@ -100,8 +100,14 @@ fun LiveCanvas(look: LiveLook, modifier: Modifier = Modifier) {
         var last = 0L
         while (true) {
             withFrameNanos { nanos ->
-                if (last != 0L) time += min(0.1, (nanos - last) / 1e9) * look.motion.speed
-                last = nanos
+                // As often as the wallpaper itself moves on, and no more: the frames between
+                // change nothing, so nothing is drawn in them.
+                if (last == 0L) {
+                    last = nanos
+                } else if (nanos - last >= LIVE_FRAME_NANOS - LIVE_FRAME_SLACK_NANOS) {
+                    time += min(0.1, (nanos - last) / 1e9) * look.motion.speed
+                    last = nanos
+                }
             }
         }
     }
