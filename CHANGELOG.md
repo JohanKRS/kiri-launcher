@@ -34,9 +34,9 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 ### Idiomas
 - O Kiri inteiro em inglês revisado, para quem usa o aparelho em inglês: os textos foram
   reescritos para soar natural (configurações, menus, backup, pastas, Mercado e a TV). Em
-  português nada muda, a não ser dois avisos que citavam nomes antigos de telas.
+  português nada muda, a não ser dois avisos que citavam nomes antigos de telas (#13).
 - No Android 13 ou mais novo dá para escolher o idioma só do Kiri, sem mudar o do aparelho:
-  Configurações › Apps › Kiri › Idioma (inglês ou português).
+  Configurações › Apps › Kiri › Idioma (inglês ou português) (#13).
 
 ## [0.2.1] - 2026-11-27
 
