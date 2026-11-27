@@ -44,11 +44,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -87,6 +85,7 @@ import io.github.johankrs.kiri.core.tv.TvPlacement
 import io.github.johankrs.kiri.core.tv.TvSettings
 import io.github.johankrs.kiri.core.tv.TvWidget
 import io.github.johankrs.kiri.core.tv.TvWidgetKind
+import io.github.johankrs.kiri.core.tv.TvWallpaper
 import io.github.johankrs.kiri.core.tv.TvWidgets
 import io.github.johankrs.kiri.data.AppRepository
 import io.github.johankrs.kiri.data.TvInput
@@ -577,7 +576,10 @@ fun TvHome(
         }
 
         CompositionLocalProvider(LocalTvUnits provides units, LocalTvInk provides tvInk(look)) {
-            TvBackdrop(look, running = active)
+            TvWindow(showsSystem = look.wallpaper == TvWallpaper.SYSTEM || TvProbe.off("window"))
+            if (!TvProbe.off("wall")) {
+                TvBackdrop(if (TvProbe.off("still") && look.live != null) look.copy(wallpaper = TvWallpaper.AURORA) else look, running = active)
+            }
             // "All apps" covers the home screen, which fades out under it.
             val allOpen = layer == TvLayer.ALL || (layer != TvLayer.HOME && (menu?.from == TvLayer.ALL || editor?.from == TvLayer.ALL))
             val homeAway by animateFloatAsState(if (allOpen) 1f else 0f, tween(220), label = "homeAway")
@@ -592,7 +594,7 @@ fun TvHome(
                         moving = moving,
                         repository = repository,
                     )
-                    TvWidgetsBand(
+                    if (!TvProbe.off("widgets")) TvWidgetsBand(
                         widgets = widgets.list,
                         boxes = widgetBoxes,
                         focused = widgetFocus.takeIf { homeFocus },
@@ -600,7 +602,7 @@ fun TvHome(
                         marketRows = marketRows,
                         shadow = look.shadowAmount,
                     )
-                    TopBar(gearFocused = onGear && layer == TvLayer.HOME)
+                    if (!TvProbe.off("topbar")) TopBar(gearFocused = onGear && layer == TvLayer.HOME)
                 }
             }
 
@@ -890,7 +892,11 @@ private fun BannerSlot(
         Modifier
             .offset { IntOffset(units.px(x.value).roundToInt(), units.px(y.value).roundToInt()) }
             .zIndex(if (focused || moving) 3f else 1f)
-            .graphicsLayer { alpha = seen.value },
+            .graphicsLayer {
+                alpha = seen.value
+                // Fading, each part fades by itself: they do not overlap, and nothing is drawn twice.
+                compositingStrategy = CompositingStrategy.ModulateAlpha
+            },
     ) {
         Box(
             Modifier
@@ -903,14 +909,25 @@ private fun BannerSlot(
                 }
                 .drawWithCache {
                     val corner = size.width * (12f / 148f)
-                    val face = Path().apply { addRoundRect(RoundRect(0f, 0f, size.width, size.height, CornerRadius(corner))) }
                     // A close shadow, and a wider one that comes in with the focus, as if lifted.
-                    val near = if (shadow > 0f) SoftShadow(units.px(BANNER_SHADOW_BLUR)) else null
-                    val far = if (shadow > 0f) SoftShadow(units.px(BANNER_LIFT_BLUR)) else null
+                    // Only around the banner (hollow): glass banners would show it under them.
+                    val shows = shadow > 0f && !TvProbe.off("shadow")
+                    val gpu = TvProbe.off("gpublur")
+                    val near = if (shows) SoftShadow(units.px(BANNER_SHADOW_BLUR), hollow = true) else null
+                    val far = if (shows) SoftShadow(units.px(BANNER_LIFT_BLUR), hollow = true) else null
+                    val gpuNear = GpuSoftShadow(units.px(BANNER_SHADOW_BLUR))
+                    val gpuFar = GpuSoftShadow(units.px(BANNER_LIFT_BLUR))
+                    val face = androidx.compose.ui.graphics.Path().apply {
+                        addRoundRect(androidx.compose.ui.geometry.RoundRect(0f, 0f, size.width, size.height, CornerRadius(corner)))
+                    }
                     onDrawBehind {
                         val r = ring.value
-                        // Only around the banner: glass banners would show it under them.
-                        if (near != null && far != null) clipPath(face, ClipOp.Difference) {
+                        if (near != null && far != null && gpu) {
+                            clipPath(face, androidx.compose.ui.graphics.ClipOp.Difference) {
+                                gpuNear.draw(this, BANNER_SHADOW * shadow, units.px(BANNER_SHADOW_DROP), corner)
+                                if (r > 0f) gpuFar.draw(this, BANNER_LIFT_SHADOW * shadow * r, units.px(BANNER_LIFT_DROP), corner)
+                            }
+                        } else if (near != null && far != null) {
                             near.draw(this, BANNER_SHADOW * shadow, units.px(BANNER_SHADOW_DROP), corner)
                             if (r > 0f) far.draw(this, BANNER_LIFT_SHADOW * shadow * r, units.px(BANNER_LIFT_DROP), corner)
                         }
@@ -927,7 +944,13 @@ private fun BannerSlot(
                     }
                 },
         ) {
-            TvBannerFace(item.art, bw, repository)
+            // Still, the banner is drawn once and kept (see [kept]); lifted, it is drawn as large
+            // as it is shown, so the one with the focus stays sharp.
+            if (TvProbe.off("faces")) {
+                Box(Modifier.size(bw, units.dp(bh)).background(Color(0xFF2B5566)))
+            } else {
+                TvBannerFace(item.art, bw, repository, modifier = Modifier.kept(!focused && !moving))
+            }
         }
         if (moving) {
             BasicText(
@@ -945,7 +968,7 @@ private fun BannerSlot(
                     .offset(y = units.dp(-30f)),
             )
         }
-        if (names != TvNameShow.NEVER) {
+        if (names != TvNameShow.NEVER && !TvProbe.off("names")) {
             val shift = if (focused) (if (carousel) 12f else 6f) else 0f
             val nameShift = animateFloatAsState(shift, spring(dampingRatio = 0.6f, stiffness = 420f), label = "nameShift")
             val ink = LocalTvInk.current
@@ -961,7 +984,7 @@ private fun BannerSlot(
                     lineHeight = units.sp(17f),
                     color = ink,
                     textAlign = TextAlign.Center,
-                    shadow = if (ink == Color.White) Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, units.px(1f)), units.px(4f)) else null,
+                    shadow = if (ink == Color.White && !TvProbe.off("textshadow")) Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, units.px(1f)), units.px(4f)) else null,
                 ),
                 modifier = Modifier
                     .width(bw)
@@ -990,7 +1013,7 @@ private fun TopBar(gearFocused: Boolean) {
     val lit by animateFloatAsState(if (gearFocused) 1f else 0f, tween(200), label = "gearLit")
     val ink = LocalTvInk.current
     // Dark writing on a pale wallpaper needs no shadow to stand out.
-    val shadow = if (ink == Color.White) Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, units.px(1f)), units.px(6f)) else null
+    val shadow = if (ink == Color.White && !TvProbe.off("textshadow")) Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, units.px(1f)), units.px(6f)) else null
     Box(Modifier.fillMaxSize().zIndex(5f)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -1314,7 +1337,7 @@ private fun AllTile(item: TvShown, tile: TvBox, focused: Boolean, onHome: Boolea
             units.dp(bannerW),
             repository,
             corner = units.dp(9f),
-            modifier = Modifier.offset(units.dp(pad), units.dp(pad)),
+            modifier = Modifier.offset(units.dp(pad), units.dp(pad)).kept(!focused),
         )
         BasicText(
             item.name,
