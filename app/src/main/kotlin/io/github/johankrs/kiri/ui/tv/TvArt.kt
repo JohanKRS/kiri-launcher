@@ -75,8 +75,11 @@ import io.github.johankrs.kiri.core.tv.ConsoleStyle
 import io.github.johankrs.kiri.core.tv.TvColor
 import io.github.johankrs.kiri.core.tv.TvConsoles
 import io.github.johankrs.kiri.core.tv.TvGlyph
+import io.github.johankrs.kiri.core.tv.TvLook
 import io.github.johankrs.kiri.data.AppRepository
 import io.github.johankrs.kiri.data.TvPicture
+import io.github.johankrs.kiri.ui.live.LiveCanvas
+import io.github.johankrs.kiri.ui.live.LiveSurface
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
@@ -744,6 +747,45 @@ internal fun DrawScope.ellipseGlow(cx: Float, cy: Float, rx: Float, ry: Float, c
 // ---------- wallpapers ----------
 
 /**
+ * The color of what is written straight on the TV's wallpaper (the clock at the top, the gear,
+ * the names under the banners): white, and dark over a pale live wallpaper.
+ */
+internal val LocalTvInk = staticCompositionLocalOf { Color.White }
+
+/** The ink for [look]'s wallpaper. */
+internal fun tvInk(look: TvLook): Color = if (look.live?.color?.light == true) Color(0xFF1E1833) else Color.White
+
+/**
+ * What is behind the TV's home screen. A live wallpaper is drawn on a surface of its own while
+ * the home screen is [running] (see [LiveSurface]), or in place for a [small] preview; a still
+ * one as before. A light shade over it keeps what is written on it readable.
+ */
+@Composable
+internal fun TvBackdrop(look: TvLook, running: Boolean, small: Boolean = false) {
+    val live = look.live
+    if (live == null) {
+        TvWallpaperArt(look.wallpaper)
+        return
+    }
+    if (small) LiveCanvas(live) else LiveSurface(live, running)
+    Box(
+        Modifier
+            .fillMaxSize()
+            .drawWithCache {
+                // Over a pale one, the shade is lighter: the writing on it turns dark instead.
+                val k = if (live.color.light) 0.3f else 1f
+                val shade = Brush.verticalGradient(
+                    0f to Color(0x47040A0E).copy(alpha = 0.28f * k),
+                    0.26f to Color(0x00040A0E),
+                    0.7f to Color(0x00040A0E),
+                    1f to Color(0x59040A0E).copy(alpha = 0.35f * k),
+                )
+                onDrawBehind { drawRect(shade) }
+            },
+    )
+}
+
+/**
  * The wallpapers Kiri draws for the TV, or the picture the person chose, and the light shade
  * over them that keeps text readable.
  */
@@ -792,6 +834,14 @@ internal fun TvWallpaperArt(wallpaper: io.github.johankrs.kiri.core.tv.TvWallpap
                         }
                         // The TV's own shows through the window; a TV without one is black.
                         io.github.johankrs.kiri.core.tv.TvWallpaper.SYSTEM -> Unit
+                        // Drawn by TvBackdrop on a surface of their own.
+                        io.github.johankrs.kiri.core.tv.TvWallpaper.LIVE_AURORA,
+                        io.github.johankrs.kiri.core.tv.TvWallpaper.LIVE_BRUMA,
+                        io.github.johankrs.kiri.core.tv.TvWallpaper.LIVE_FIOS,
+                        io.github.johankrs.kiri.core.tv.TvWallpaper.LIVE_PASTILHAS,
+                        io.github.johankrs.kiri.core.tv.TvWallpaper.LIVE_SERRA,
+                        io.github.johankrs.kiri.core.tv.TvWallpaper.LIVE_FLORES,
+                        -> Unit
                         io.github.johankrs.kiri.core.tv.TvWallpaper.OWN -> if (own != null) {
                             // The whole screen covered, the middle of the picture kept.
                             val scale = maxOf(w / own.width, h / own.height)

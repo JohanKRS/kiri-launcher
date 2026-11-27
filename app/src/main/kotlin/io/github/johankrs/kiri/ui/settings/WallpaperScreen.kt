@@ -72,7 +72,7 @@ private enum class Applying { IDLE, WORKING, DONE, FAILED }
  *
  * [setup] is saved as it changes; nothing reaches the device before "apply" is pressed.
  * [screen] is the size of the screen in pixels. [onApplied] is told once the device has the
- * new wallpaper.
+ * new wallpaper. [onOpenLive] opens Kiri's own live wallpaper.
  */
 @Composable
 fun WallpaperScreen(
@@ -81,6 +81,7 @@ fun WallpaperScreen(
     screen: IntSize,
     onChange: (WallpaperSetup) -> Unit,
     onApplied: () -> Unit,
+    onOpenLive: () -> Unit,
     onBack: () -> Unit,
 ) {
     val colors = KiriTheme.colors
@@ -210,6 +211,11 @@ fun WallpaperScreen(
                     onClick = {
                         pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     },
+                )
+                SettingsLinkRow(
+                    title = stringResource(R.string.wallpaper_kiri_live),
+                    summary = stringResource(R.string.wallpaper_kiri_live_summary),
+                    onClick = onOpenLive,
                 )
                 SettingsLinkRow(
                     title = stringResource(R.string.wallpaper_live),

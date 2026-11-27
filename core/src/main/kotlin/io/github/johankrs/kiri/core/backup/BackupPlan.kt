@@ -9,6 +9,7 @@ import io.github.johankrs.kiri.core.layout.HomeLayoutCodec
 import io.github.johankrs.kiri.core.layout.ItemContent
 import io.github.johankrs.kiri.core.look.IconChoice
 import io.github.johankrs.kiri.core.look.IconLook
+import io.github.johankrs.kiri.core.look.LiveLook
 import io.github.johankrs.kiri.core.look.WallpaperSetup
 import io.github.johankrs.kiri.core.look.WidgetLook
 import io.github.johankrs.kiri.core.tv.TvBanner
@@ -34,7 +35,7 @@ enum class BackupPart(val key: String) {
     /** Everything else: glass, icons as a whole, letters, motion, gestures, folders' look. */
     LOOK("look"),
 
-    /** The picture chosen in Kiri and how it is framed. */
+    /** The picture chosen in Kiri and how it is framed, and Kiri's own live wallpaper. */
     WALLPAPER("wallpaper"),
 
     /** The market widget: its list, its source and how it looks. Its keys go apart. */
@@ -52,7 +53,7 @@ enum class BackupPart(val key: String) {
             IconChoice.appKeyOf(key) != null || IconLook.appKeyOfArt(key) != null ||
                 IconLook.appKeyOfGround(key) != null || AppNames.appKeyOf(key) != null -> ICONS
             HiddenApps.appKeyOf(key) != null -> HIDDEN
-            key == WallpaperSetup.KEY -> WALLPAPER
+            key == WallpaperSetup.KEY || key == LiveLook.KEY -> WALLPAPER
             else -> LOOK
         }
 

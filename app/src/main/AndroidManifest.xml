@@ -9,6 +9,10 @@
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
+    <!-- Kiri's live wallpaper is for phones and tablets; TVs draw theirs on the home screen. -->
+    <uses-feature
+        android:name="android.software.live_wallpaper"
+        android:required="false" />
 
     <!-- Only Kiri's own widgets use the network (the market widget fetches prices). -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -219,6 +223,20 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Kiri's live wallpapers, drawn by Kiri; chosen in Kiri's wallpaper settings. -->
+        <service
+            android:name=".KiriLiveWallpaper"
+            android:exported="true"
+            android:label="@string/live_wallpaper_name"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/kiri_live_wallpaper" />
+        </service>
 
         <!--
             Off until the person turns it on in Android's accessibility settings. It lets a
