@@ -59,7 +59,8 @@ private fun kindLines(drawing: ConsoleDrawing): String = when (drawing) {
 internal fun glyphLines(glyph: TvGlyph): String = when (glyph) {
     TvGlyph.TV -> "M5.5 7h13a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1 -2.5 2.5h-13a2.5 2.5 0 0 1 -2.5 -2.5v-7a2.5 2.5 0 0 1 2.5 -2.5z M8 3l4 4 4-4"
     TvGlyph.ANTENNA -> "M10.5 8.5a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0z M8.6 5.1a4.8 4.8 0 0 0 0 6.8 M15.4 5.1a4.8 4.8 0 0 1 0 6.8 M5.8 2.3a8.77 8.77 0 0 0 0 12.4 M18.2 2.3a8.77 8.77 0 0 1 0 12.4 M12 10l-3.5 11 M12 10l3.5 11 M10 16.5h4"
-    TvGlyph.HDMI -> "M3.5 8.5h17v4l-2.5 3.5H6L3.5 12.5z M8 16v3M16 16v3M8 11.5h8"
+    // The face of the socket, wider above, with its tongue: without the legs it once had, as of a desk.
+    TvGlyph.HDMI -> "M2.5 7.5h19v4.5l-3.5 4.5h-12l-3.5-4.5z M6.5 10.5h11"
     TvGlyph.CONTROLLER -> "M7 8h10a4.5 4.5 0 0 1 4.3 5.8l-1 3.2a2.2 2.2 0 0 1-3.8.7L15 16H9l-1.5 1.7a2.2 2.2 0 0 1-3.8-.7l-1-3.2A4.5 4.5 0 0 1 7 8z M8 11v3M6.5 12.5h3M15.5 11.5h.01M17.5 13.5h.01"
     TvGlyph.HANDHELD -> "M5.5 7h13a3 3 0 0 1 3 3v4a3 3 0 0 1 -3 3h-13a3 3 0 0 1 -3 -3v-4a3 3 0 0 1 3 -3z M8.5 8.5h7a1 1 0 0 1 1 1v5a1 1 0 0 1 -1 1h-7a1 1 0 0 1 -1 -1v-5a1 1 0 0 1 1 -1z M5 11v2M4 12h2M19 11.5h.01M19 13.5h.01"
     TvGlyph.CONSOLE -> "M10 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-4a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2z M12 6.5v1.5M10.5 17h3"

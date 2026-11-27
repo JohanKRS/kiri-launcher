@@ -101,8 +101,17 @@ import kotlinx.coroutines.launch
 /** The key of the gear at the top, and of "All apps", the last place on the home screen. */
 private const val GEAR = "@gear"
 
-/** How many soft layers a banner's shadow is drawn with. */
-private const val SHADOW_STEPS = 5
+/**
+ * The shadow of a banner (units): how far it fades, how much lower it falls and how dark it is
+ * under the banner (at the banner's edge, half of it). With the focus a wider one comes in too.
+ */
+private const val BANNER_SHADOW_BLUR = 4f
+private const val BANNER_SHADOW_DROP = 3f
+private const val BANNER_SHADOW = 0.4f
+private const val BANNER_LIFT_BLUR = 9f
+private const val BANNER_LIFT_DROP = 7f
+private const val BANNER_LIFT_SHADOW = 0.26f
+
 internal const val ALL_APPS = "@all"
 
 /** The key of the menu that adds a widget. */
@@ -895,21 +904,15 @@ private fun BannerSlot(
                 .drawWithCache {
                     val corner = size.width * (12f / 148f)
                     val face = Path().apply { addRoundRect(RoundRect(0f, 0f, size.width, size.height, CornerRadius(corner))) }
+                    // A close shadow, and a wider one that comes in with the focus, as if lifted.
+                    val near = if (shadow > 0f) SoftShadow(units.px(BANNER_SHADOW_BLUR)) else null
+                    val far = if (shadow > 0f) SoftShadow(units.px(BANNER_LIFT_BLUR)) else null
                     onDrawBehind {
                         val r = ring.value
-                        // A soft shadow only around the banner: glass banners would show one under them.
-                        if (shadow > 0f) clipPath(face, ClipOp.Difference) {
-                            val reach = units.px(5f + 6f * r)
-                            val drop = units.px(2f + 3f * r)
-                            for (step in 1..SHADOW_STEPS) {
-                                val grow = reach * step / SHADOW_STEPS
-                                drawRoundRect(
-                                    color = Color.Black.copy(alpha = ((0.07f + 0.03f * r) * shadow).coerceAtMost(1f)),
-                                    topLeft = Offset(-grow, -grow + drop),
-                                    size = Size(size.width + 2f * grow, size.height + 2f * grow),
-                                    cornerRadius = CornerRadius(corner + grow),
-                                )
-                            }
+                        // Only around the banner: glass banners would show it under them.
+                        if (near != null && far != null) clipPath(face, ClipOp.Difference) {
+                            near.draw(this, BANNER_SHADOW * shadow, units.px(BANNER_SHADOW_DROP), corner)
+                            if (r > 0f) far.draw(this, BANNER_LIFT_SHADOW * shadow * r, units.px(BANNER_LIFT_DROP), corner)
                         }
                         if (r > 0f) {
                             val line = units.px(2.5f)

@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -142,18 +143,16 @@ private fun WidgetSlot(
                 scaleY = lift
                 translationY = if (moving) -units.px(4f) else 0f
             }
-            .drawBehind {
-                if (shadow <= 0f) return@drawBehind
-                val r = units.px(corner)
-                // A soft shadow, deeper with the focus.
-                for (step in 1..4) {
-                    val grow = units.px(3f + 4f * ring) * step / 4f
-                    drawRoundRect(
-                        color = Color.Black.copy(alpha = ((0.05f + 0.03f * ring) * shadow).coerceAtMost(1f)),
-                        topLeft = Offset(-grow, -grow + units.px(4f + 6f * ring)),
-                        size = Size(size.width + 2f * grow, size.height + 2f * grow),
-                        cornerRadius = CornerRadius(r + grow),
-                    )
+            .drawWithCache {
+                // A soft shadow, and a wider one with the focus. Under the glass it darkens it a
+                // little, which keeps the writing on it clear over a pale wallpaper.
+                val near = if (shadow > 0f) SoftShadow(units.px(WIDGET_SHADOW_BLUR)) else null
+                val far = if (shadow > 0f) SoftShadow(units.px(WIDGET_LIFT_BLUR)) else null
+                onDrawBehind {
+                    if (near == null || far == null) return@onDrawBehind
+                    val r = units.px(corner)
+                    near.draw(this, WIDGET_SHADOW * shadow, units.px(WIDGET_SHADOW_DROP), r)
+                    if (ring > 0f) far.draw(this, WIDGET_LIFT_SHADOW * shadow * ring, units.px(WIDGET_LIFT_DROP), r)
                 }
             }
             .graphicsLayer {
@@ -226,6 +225,14 @@ private fun WidgetSlot(
 }
 
 /** Glass over the wallpaper, dark enough for white text on any picture. */
+/** The shadow of a widget (units), as that of a banner: see `BANNER_SHADOW` in TvHome. */
+private const val WIDGET_SHADOW_BLUR = 4f
+private const val WIDGET_SHADOW_DROP = 4f
+private const val WIDGET_SHADOW = 0.2f
+private const val WIDGET_LIFT_BLUR = 8f
+private const val WIDGET_LIFT_DROP = 8f
+private const val WIDGET_LIFT_SHADOW = 0.12f
+
 private val WidgetGlass = Brush.verticalGradient(listOf(Color(0x660E2027), Color(0x7A0E2027)))
 
 /** The time, large, and the day under it. The wider the widget, the larger the time. */
