@@ -70,13 +70,13 @@ fun LockDisclosureScreen(
             }
             Spacer(Modifier.height(4.dp))
             SettingsGroup {
-                Choice(
+                DisclosureChoice(
                     title = stringResource(R.string.lock_disclosure_allow),
                     summary = stringResource(R.string.lock_disclosure_allow_summary),
                     primary = true,
                     onClick = onAllow,
                 )
-                Choice(
+                DisclosureChoice(
                     title = stringResource(R.string.lock_disclosure_decline),
                     summary = stringResource(
                         if (forGesture != null) R.string.lock_disclosure_decline_summary else R.string.lock_disclosure_decline_summary_off,
@@ -90,9 +90,12 @@ fun LockDisclosureScreen(
     }
 }
 
-/** One of the two answers: the one that goes on has its words in the accent. */
+/**
+ * One of the answers to a question such as whether to allow a service: the one that goes on
+ * ([primary]) has its words in the accent and an arrow.
+ */
 @Composable
-private fun Choice(title: String, summary: String, primary: Boolean, onClick: () -> Unit) {
+fun DisclosureChoice(title: String, summary: String, primary: Boolean, onClick: () -> Unit) {
     val colors = KiriTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,

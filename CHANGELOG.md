@@ -9,6 +9,17 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### TV
+- Botão Home: em Configurações › Botão Home (e sozinho, uma vez, quando o Kiri abre na TV pela
+  primeira vez) o Kiri mostra o que o Home do controle abre e se oferece para ser a tela inicial.
+  Onde o Android deixa escolher, ele pede do jeito do Android. Onde a tela inicial de fábrica tem
+  prioridade sobre qualquer escolha, como a do Google TV, o Kiri vem no lugar dela sempre que ela
+  aparece, pelo mesmo serviço de acessibilidade do toque duplo: só depois de você permitir, com
+  aviso do que o serviço faz e não faz, e desligável na mesma tela. O serviço só fica sabendo
+  quando uma janela da tela inicial de fábrica aparece, e de nenhum outro app (#14).
+- Uma TV que lista o mesmo sintonizador duas vezes (uma Hisense lista "Tuner" duas vezes) mostra
+  uma entrada só (#14).
+
 ## [0.3.0] - 2026-11-27
 
 ### Tela inicial

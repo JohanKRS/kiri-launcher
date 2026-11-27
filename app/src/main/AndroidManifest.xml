@@ -23,6 +23,30 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
         </intent>
+        <!--
+            Home screens, to know what the Home button opens on a TV and whether Kiri can be it
+            (see HomeButton), and the settings where the home screen is chosen.
+        -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.HOME_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.MANAGE_DEFAULT_APPS_SETTINGS" />
+        </intent>
+        <!-- The accessibility settings, to open the page that is really there (a TV's own one). -->
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_DETAILS_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_TV_OEM_LINK" />
+        </intent>
         <!-- Icon packs, so their icons can be chosen for an app. -->
         <intent>
             <action android:name="org.adw.launcher.THEMES" />
@@ -198,8 +222,9 @@
 
         <!--
             Off until the person turns it on in Android's accessibility settings. It lets a
-            gesture lock the screen; it reads nothing on the screen. Disabled here, so Android
-            lists it only while a gesture locks the screen (KiriAccessibilityService.offer).
+            gesture lock the screen and, on a TV, the Home button open Kiri where the TV's own
+            home screen outranks it; it reads nothing on the screen. Disabled here, so Android
+            lists it only while one of those is wanted (KiriAccessibilityService.offer).
         -->
         <service
             android:name=".KiriAccessibilityService"
