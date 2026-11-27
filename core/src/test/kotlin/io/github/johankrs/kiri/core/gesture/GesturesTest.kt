@@ -94,4 +94,12 @@ class GesturesTest {
         assertEquals(false, locked.settingsReachable)
         assertEquals(LauncherAction.OpenSettings, locked.actionFor(Gesture.LONG_PRESS))
     }
+
+    @Test
+    fun `only a gesture that locks the screen needs the accessibility service`() {
+        assertEquals(false, GestureMap().locksScreen)
+        val locking = GestureMap().with(Gesture.DOUBLE_TAP, LauncherAction.LockScreen)
+        assertTrue(locking.locksScreen)
+        assertEquals(false, locking.with(Gesture.DOUBLE_TAP, LauncherAction.None).locksScreen)
+    }
 }

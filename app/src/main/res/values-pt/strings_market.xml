@@ -51,6 +51,7 @@
     <string name="market_section_source">De onde vêm os preços</string>
     <string name="market_source_official">Serviços oficiais</string>
     <string name="market_source_official_note">Um serviço oficial e grátis para cada mercado, cada um com a sua chave: brapi para o Brasil, Alpaca e Finnhub para os EUA, AwesomeAPI e Frankfurter para as moedas.</string>
+    <string name="market_source_app_note">Vem do app %1$s, instalado à parte: o Kiri só pede os preços a ele.</string>
 
     <string name="market_keys_note">As chaves ficam guardadas só neste aparelho.</string>
     <string name="market_key_hint">Cole aqui</string>

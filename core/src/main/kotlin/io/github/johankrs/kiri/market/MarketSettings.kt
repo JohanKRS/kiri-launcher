@@ -6,8 +6,8 @@ import io.github.johankrs.kiri.core.WidgetSpec
 
 /**
  * Where the prices come from, by the name it is saved under: [OFFICIAL], or the key of a
- * [CompleteSource] the build added. [DEFAULT], no choice yet, stands for the first complete
- * source the build has, or for the official services when it has none.
+ * [CompleteSource] from another app. [DEFAULT], no choice yet, stands for the official services:
+ * a source from another app is used only once the person picks it.
  */
 @JvmInline
 value class MarketSource(val key: String?) {
