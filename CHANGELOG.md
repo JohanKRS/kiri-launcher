@@ -9,6 +9,19 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+## [0.2.1] - 2026-11-27
+
+### Gestos
+- Antes de abrir a Acessibilidade do Android, o Kiri mostra numa tela à parte para que serve o
+  serviço (só bloquear a tela quando você faz o gesto), o que ele não faz (não lê a tela, não vê
+  o que você digita, não coleta nem envia dados) e como desligar, com "Permitir" e "Agora não".
+  Escolher "Bloquear a tela" para um gesto só vale depois de "Permitir" (#11).
+
+### Google Play
+- A versão do Google Play volta a ter o serviço de acessibilidade, então o toque duplo pode
+  bloquear a tela também nela. O Play Console pede para ele uma declaração com um vídeo do aviso
+  acima. Seguem fora dela o acesso a todos os arquivos, a lista de todos os apps e as fotos (#11).
+
 ## [0.2.0] - 2026-11-26
 
 Primeira versão também para o Google Play: o release traz, além do APK, o pacote do app

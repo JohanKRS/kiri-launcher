@@ -86,8 +86,8 @@ android {
             signingConfig = signingConfigs.findByName("release")
         }
         // Google Play's build, the app bundle of a release: the release itself, less what Play
-        // asks to be declared and justified before it publishes even a test (all files, every
-        // app, photos and the accessibility service; see src/play/AndroidManifest.xml). Each
+        // asks to be declared and justified before it publishes even a test and would not take
+        // (all files, every app and photos; see src/play/AndroidManifest.xml). Each
         // screen that would offer one of those first asks whether this build has it. The APK of
         // a release keeps them all.
         create("play") {

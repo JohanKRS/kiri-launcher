@@ -1,6 +1,6 @@
 # Política de privacidade do Kiri Launcher
 
-Última atualização: 26 de novembro de 2026.
+Última atualização: 27 de novembro de 2026.
 
 O Kiri Launcher (`io.github.johankrs.kiri`) é um launcher de código aberto para Android. Ele não
 coleta, não guarda fora do aparelho e não compartilha dados pessoais. Não tem conta, login,
@@ -30,12 +30,12 @@ com senha, se ela ligar essa opção.
 - **Fotos** (só na TV, opcional): para escolher uma imagem do aparelho como fundo da tela inicial.
 - **Papel de parede**: para aplicar a imagem que a pessoa escolher no Kiri.
 - **Serviço de acessibilidade** (opcional): só para um gesto poder bloquear a tela. Ele não lê nada
-  da tela, não recebe eventos e só aparece no Android quando a pessoa escolhe esse gesto.
+  da tela, não recebe eventos e só aparece no Android quando a pessoa escolhe esse gesto. Antes de
+  abrir a Acessibilidade, o Kiri explica isso numa tela à parte e só segue se a pessoa permitir.
 - **Abrir a barra de notificações** e **pedir para desinstalar um app**: ações que a pessoa toca.
 
-A versão do Google Play não pede acesso a todos os arquivos, a lista completa dos apps, as fotos
-nem o serviço de acessibilidade. Nela o vidro desfoca só um papel de parede escolhido no próprio
-Kiri, e nenhum gesto bloqueia a tela.
+A versão do Google Play não pede acesso a todos os arquivos, a lista completa dos apps nem as
+fotos. Nela o vidro desfoca só um papel de parede escolhido no próprio Kiri.
 
 ## Outros apps
 
