@@ -76,7 +76,6 @@
     <string name="motion_app_open">Abrir um app</string>
     <string name="motion_home">A tela inicial sai e volta</string>
     <string name="motion_home_return_note">A tela inicial sai e volta do mesmo jeito para a gaveta e para os apps. Como o próprio app abre e fecha é desenhado pelo Android: o Kiri pede o jeito de abrir, e só o launcher que vem no aparelho consegue desenhar o app encolhendo de volta para o ícone.</string>
-    <string name="motion_app_open_grow">Crescer do ícone</string>
     <string name="motion_app_open_icon">Revelar do ícone</string>
     <string name="motion_rise">Subir</string>
     <string name="motion_fade">Esmaecer</string>

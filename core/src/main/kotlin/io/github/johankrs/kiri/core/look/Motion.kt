@@ -2,9 +2,6 @@ package io.github.johankrs.kiri.core.look
 
 /** How an app comes on screen when it is opened from the launcher. Android draws it. */
 enum class AppOpenStyle(val key: String) {
-    /** The whole app grows out of the icon that was tapped, to the full screen. */
-    GROW("grow"),
-
     /** A frame opens out of the icon that was tapped and shows the app at its own size. */
     FROM_ICON("icon"),
     SLIDE_UP("slideUp"),

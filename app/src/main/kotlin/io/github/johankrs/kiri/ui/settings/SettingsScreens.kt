@@ -486,7 +486,6 @@ private fun DrawerLookControls(
 }
 
 private fun AppOpenStyle.labelRes(): Int = when (this) {
-    AppOpenStyle.GROW -> R.string.motion_app_open_grow
     AppOpenStyle.FROM_ICON -> R.string.motion_app_open_icon
     AppOpenStyle.SLIDE_UP -> R.string.motion_rise
     AppOpenStyle.FADE -> R.string.motion_fade

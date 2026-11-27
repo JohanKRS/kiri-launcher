@@ -55,20 +55,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 /**
  * How an app should come on screen, to hand to `startActivity`. Null leaves it to the device.
  *
- * [iconBounds] is where the tapped icon is inside [view]; without it an app cannot grow out of
+ * [iconBounds] is where the tapped icon is inside [view]; without it an app cannot open out of
  * its icon, so the device's own way is used.
  */
 internal fun appOpenOptions(style: AppOpenStyle, view: View, iconBounds: Rect?): ActivityOptions? = when (style) {
-    AppOpenStyle.GROW -> iconBounds?.let { bounds ->
-        ActivityOptions.makeScaleUpAnimation(
-            view,
-            bounds.left.roundToInt(),
-            bounds.top.roundToInt(),
-            bounds.width.roundToInt(),
-            bounds.height.roundToInt(),
-        )
-    }
-
     AppOpenStyle.FROM_ICON -> iconBounds?.let { bounds ->
         ActivityOptions.makeClipRevealAnimation(
             view,

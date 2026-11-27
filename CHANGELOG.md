@@ -26,10 +26,10 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   (cada item voa sozinho e os mais perto chegam primeiro), **Foco** (desfoca como o fundo de uma
   foto) e **Esmaecer**, além de **Nenhuma**. Enquanto um app abre, a tela não some, para nunca
   ficar vazia se o app demorar (#9).
-- Abrir um app tem uma maneira nova, **Crescer do ícone**: o app inteiro cresce de dentro do
-  ícone até a tela cheia. A de antes, que mostra o app num recorte que se abre do ícone, passou
-  a se chamar **Revelar do ícone**. Quem desenha o app abrindo é o Android (#9).
-- As escolhas de Movimento são passadas com as setas, como os outros nomes das configurações (#9).
+- Abrir um app a partir do ícone, que mostra o app num recorte que se abre do ícone, passou a se
+  chamar **Revelar do ícone**. Quem desenha o app abrindo é o Android (#9).
+- As escolhas de Animações são passadas com as setas, como os outros nomes das configurações, com
+  o nome em cima e as setas alinhadas de uma linha para a outra (#9).
 
 ### Pastas
 - A pasta aberta tem uma casa quadrada para cada app: os ícones ficam à mesma distância na

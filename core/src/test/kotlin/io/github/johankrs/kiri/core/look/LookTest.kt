@@ -20,7 +20,7 @@ class LookTest {
     @Test
     fun `saved choices are read back`() {
         val strings = mapOf(
-            MotionSettings.KEY_APP_OPEN to AppOpenStyle.GROW.key,
+            MotionSettings.KEY_APP_OPEN to AppOpenStyle.SLIDE_UP.key,
             MotionSettings.KEY_HOME to HomeStyle.WAVE.key,
             MotionSettings.KEY_DRAWER to DrawerStyle.REVEAL.key,
             DrawerLook.KEY_GLASS to GlassStyle.NEVOA.key,
@@ -28,7 +28,7 @@ class LookTest {
         val ints = mapOf(MotionSettings.KEY_SPEED to 4, DrawerLook.KEY_OPACITY to 30, DrawerLook.KEY_BLUR to 12)
 
         assertEquals(
-            MotionSettings(AppOpenStyle.GROW, HomeStyle.WAVE, DrawerStyle.REVEAL, speed = 4),
+            MotionSettings(AppOpenStyle.SLIDE_UP, HomeStyle.WAVE, DrawerStyle.REVEAL, speed = 4),
             MotionSettings.fromStored(strings::get, ints::get),
         )
         assertEquals(DrawerLook(GlassStyle.NEVOA, 30, 12), DrawerLook.fromStored(strings::get, ints::get))
