@@ -38,6 +38,9 @@
     <string name="tv_home_on">Kiri comes in place of %1$s whenever the Home button opens it.</string>
     <string name="tv_home_waiting_title">One step left</string>
     <string name="tv_home_waiting">Turn Kiri on in the TV’s Accessibility settings, then come back.</string>
+    <string name="tv_home_stuck_title">Android has not started Kiri</string>
+    <string name="tv_home_stuck">Kiri is on in Accessibility, but Android has not started it. Turning Kiri off and on again there starts it.</string>
+    <string name="tv_home_stuck_summary">Turn Kiri off and on again there</string>
     <string name="tv_home_open_accessibility">Open Accessibility</string>
     <string name="tv_home_open_accessibility_summary">Turn Kiri on there</string>
     <string name="tv_home_turn_off">Turn off</string>

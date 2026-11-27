@@ -38,6 +38,9 @@
     <string name="tv_home_on">O Kiri vem no lugar de %1$s sempre que o botão Home abrir essa tela.</string>
     <string name="tv_home_waiting_title">Falta um passo</string>
     <string name="tv_home_waiting">Ligue o Kiri na Acessibilidade das configurações da TV e volte.</string>
+    <string name="tv_home_stuck_title">O Android não iniciou o Kiri</string>
+    <string name="tv_home_stuck">O Kiri está ligado na Acessibilidade, mas o Android não o iniciou. Desligar e ligar o Kiri de novo lá faz ele iniciar.</string>
+    <string name="tv_home_stuck_summary">Desligue e ligue o Kiri de novo lá</string>
     <string name="tv_home_open_accessibility">Abrir a Acessibilidade</string>
     <string name="tv_home_open_accessibility_summary">Ligue o Kiri lá</string>
     <string name="tv_home_turn_off">Desligar</string>

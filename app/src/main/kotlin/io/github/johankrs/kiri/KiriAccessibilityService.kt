@@ -11,6 +11,9 @@ import android.os.SystemClock
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.johankrs.kiri.core.tv.OtherHome
 import io.github.johankrs.kiri.core.tv.TvHomeButton
 import io.github.johankrs.kiri.data.HomeButton
@@ -57,6 +60,7 @@ class KiriAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         running = this
+        connected = true
         if (isTelevision()) {
             scope.launch {
                 SettingsStore.of(this@KiriAccessibilityService).tvHomeButton.collect { wanted ->
@@ -103,19 +107,34 @@ class KiriAccessibilityService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onUnbind(intent: Intent?): Boolean {
-        if (running === this) running = null
+        forget()
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
-        if (running === this) running = null
+        forget()
         scope.cancel()
         super.onDestroy()
+    }
+
+    private fun forget() {
+        if (running === this) {
+            running = null
+            connected = false
+        }
     }
 
     companion object {
         @Volatile
         private var running: KiriAccessibilityService? = null
+
+        /**
+         * Whether Android has the service running now, for screens to follow. Turned on in
+         * Android's settings is not enough: Android 11 can keep a service on that it no longer
+         * starts (it counts it as crashed) until it is turned off and on again there.
+         */
+        var connected by mutableStateOf(false)
+            private set
 
         /**
          * Whether this build has the service at all. Google Play's build does not (see
@@ -154,6 +173,10 @@ class KiriAccessibilityService : AccessibilityService() {
             val pm = context.packageManager
             runCatching {
                 if (pm.getComponentEnabledSetting(me) != state) {
+                    // Turned off as Android's own switch does first: taken away while running,
+                    // it would stay on in Android's settings and count as crashed, and Android
+                    // 11 would not start it again once offered anew.
+                    if (!wanted) running?.disableSelf()
                     pm.setComponentEnabledSetting(me, state, PackageManager.DONT_KILL_APP)
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) tellAndroid11(context)
                 }
@@ -201,7 +224,10 @@ class KiriAccessibilityService : AccessibilityService() {
             openSettings(context)
         }
 
-        /** True when the person turned the service on, even before Android has started it. */
+        /**
+         * True when the person turned the service on, even before Android has started it (or
+         * when Android does not start it: see [connected]).
+         */
         fun isOn(context: Context): Boolean {
             if (running != null) return true
             val me = ComponentName(context, KiriAccessibilityService::class.java)

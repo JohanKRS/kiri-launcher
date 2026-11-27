@@ -67,8 +67,10 @@ enum class HomeButtonStep {
  * its accessibility service, after saying what the service does and does not do.
  *
  * [step] is where it stands; [route] is how Kiri can become the home screen at all, [asked]
- * whether Android was asked and kept the other one. [otherName] and [otherIcon] are the home
- * screen the button opens instead of Kiri, and [kiriIcon] is Kiri's.
+ * whether Android was asked and kept the other one, [takenOver] whether Kiri comes in place of
+ * it now, and [stuck] whether the service is on in Android's settings without Android starting
+ * it. [otherName] and [otherIcon] are the home screen the button opens instead of Kiri, and
+ * [kiriIcon] is Kiri's.
  * [onAskAndroid] is null where Android has no way to ask; [askOpensSettings] when that way is its
  * settings rather than a question.
  */
@@ -78,6 +80,7 @@ fun TvHomeButtonScreen(
     route: HomeRoute,
     asked: Boolean,
     takenOver: Boolean,
+    stuck: Boolean,
     otherName: String?,
     otherIcon: Drawable?,
     kiriIcon: Drawable?,
@@ -182,12 +185,14 @@ fun TvHomeButtonScreen(
 
                 HomeButtonStep.WAITING -> SettingsGroup {
                     InfoCard(
-                        title = stringResource(R.string.tv_home_waiting_title),
-                        text = stringResource(R.string.tv_home_waiting),
+                        title = stringResource(if (stuck) R.string.tv_home_stuck_title else R.string.tv_home_waiting_title),
+                        text = stringResource(if (stuck) R.string.tv_home_stuck else R.string.tv_home_waiting),
                     )
                     DisclosureChoice(
                         title = stringResource(R.string.tv_home_open_accessibility),
-                        summary = stringResource(R.string.tv_home_open_accessibility_summary),
+                        summary = stringResource(
+                            if (stuck) R.string.tv_home_stuck_summary else R.string.tv_home_open_accessibility_summary,
+                        ),
                         primary = true,
                         onClick = onOpenAccessibility,
                     )

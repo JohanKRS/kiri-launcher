@@ -243,6 +243,9 @@ private enum class Screen {
     LOCK_DISCLOSURE,
 }
 
+/** How long Android may take to start the accessibility service once it is turned on. */
+private const val START_GRACE_MS = 1_500L
+
 private val ScreenStackSaver = Saver<List<Screen>, String>(
     save = { stack -> stack.joinToString(",") { it.name } },
     restore = { saved -> saved.split(",").map { Screen.valueOf(it) } },
@@ -1356,9 +1359,8 @@ fun KiriApp(
                                 onOpenTvHomeButton = if (root == Screen.TV_HOME) { { push(Screen.TV_HOME_BUTTON) } } else null,
                                 tvHomeButtonSummary = if (root == Screen.TV_HOME) {
                                     val home = remember(refreshTick, resumeTick) { HomeButton.state(context) }
-                                    val serviceOn = remember(refreshTick, resumeTick, tvHomeButton) { KiriAccessibilityService.isOn(context) }
                                     when {
-                                        home.route == HomeRoute.KIRI || (tvHomeButton && serviceOn && home.other != null) ->
+                                        home.route == HomeRoute.KIRI || (tvHomeButton && KiriAccessibilityService.connected && home.other != null) ->
                                             stringResource(R.string.tv_home_summary_kiri)
                                         tvHomeButton -> stringResource(R.string.tv_home_summary_waiting)
                                         else -> stringResource(
@@ -1419,7 +1421,16 @@ fun KiriApp(
                                     asked = true
                                     looks++
                                 }
-                                val takenOver = tvHomeButton && serviceOn && home.other != null
+                                val connected = KiriAccessibilityService.connected
+                                val takenOver = tvHomeButton && connected && home.other != null
+                                // On in Android's settings, yet not started: after the moment it
+                                // takes to start, the screen says what helps.
+                                var settled by remember(refreshTick, resumeTick) { mutableStateOf(false) }
+                                LaunchedEffect(refreshTick, resumeTick) {
+                                    delay(START_GRACE_MS)
+                                    settled = true
+                                }
+                                val stuck = tvHomeButton && serviceOn && !connected && settled
                                 val step = when {
                                     home.route == HomeRoute.KIRI || takenOver -> HomeButtonStep.DONE
                                     tvHomeButton -> HomeButtonStep.WAITING
@@ -1436,6 +1447,7 @@ fun KiriApp(
                                     route = home.route,
                                     asked = asked,
                                     takenOver = takenOver,
+                                    stuck = stuck,
                                     otherName = home.otherName,
                                     otherIcon = otherIcon,
                                     kiriIcon = kiriIcon,
