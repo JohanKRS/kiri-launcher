@@ -190,6 +190,7 @@ import io.github.johankrs.kiri.widgets.widgetFacts
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** What is on screen. The last entry of the stack is visible; Back removes it. */
@@ -325,6 +326,18 @@ fun KiriApp(
     var ownApps by remember { mutableStateOf(emptyList<AppEntry>()) }
     LaunchedEffect(repository.appChanges, formFactor) {
         ownApps = repository.loadApps(formFactor)
+    }
+
+    // An app that turned to another of its icons (an activity-alias each, switched from inside
+    // the app) or renamed its screen in an update is the same app under a new key: it keeps its
+    // place on the home screen, its folder, its icon and its name. After the first list it waits
+    // a moment, so an app that turns one icon off before turning the next on is seen done.
+    val appListsSeen = remember { intArrayOf(0) }
+    LaunchedEffect(ownApps) {
+        if (ownApps.isEmpty()) return@LaunchedEffect
+        if (appListsSeen[0]++ > 0) delay(APP_MOVE_SETTLE_MS)
+        val installed = ownApps.mapTo(HashSet()) { it.key }
+        settings.followMovedApps(installed) { packageName -> repository.mainEntryKey(packageName, formFactor) }
     }
 
     // On a TV: its inputs, and which apps were made for a TV (they fill its first home screen).
@@ -1888,6 +1901,12 @@ private class Behind(
     val iconSettings: IconSettings,
     val folderLook: FolderLook,
 )
+
+/**
+ * How long a new list of apps must stand before what an app moved to is followed: an app
+ * switching its icon turns two entries on and off, and between the two it may list neither.
+ */
+private const val APP_MOVE_SETTLE_MS = 1_000L
 
 /** How tall names are guessed to be, room above them included, before the home screen was laid out. */
 private const val NAMES_GUESS_DP = 38f

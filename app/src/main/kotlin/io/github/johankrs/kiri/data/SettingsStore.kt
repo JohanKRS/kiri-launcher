@@ -16,6 +16,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.github.johankrs.kiri.core.AppMoves
 import io.github.johankrs.kiri.core.AppNames
 import io.github.johankrs.kiri.core.GridField
 import io.github.johankrs.kiri.core.GridProfile
@@ -54,11 +55,13 @@ import io.github.johankrs.kiri.core.tv.TvLook
 import io.github.johankrs.kiri.core.tv.TvSettings
 import io.github.johankrs.kiri.core.tv.TvWidgets
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -506,6 +509,29 @@ class SettingsStore private constructor(context: Context) {
             val key = strKey(TvInputNames.storageKey(inputId))
             if (name.isNullOrBlank()) preferences.remove(key) else preferences[key] = name
         }
+    }
+
+    /**
+     * Moves what is saved for apps that Android now lists under another key: an app that
+     * turned to another of its icons (see `AppMoves`) keeps its places on every home screen,
+     * its folder, its icon and its name. [installed] are the apps listed now, by
+     * `AppEntry.key`; [mainEntry] tells, by package, the entry Android opens for an app as a
+     * whole. Returns what moved, old key to new; nothing is written when nothing did.
+     */
+    suspend fun followMovedApps(
+        installed: Set<String>,
+        mainEntry: (packageName: String) -> String?,
+    ): Map<String, String> = withContext(Dispatchers.Default) {
+        // Read first: almost always nothing moved, and then nothing is written at all.
+        val now = runCatching { store.data.first() }.getOrNull() ?: return@withContext emptyMap()
+        if (AppMoves.find(AppMoves.appKeysIn(now.dump()), installed, mainEntry).isEmpty()) return@withContext emptyMap()
+        var moved = emptyMap<String, String>()
+        store.edit { preferences ->
+            val current = preferences.dump()
+            moved = AppMoves.find(AppMoves.appKeysIn(current), installed, mainEntry)
+            if (moved.isNotEmpty()) preferences.replaceAll(AppMoves.applied(current, moved))
+        }
+        moved
     }
 
     /** Every saved setting as it is, for a backup. Null when the settings could not be read. */
