@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.johankrs.kiri.data.AppRepository
+import io.github.johankrs.kiri.data.AutoBackups
 import io.github.johankrs.kiri.data.SettingsStore
 import io.github.johankrs.kiri.data.WallpaperSource
 import io.github.johankrs.kiri.data.WallpaperStudio
@@ -53,6 +54,8 @@ class MainActivity : ComponentActivity() {
 
         val repository = AppRepository.of(this)
         val settings = SettingsStore.of(this)
+        // After Kiri was stopped by hand, Android forgets the job of the automatic backup.
+        AutoBackups.of(this).ensureScheduled()
         setContent {
             // The blurred wallpaper that every pane of glass shows through, wherever it is.
             val backdrop = remember { Backdrop() }
