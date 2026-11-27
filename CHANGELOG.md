@@ -14,6 +14,20 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 Primeira versão também para o Google Play: o release traz, além do APK, o pacote do app
 (`kiri-launcher-0.2.0.aab`) para enviar no Play Console.
 
+### Pastas
+- A pasta aberta tem uma casa quadrada para cada app: os ícones ficam à mesma distância na
+  horizontal e na vertical, e o painel tem a mesma margem nos quatro lados. Com 4, 9 ou 16 apps
+  (e com 3, 7 ou 8, que fecham a mesma grade) o painel é um quadrado. O nome da pasta vai numa
+  etiqueta do mesmo vidro logo acima do painel, e tocar nele continua renomeando (#6).
+- Com muitos apps para a largura da tela, o espaço entre as linhas diminui antes dos ícones,
+  que ficam quase do tamanho dos da tela inicial (#6).
+- Segurar um app dentro da pasta aberta mostra o mesmo menu da tela inicial (editar, esconder,
+  informações, desinstalar...). Arrastando, o menu some e o app muda de lugar na pasta, como
+  antes (#7).
+- Com a pasta aberta, arrastar para cima ou para baixo fora do painel fecha a pasta e faz o gesto
+  da tela inicial: a gaveta sobe acompanhando o dedo, ou descem as notificações. Arrastar o
+  próprio painel continua fechando só a pasta (#7).
+
 ### Widgets
 - Tocar e segurar num widget acende o vidro até a borda, acompanhando os cantos arredondados,
   sem o corte reto de antes: vale para o Mercado e para os widgets de outros apps que usam o

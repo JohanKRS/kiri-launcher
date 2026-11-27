@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -93,11 +94,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -110,8 +113,10 @@ import io.github.johankrs.kiri.core.layout.FOLDER_NAME_MAX
 import io.github.johankrs.kiri.core.layout.HomeLayout
 import io.github.johankrs.kiri.core.layout.ItemContent
 import io.github.johankrs.kiri.core.layout.folders
+import io.github.johankrs.kiri.core.gesture.Gesture
 import io.github.johankrs.kiri.core.look.FolderGrid
 import io.github.johankrs.kiri.core.look.FolderLook
+import io.github.johankrs.kiri.core.look.FolderPanelCells
 import io.github.johankrs.kiri.core.look.IconShape
 import io.github.johankrs.kiri.data.AppRepository
 import io.github.johankrs.kiri.ui.theme.KiriTheme
@@ -167,10 +172,20 @@ private val PANEL_CORNER = 24.dp
 private val PanelShape = RoundedCornerShape(PANEL_CORNER)
 private val PANEL_MARGIN = 12.dp
 
-/** Apps side by side in an open folder never come nearer than this, however narrow the screen. */
-private val LEAST_GAP = 4.dp
-private val PANEL_TITLE = 40.dp
 private val LABEL_GAP = 6.dp
+
+/**
+ * The name of an open folder sits outside the panel, on a label of the same glass just above
+ * it, so the panel itself is only its apps, with the same room on every side.
+ */
+private val TITLE_HEIGHT = 36.dp
+private val TITLE_GAP = 8.dp
+private val TITLE_PAD = 16.dp
+private val TITLE_LEAST_WIDTH = 72.dp
+private val TitleShape = RoundedCornerShape(50)
+
+/** While the name is changed its label is at least this wide, to type into. */
+private val TITLE_EDIT_WIDTH = 160.dp
 
 /**
  * How far along its way (see [lead]) the glass of the panel has taken over from that of the
@@ -486,6 +501,9 @@ internal class FolderOpening(private val scope: CoroutineScope) {
 
     private var settling: Job? = null
 
+    /** A swipe made beside the open folder is going on: closed, it stays until the finger lifts. */
+    private var heldBySwipe = false
+
     fun isShowing(id: String): Boolean = shown?.folderId == id
 
     /** How far open, between 0 and 1, for what only fades in with it. Read while drawing. */
@@ -554,11 +572,25 @@ internal class FolderOpening(private val scope: CoroutineScope) {
                     visibilityThreshold = 0.001f,
                 ),
             ) { value, _ -> progress = value }
-            if (!open) closeNow()
+            if (!open && !heldBySwipe) closeNow()
         }
     }
 
     fun close() = settle(false)
+
+    /**
+     * Closes for a swipe that started beside the folder and belongs to the home screen. The
+     * folder is kept until [swipeDone], so the finger that made the swipe is followed to the end.
+     */
+    fun closeForSwipe() {
+        heldBySwipe = true
+        settle(false)
+    }
+
+    fun swipeDone() {
+        heldBySwipe = false
+        if (settling?.isActive != true && progress <= 0f) closeNow()
+    }
 
     /** Gone at once, as when an app was opened from it. */
     fun closeNow() {
@@ -590,17 +622,13 @@ private class ClosedPlace(val corner: Offset, val side: Float, val hidden: Boole
 private class PanelGeometry(
     val face: Rect,
     val panel: Rect,
-    val columns: Int,
     val count: Int,
-    val cellWidth: Float,
-    val icon: Float,
-    val labelBlock: Float,
-    val rowGap: Float,
-    val pad: Float,
-    val titleHeight: Float,
+    val cells: FolderPanelCells,
+    /** The label with the name, above the panel; empty when the name is not shown. */
+    val title: Rect,
     val closed: FolderGrid.Closed,
 ) {
-    val title: Rect get() = Rect(panel.left + pad, panel.top + pad * 0.5f, panel.right - pad, panel.top + pad + titleHeight)
+    val icon: Float get() = cells.icon
 
     /** The panel on its way: grown [lead] of the way from the closed folder. */
     fun panelAt(lead: Float): Rect = Rect(
@@ -616,10 +644,10 @@ private class PanelGeometry(
      * name is changed), and what is placed this way moves with it, on the same frame.
      */
     fun slotInPanel(index: Int): Offset {
-        val (column, row) = FolderGrid.cell(index, count, columns)
+        val (column, row) = FolderGrid.cell(index, count, cells.columns)
         return Offset(
-            x = pad + column * cellWidth + (cellWidth - icon) / 2f,
-            y = pad + titleHeight + row * (icon + labelBlock + rowGap),
+            x = cells.pad + column * cells.cell + cells.iconLeft,
+            y = cells.pad + row * cells.cell + cells.iconTop,
         )
     }
 
@@ -651,11 +679,12 @@ private class PanelGeometry(
         return ClosedPlace(corner, slot.size * 0.4f * side, hidden = true)
     }
 
-    /** The app whose place (icon and name) is under [point], or -1. */
+    /** The app whose cell (its icon, its name and the room around them) is under [point], or -1. */
     fun slotAt(point: Offset): Int = (0 until count).firstOrNull { index ->
         val corner = slot(index)
-        val left = corner.x - (cellWidth - icon) / 2f
-        point.x >= left && point.x < left + cellWidth && point.y >= corner.y && point.y < corner.y + icon + labelBlock
+        val left = corner.x - cells.iconLeft
+        val top = corner.y - cells.iconTop
+        point.x >= left && point.x < left + cells.cell && point.y >= top && point.y < top + cells.cell
     } ?: -1
 
     /** The place nearest to [point]. */
@@ -685,12 +714,18 @@ internal fun FolderOverlay(
     onRename: (name: String) -> Unit,
     onReorder: (order: List<String>) -> Unit,
     onCarryOut: (app: AppEntry, iconBounds: Rect) -> Unit,
+    onAppLongPress: (app: AppEntry, iconBounds: Rect) -> Unit = { _, _ -> },
+    onAppDragStart: () -> Unit = {},
+    homeSwipes: HomeSwipes? = null,
 ) {
     val shown = opening.shown ?: return
     val look = LocalFolderLook.current
     val launchApp by rememberUpdatedState(onLaunch)
     val reorder by rememberUpdatedState(onReorder)
     val carryOut by rememberUpdatedState(onCarryOut)
+    val appLongPress by rememberUpdatedState(onAppLongPress)
+    val appDragStart by rememberUpdatedState(onAppDragStart)
+    val swipes by rememberUpdatedState(homeSwipes)
     val rename by rememberUpdatedState(onRename)
     val currentLook by rememberUpdatedState(look)
     val density = LocalDensity.current
@@ -760,47 +795,72 @@ internal fun FolderOverlay(
         val iconFull = with(density) { spec.iconSizeDp.dp.toPx() }
             .let { full -> if (shown.face.width > 1f) minOf(full, shown.face.width) else full }
         val gap = with(density) { look.panelGapDp.dp.toPx() }
-        val leastGap = with(density) { LEAST_GAP.toPx() }
-        val roomWidth = widthPx - safeLeft - safeRight - 2f * margin - 2f * pad
-        val cellWidth = minOf(iconFull + gap, roomWidth / columns).coerceAtLeast(1f)
-        val labelWidthPx = (cellWidth - with(density) { 4.dp.toPx() }).roundToInt().coerceAtLeast(1)
+        val rowGap = with(density) { look.panelRowGapDp.dp.toPx() }
+        val roomWidth = widthPx - safeLeft - safeRight - 2f * margin
+        // The name shows while it is changed even where the folder is set to show none.
+        val titled = look.panelTitle || renaming
+        val above = if (titled) with(density) { (TITLE_HEIGHT + TITLE_GAP).toPx() } else 0f
+        val roomHeight = heightPx - safeTop - safeBottom - 2f * margin - above
+        // The names are as wide as a cell, which is known once their height is: measured first
+        // for one line, the cells then follow from the names as they are.
+        val oneLine = if (look.panelNames) with(density) { LABEL_GAP.toPx() + labelStyle.lineHeight.toPx() } else 0f
+        val leastGap = with(density) { FolderPanelCells.LEAST_GAP_DP.dp.toPx() }
+        val leastRowGap = with(density) { FolderPanelCells.LEAST_ROW_GAP_DP.dp.toPx() }
+        val firstCells = FolderPanelCells.of(count, columns, iconFull, oneLine, gap, rowGap, pad, roomWidth, roomHeight, leastGap, leastRowGap)
+        val labelWidthPx = (firstCells.cell - with(density) { 4.dp.toPx() }).roundToInt().coerceAtLeast(1)
         val labelTexts = remember(apps) { apps.map { it.label } }
         val labels = rememberLabelMetricsOf(labelTexts, labelWidthPx, labelStyle, look.panelNames)
         val labelBlock = if (look.panelNames) with(density) { (LABEL_GAP + labels.height).toPx() } else 0f
-        // The name shows while it is changed even where the folder is set to show none.
-        val titleHeight = if (look.panelTitle || renaming) with(density) { PANEL_TITLE.toPx() } else 0f
-        val rowGapFull = with(density) { look.panelRowGapDp.dp.toPx() }
+        val titleStyle = KiriType.body.copy(color = onGlass.content, fontSize = 18.sp, lineHeight = 22.sp)
+        val measurer = rememberTextMeasurer()
+        val titleText = if (renaming) draftName.text.ifEmpty { stringResource(R.string.folder_rename_hint) } else name
+        val titleWidth = remember(titleText, titleStyle, renaming, roomWidth, density) {
+            val text = measurer.measure(titleText, titleStyle, maxLines = 1).size.width
+            with(density) {
+                val least = (if (renaming) TITLE_EDIT_WIDTH else TITLE_LEAST_WIDTH).toPx()
+                (text + 2f * TITLE_PAD.toPx()).coerceAtLeast(least).coerceAtMost(roomWidth)
+            }
+        }
 
-        val geometry = remember(shown.face, widthPx, heightPx, safeLeft, safeRight, safeTop, safeBottom, keyboard, count, columns, cellWidth, labelBlock, titleHeight, look) {
-            val rows = FolderGrid.rows(count, columns)
-            // Too many rows for the screen: the icons and the room between them get smaller.
-            val room = heightPx - safeTop - safeBottom - 2f * margin
-            val fixed = 2f * pad + titleHeight + rows * labelBlock
-            val variable = rows * iconFull + (rows - 1) * rowGapFull
-            val shrink = if (variable > 0f && fixed + variable > room) ((room - fixed) / variable).coerceIn(0.35f, 1f) else 1f
-            // Apps side by side keep a little room between them however narrow the screen.
-            val icon = (iconFull * shrink).coerceAtMost(cellWidth - leastGap).coerceAtLeast(1f)
-            val rowGap = rowGapFull * shrink
-            val width = columns * cellWidth + 2f * pad
-            val height = 2f * pad + titleHeight + rows * (icon + labelBlock) + (rows - 1) * rowGap
+        val geometry = remember(shown.face, widthPx, heightPx, safeLeft, safeRight, safeTop, safeBottom, keyboard, count, columns, labelBlock, above, titleWidth, look) {
+            val cells = FolderPanelCells.of(
+                count = count,
+                columns = columns,
+                icon = iconFull,
+                labelBlock = labelBlock,
+                gap = gap,
+                rowGap = rowGap,
+                pad = pad,
+                roomWidth = roomWidth,
+                roomHeight = roomHeight,
+                leastGap = leastGap,
+                leastRowGap = leastRowGap,
+            )
+            val width = cells.width
+            val height = cells.height
             val face = shown.face
             val left = (face.center.x - width / 2f)
                 .coerceIn(safeLeft + margin, max(safeLeft + margin, widthPx - safeRight - margin - width))
             // Above the keyboard if it fits; if not, the top (with the name) stays in sight.
             val bottom = max(safeBottom, keyboard)
             val top = (face.center.y - height / 2f)
-                .coerceIn(safeTop + margin, max(safeTop + margin, heightPx - bottom - margin - height))
+                .coerceIn(safeTop + margin + above, max(safeTop + margin + above, heightPx - bottom - margin - height))
+            val panel = Rect(left, top, left + width, top + height)
+            val title = if (titled) {
+                val gapPx = with(density) { TITLE_GAP.toPx() }
+                val heightPxTitle = with(density) { TITLE_HEIGHT.toPx() }
+                val titleLeft = (panel.center.x - titleWidth / 2f)
+                    .coerceIn(safeLeft + margin, max(safeLeft + margin, widthPx - safeRight - margin - titleWidth))
+                Rect(titleLeft, top - gapPx - heightPxTitle, titleLeft + titleWidth, top - gapPx)
+            } else {
+                Rect.Zero
+            }
             PanelGeometry(
                 face = face,
-                panel = Rect(left, top, left + width, top + height),
-                columns = columns,
+                panel = panel,
                 count = count,
-                cellWidth = cellWidth,
-                icon = icon,
-                labelBlock = labelBlock,
-                rowGap = rowGap,
-                pad = pad,
-                titleHeight = titleHeight,
+                cells = cells,
+                title = title,
                 closed = FolderGrid.closed(count, look),
             )
         }
@@ -863,19 +923,53 @@ internal fun FolderOverlay(
                                     }
                                 }
 
+                                open && currentLook.panelTitle && g.title.contains(down.position) -> renaming = true
+
                                 !inPanel -> {
                                     finishRename()
                                     opening.close()
                                 }
-
-                                open && currentLook.panelTitle && g.title.contains(down.position) -> renaming = true
 
                                 else -> opening.settle(opening.progress >= 0.5f)
                             }
 
                             Touch.DRAG -> {
                                 val moved = crossedAt - down.position
-                                if (abs(moved.y) >= abs(moved.x)) {
+                                val home = swipes
+                                if (abs(moved.y) >= abs(moved.x) && open && !inPanel && home != null) {
+                                    // Beside the panel a swipe is the home screen's: the folder
+                                    // closes and the swipe does what it does there.
+                                    finishRename()
+                                    opening.closeForSwipe()
+                                    val direction = if (moved.y < 0f) Gesture.SWIPE_UP else Gesture.SWIPE_DOWN
+                                    val along: (Float) -> Float = { dy -> if (direction == Gesture.SWIPE_UP) -dy else dy }
+                                    val followed = home.onSwipeStart(direction)
+                                    var total = moved.y
+                                    var lifted = false
+                                    try {
+                                        if (followed) home.onSwipeMove(along(moved.y))
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                            tracker.addPosition(change.uptimeMillis, change.position)
+                                            change.consume()
+                                            if (!change.pressed) {
+                                                lifted = true
+                                                break
+                                            }
+                                            val dy = change.position.y - change.previousPosition.y
+                                            total += dy
+                                            if (followed) home.onSwipeMove(along(dy))
+                                        }
+                                    } finally {
+                                        when {
+                                            followed -> home.onSwipeEnd(if (lifted) along(tracker.calculateVelocity().y) else 0f)
+                                            lifted && abs(total) > SWIPE_THRESHOLD.toPx() ->
+                                                home.onGesture(if (total < 0f) Gesture.SWIPE_UP else Gesture.SWIPE_DOWN)
+                                        }
+                                        opening.swipeDone()
+                                    }
+                                } else if (abs(moved.y) >= abs(moved.x)) {
                                     finishRename()
                                     // The panel follows the finger, up or down.
                                     while (true) {
@@ -903,6 +997,10 @@ internal fun FolderOverlay(
                                 liftOrigin.value = origin
                                 liftOffset.value = Offset.Zero
                                 liftedKey = heldKey
+                                // Held still, the app shows its menu, as on the home screen; carried,
+                                // the menu makes way and the app goes where the finger takes it.
+                                appLongPress(list[hit], Rect(origin, Size(g.icon, g.icon)))
+                                var dragging = false
                                 var carried = false
                                 while (true) {
                                     val event = awaitPointerEvent()
@@ -910,6 +1008,10 @@ internal fun FolderOverlay(
                                     if (!change.pressed) break
                                     change.consume()
                                     val delta = change.position - down.position
+                                    if (!dragging && delta.getDistance() > viewConfiguration.touchSlop) {
+                                        dragging = true
+                                        appDragStart()
+                                    }
                                     liftOffset.value = delta
                                     val out = CARRY_OUT_MARGIN.toPx()
                                     if (!g.panel.inflate(out).contains(change.position)) {
@@ -1001,39 +1103,50 @@ internal fun FolderOverlay(
                 Box(Modifier.fillMaxSize().glassTrim(glass, PanelShape, clip = morph, fade = panelTrim))
             }
 
-            if (look.panelTitle || renaming) {
-                val titleStyle = KiriType.body.copy(color = onGlass.content, fontSize = 18.sp, lineHeight = 22.sp)
-                val titleWidth = with(density) { (geometry.panel.width - 2f * geometry.pad).coerceAtLeast(0f).toDp() }
-                val titleModifier = Modifier
-                    .offset {
-                        val t = lead(opening.progress).coerceAtMost(1f)
-                        val from = geometry.face.topLeft + Offset(6.dp.toPx(), 8.dp.toPx())
-                        val to = Offset(geometry.panel.left + geometry.pad + 2.dp.toPx(), geometry.panel.top + geometry.pad - 2.dp.toPx())
-                        Offset(lerp(from.x, to.x, t), lerp(from.y, to.y, t)).rounded()
-                    }
-                    .width(titleWidth)
-                    .graphicsLayer { alpha = smoothStep(0.55f, 1f, opening.progress) }
-                if (renaming) {
-                    BasicTextField(
-                        value = draftName,
-                        onValueChange = { if (it.text.length <= FOLDER_NAME_MAX) draftName = it },
-                        singleLine = true,
-                        textStyle = titleStyle,
-                        cursorBrush = SolidColor(onGlass.content),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = { finishRename() }),
-                        modifier = titleModifier.focusRequester(focus),
-                        decorationBox = { field ->
-                            Box {
-                                if (draftName.text.isEmpty()) {
-                                    BasicText(stringResource(R.string.folder_rename_hint), style = titleStyle.copy(color = onGlass.contentMuted))
+            if (titled) {
+                // The name, on its own label of the same glass just above the panel. It comes
+                // out of the closed folder with the panel and is all there by the time it is open.
+                val titleSize = with(density) { DpSize(geometry.title.width.toDp(), geometry.title.height.toDp()) }
+                val titleIn: () -> Float = { smoothStep(0.55f, 1f, opening.progress) }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .offset {
+                            val t = lead(opening.progress).coerceAtMost(1f)
+                            val from = Offset(geometry.face.center.x - geometry.title.width / 2f, geometry.face.top)
+                            val to = geometry.title.topLeft
+                            Offset(lerp(from.x, to.x, t), lerp(from.y, to.y, t)).rounded()
+                        }
+                        .size(titleSize)
+                        .graphicsLayer { alpha = titleIn() }
+                        .kiriGlass(glass, TitleShape, look.panelOpacity, vivid = glass.vivid)
+                        .padding(horizontal = TITLE_PAD),
+                ) {
+                    if (renaming) {
+                        BasicTextField(
+                            value = draftName,
+                            onValueChange = { if (it.text.length <= FOLDER_NAME_MAX) draftName = it },
+                            singleLine = true,
+                            textStyle = titleStyle.copy(textAlign = TextAlign.Center),
+                            cursorBrush = SolidColor(onGlass.content),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { finishRename() }),
+                            modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                            decorationBox = { field ->
+                                Box(contentAlignment = Alignment.Center) {
+                                    if (draftName.text.isEmpty()) {
+                                        BasicText(
+                                            stringResource(R.string.folder_rename_hint),
+                                            style = titleStyle.copy(color = onGlass.contentMuted, textAlign = TextAlign.Center),
+                                        )
+                                    }
+                                    field()
                                 }
-                                field()
-                            }
-                        },
-                    )
-                } else {
-                    BasicText(text = name, style = titleStyle, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = titleModifier)
+                            },
+                        )
+                    } else {
+                        BasicText(text = name, style = titleStyle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
             }
 
@@ -1222,8 +1335,23 @@ internal fun FolderLayer(opening: FolderOpening, content: @Composable (ShownFold
     content(shown)
 }
 
+/**
+ * The swipes of the home screen, for one made beside an open folder: as on the home screen
+ * itself (see [HomeSurface]), a swipe first asks [onSwipeStart] whether someone follows the
+ * finger, and otherwise is told to [onGesture] once it is complete.
+ */
+internal class HomeSwipes(
+    val onGesture: (Gesture) -> Unit,
+    val onSwipeStart: (Gesture) -> Boolean,
+    val onSwipeMove: (alongPx: Float) -> Unit,
+    val onSwipeEnd: (velocityAlongPx: Float) -> Unit,
+)
+
 /** What a touch on an open folder turned out to be. */
 private enum class Touch { TAP, DRAG, HELD, GONE }
+
+/** How far a swipe beside an open folder goes to count, as on the home screen. */
+private val SWIPE_THRESHOLD = 48.dp
 
 /** How far out of the panel a held app must go to be taken out of the folder. */
 private val CARRY_OUT_MARGIN = 20.dp
@@ -1260,8 +1388,8 @@ private suspend fun AwaitPointerEventScope.waitForAllUp() {
 }
 
 /**
- * A still picture of an open folder, for the settings: the panel with its name and apps, in
- * the look being adjusted.
+ * A still picture of an open folder, for the settings: the panel with its apps and its name
+ * above it, in the look being adjusted, as wide as it can be in [roomWidth].
  */
 @Composable
 internal fun FolderPanelPicture(
@@ -1269,7 +1397,7 @@ internal fun FolderPanelPicture(
     apps: List<AppEntry>,
     spec: GridSpec,
     repository: AppRepository,
-    cellWidth: Dp,
+    roomWidth: Dp,
     modifier: Modifier = Modifier,
     look: FolderLook = LocalFolderLook.current,
 ) {
@@ -1279,40 +1407,62 @@ internal fun FolderPanelPicture(
     val onGlass = glass.spec(look.panelOpacity)
     val labelStyle = appLabelStyle().copy(color = onGlass.content)
     val columns = FolderGrid.columns(apps.size, most = spec.columns, chosen = look.columns)
-    val rows = FolderGrid.rows(apps.size, columns)
-    val labelWidthPx = with(density) { (cellWidth - 4.dp).roundToPx() }.coerceAtLeast(1)
+    val icon = spec.iconSizeDp.toFloat()
+    fun cellsFor(labelBlock: Float) = FolderPanelCells.of(
+        count = apps.size,
+        columns = columns,
+        icon = icon,
+        labelBlock = labelBlock,
+        gap = look.panelGapDp,
+        rowGap = look.panelRowGapDp,
+        pad = look.panelMarginDp,
+        roomWidth = roomWidth.value,
+        roomHeight = Float.MAX_VALUE,
+    )
+    val oneLine = if (look.panelNames) LABEL_GAP.value + with(density) { labelStyle.lineHeight.toDp().value } else 0f
+    val labelWidthPx = with(density) { (cellsFor(oneLine).cell.dp - 4.dp).roundToPx() }.coerceAtLeast(1)
     val labels = rememberLabelMetricsOf(remember(apps) { apps.map { it.label } }, labelWidthPx, labelStyle, look.panelNames)
-    val iconPx = with(density) { spec.iconSizeDp.dp.roundToPx() }
+    val cells = cellsFor(if (look.panelNames) LABEL_GAP.value + labels.height.value else 0f)
+    val iconPx = with(density) { cells.icon.dp.roundToPx() }
     Column(
-        verticalArrangement = Arrangement.spacedBy(0.dp),
-        modifier = modifier
-            .kiriGlass(glass, PanelShape, look.panelOpacity, vivid = glass.vivid)
-            .padding(look.panelMarginDp.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(TITLE_GAP),
+        modifier = modifier,
     ) {
         if (look.panelTitle) {
-            BasicText(
-                text = name,
-                maxLines = 1,
-                style = KiriType.body.copy(color = onGlass.content, fontSize = 18.sp, lineHeight = 22.sp),
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .height(PANEL_TITLE)
-                    .padding(start = 2.dp),
-            )
+                    .height(TITLE_HEIGHT)
+                    .widthIn(min = TITLE_LEAST_WIDTH, max = cells.width.dp)
+                    .kiriGlass(glass, TitleShape, look.panelOpacity, vivid = glass.vivid)
+                    .padding(horizontal = TITLE_PAD),
+            ) {
+                BasicText(
+                    text = name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = KiriType.body.copy(color = onGlass.content, fontSize = 18.sp, lineHeight = 22.sp),
+                )
+            }
         }
         Layout(
+            modifier = Modifier
+                .size(cells.width.dp, cells.height.dp)
+                .kiriGlass(glass, PanelShape, look.panelOpacity, vivid = glass.vivid),
             content = {
                 for (app in apps) {
                     key(app.key) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             val picture by rememberAppIcon(app, repository, iconPx)
-                            IconFace(picture, Modifier.size(spec.iconSizeDp.dp))
+                            IconFace(picture, Modifier.size(cells.icon.dp))
                             if (look.panelNames) {
                                 Spacer(Modifier.height(LABEL_GAP))
                                 BasicText(
                                     text = app.label,
                                     style = labels.styleFor(app.label),
                                     modifier = Modifier
-                                        .width(cellWidth - 4.dp)
+                                        .width(cells.cell.dp - 4.dp)
                                         .heightIn(min = labels.height),
                                 )
                             }
@@ -1321,16 +1471,16 @@ internal fun FolderPanelPicture(
                 }
             },
         ) { measurables, _ ->
-            val cell = cellWidth.roundToPx()
-            val gap = look.panelRowGapDp.dp.roundToPx()
-            val placeables = measurables.map { it.measure(Constraints(maxWidth = cell)) }
-            val rowHeight = placeables.maxOfOrNull { it.height } ?: 0
-            layout(cell * columns, rowHeight * rows + gap * (rows - 1)) {
+            val cell = cells.cell.dp.toPx()
+            val pad = cells.pad.dp.toPx()
+            val top = cells.iconTop.dp.toPx()
+            val placeables = measurables.map { it.measure(Constraints(maxWidth = cell.roundToInt())) }
+            layout(cells.width.dp.roundToPx(), cells.height.dp.roundToPx()) {
                 placeables.forEachIndexed { index, placeable ->
                     val (column, row) = FolderGrid.cell(index, apps.size, columns)
                     placeable.place(
-                        x = (column * cell + (cell - placeable.width) / 2f).roundToInt(),
-                        y = row * (rowHeight + gap),
+                        x = (pad + column * cell + (cell - placeable.width) / 2f).roundToInt(),
+                        y = (pad + row * cell + top).roundToInt(),
                     )
                 }
             }
@@ -1387,9 +1537,7 @@ internal fun FolderSamples(
         ) {
             val open = samples.getOrElse(1) { samples.first() }
             val openApps = open.appKeys.mapNotNull { appsByKey[it] }
-            val columns = FolderGrid.columns(openApps.size, most = spec.columns, chosen = look.columns)
-            val room = maxWidth - faceCell - 12.dp - look.panelMarginDp.dp * 2
-            val cellWidth = minOf((small.iconSizeDp + look.panelGapDp).dp, room / columns)
+            val room = maxWidth - faceCell - 12.dp
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -1418,7 +1566,7 @@ internal fun FolderSamples(
                     apps = openApps,
                     spec = small,
                     repository = repository,
-                    cellWidth = cellWidth,
+                    roomWidth = room,
                     look = look,
                 )
             }
