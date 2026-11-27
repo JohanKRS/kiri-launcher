@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Google Play's build (the build type "play", the app bundle of a release). Play asks each of
+    the permissions below to be declared and justified before it publishes even an internal
+    test, and it takes none of them for what Kiri uses them for. So this build goes without
+    them, and Kiri offers instead what it can do:
+    - all files: the glass blurs only a wallpaper chosen in Kiri, of which it keeps its own copy;
+    - every app: apps with an icon, widgets and icon packs are still seen (the queries in the
+      main manifest), but not the widgets of an app that has no icon of its own;
+    - photos: a TV picks its picture with another app, where it has one.
+    The accessibility service stays: Play takes it for locking the screen once it is declared in
+    the Play Console, with the disclosure Kiri shows before it (LockDisclosureScreen) and a video.
+    The APK of a release, from GitHub, keeps everything.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove" />
+</manifest>

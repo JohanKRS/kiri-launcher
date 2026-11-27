@@ -29,6 +29,19 @@ jobs:
       - name: Test and build the debug and optimized APKs
         run: ./gradlew :core:test :app:assembleDebug :app:assembleOptimized --stacktrace
 
+      # Google Play's build (unsigned here): it must still build, and leave out what Play asks to
+      # be declared (see app/src/play/AndroidManifest.xml).
+      - name: Build Google Play's bundle and check its permissions
+        run: |
+          ./gradlew :app:bundlePlay --stacktrace
+          manifest="$(unzip -p app/build/outputs/bundle/play/app-play.aab base/manifest/AndroidManifest.xml | tr -d '\000')"
+          for name in MANAGE_EXTERNAL_STORAGE QUERY_ALL_PACKAGES READ_MEDIA_IMAGES; do
+            if [[ "$manifest" == *"$name"* ]]; then
+              echo "Google Play's bundle still has $name." >&2
+              exit 1
+            fi
+          done
+
       - name: Check that nothing from the personal folder is in the app
         run: |
           if unzip -p app/build/outputs/apk/debug/app-debug.apk 'classes*.dex' | grep -a -q 'kiri/personal'; then

@@ -113,6 +113,7 @@ import io.github.johankrs.kiri.core.layout.FOLDER_NAME_MAX
 import io.github.johankrs.kiri.core.layout.HomeLayout
 import io.github.johankrs.kiri.core.layout.ItemContent
 import io.github.johankrs.kiri.core.layout.folders
+import io.github.johankrs.kiri.core.gesture.Gesture
 import io.github.johankrs.kiri.core.look.FolderGrid
 import io.github.johankrs.kiri.core.look.FolderLook
 import io.github.johankrs.kiri.core.look.FolderPanelCells
@@ -500,6 +501,9 @@ internal class FolderOpening(private val scope: CoroutineScope) {
 
     private var settling: Job? = null
 
+    /** A swipe made beside the open folder is going on: closed, it stays until the finger lifts. */
+    private var heldBySwipe = false
+
     fun isShowing(id: String): Boolean = shown?.folderId == id
 
     /** How far open, between 0 and 1, for what only fades in with it. Read while drawing. */
@@ -568,11 +572,25 @@ internal class FolderOpening(private val scope: CoroutineScope) {
                     visibilityThreshold = 0.001f,
                 ),
             ) { value, _ -> progress = value }
-            if (!open) closeNow()
+            if (!open && !heldBySwipe) closeNow()
         }
     }
 
     fun close() = settle(false)
+
+    /**
+     * Closes for a swipe that started beside the folder and belongs to the home screen. The
+     * folder is kept until [swipeDone], so the finger that made the swipe is followed to the end.
+     */
+    fun closeForSwipe() {
+        heldBySwipe = true
+        settle(false)
+    }
+
+    fun swipeDone() {
+        heldBySwipe = false
+        if (settling?.isActive != true && progress <= 0f) closeNow()
+    }
 
     /** Gone at once, as when an app was opened from it. */
     fun closeNow() {
@@ -696,12 +714,18 @@ internal fun FolderOverlay(
     onRename: (name: String) -> Unit,
     onReorder: (order: List<String>) -> Unit,
     onCarryOut: (app: AppEntry, iconBounds: Rect) -> Unit,
+    onAppLongPress: (app: AppEntry, iconBounds: Rect) -> Unit = { _, _ -> },
+    onAppDragStart: () -> Unit = {},
+    homeSwipes: HomeSwipes? = null,
 ) {
     val shown = opening.shown ?: return
     val look = LocalFolderLook.current
     val launchApp by rememberUpdatedState(onLaunch)
     val reorder by rememberUpdatedState(onReorder)
     val carryOut by rememberUpdatedState(onCarryOut)
+    val appLongPress by rememberUpdatedState(onAppLongPress)
+    val appDragStart by rememberUpdatedState(onAppDragStart)
+    val swipes by rememberUpdatedState(homeSwipes)
     val rename by rememberUpdatedState(onRename)
     val currentLook by rememberUpdatedState(look)
     val density = LocalDensity.current
@@ -911,7 +935,41 @@ internal fun FolderOverlay(
 
                             Touch.DRAG -> {
                                 val moved = crossedAt - down.position
-                                if (abs(moved.y) >= abs(moved.x)) {
+                                val home = swipes
+                                if (abs(moved.y) >= abs(moved.x) && open && !inPanel && home != null) {
+                                    // Beside the panel a swipe is the home screen's: the folder
+                                    // closes and the swipe does what it does there.
+                                    finishRename()
+                                    opening.closeForSwipe()
+                                    val direction = if (moved.y < 0f) Gesture.SWIPE_UP else Gesture.SWIPE_DOWN
+                                    val along: (Float) -> Float = { dy -> if (direction == Gesture.SWIPE_UP) -dy else dy }
+                                    val followed = home.onSwipeStart(direction)
+                                    var total = moved.y
+                                    var lifted = false
+                                    try {
+                                        if (followed) home.onSwipeMove(along(moved.y))
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                            tracker.addPosition(change.uptimeMillis, change.position)
+                                            change.consume()
+                                            if (!change.pressed) {
+                                                lifted = true
+                                                break
+                                            }
+                                            val dy = change.position.y - change.previousPosition.y
+                                            total += dy
+                                            if (followed) home.onSwipeMove(along(dy))
+                                        }
+                                    } finally {
+                                        when {
+                                            followed -> home.onSwipeEnd(if (lifted) along(tracker.calculateVelocity().y) else 0f)
+                                            lifted && abs(total) > SWIPE_THRESHOLD.toPx() ->
+                                                home.onGesture(if (total < 0f) Gesture.SWIPE_UP else Gesture.SWIPE_DOWN)
+                                        }
+                                        opening.swipeDone()
+                                    }
+                                } else if (abs(moved.y) >= abs(moved.x)) {
                                     finishRename()
                                     // The panel follows the finger, up or down.
                                     while (true) {
@@ -939,6 +997,10 @@ internal fun FolderOverlay(
                                 liftOrigin.value = origin
                                 liftOffset.value = Offset.Zero
                                 liftedKey = heldKey
+                                // Held still, the app shows its menu, as on the home screen; carried,
+                                // the menu makes way and the app goes where the finger takes it.
+                                appLongPress(list[hit], Rect(origin, Size(g.icon, g.icon)))
+                                var dragging = false
                                 var carried = false
                                 while (true) {
                                     val event = awaitPointerEvent()
@@ -946,6 +1008,10 @@ internal fun FolderOverlay(
                                     if (!change.pressed) break
                                     change.consume()
                                     val delta = change.position - down.position
+                                    if (!dragging && delta.getDistance() > viewConfiguration.touchSlop) {
+                                        dragging = true
+                                        appDragStart()
+                                    }
                                     liftOffset.value = delta
                                     val out = CARRY_OUT_MARGIN.toPx()
                                     if (!g.panel.inflate(out).contains(change.position)) {
@@ -1269,8 +1335,23 @@ internal fun FolderLayer(opening: FolderOpening, content: @Composable (ShownFold
     content(shown)
 }
 
+/**
+ * The swipes of the home screen, for one made beside an open folder: as on the home screen
+ * itself (see [HomeSurface]), a swipe first asks [onSwipeStart] whether someone follows the
+ * finger, and otherwise is told to [onGesture] once it is complete.
+ */
+internal class HomeSwipes(
+    val onGesture: (Gesture) -> Unit,
+    val onSwipeStart: (Gesture) -> Boolean,
+    val onSwipeMove: (alongPx: Float) -> Unit,
+    val onSwipeEnd: (velocityAlongPx: Float) -> Unit,
+)
+
 /** What a touch on an open folder turned out to be. */
 private enum class Touch { TAP, DRAG, HELD, GONE }
+
+/** How far a swipe beside an open folder goes to count, as on the home screen. */
+private val SWIPE_THRESHOLD = 48.dp
 
 /** How far out of the panel a held app must go to be taken out of the folder. */
 private val CARRY_OUT_MARGIN = 20.dp

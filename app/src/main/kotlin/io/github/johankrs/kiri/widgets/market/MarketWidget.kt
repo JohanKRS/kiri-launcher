@@ -36,7 +36,6 @@ import io.github.johankrs.kiri.market.MarketFormat
 import io.github.johankrs.kiri.market.MarketRepository
 import io.github.johankrs.kiri.market.MarketWidgetSpec
 import io.github.johankrs.kiri.market.QuoteResult
-import io.github.johankrs.kiri.market.extra.ExtraSources
 import io.github.johankrs.kiri.market.sparkline
 import io.github.johankrs.kiri.widgets.KiriWidget
 import io.github.johankrs.kiri.widgets.SnapScroll
@@ -50,7 +49,7 @@ import kotlinx.coroutines.launch
 @Stable
 class MarketWidget(context: Context) : KiriWidget {
     private val store = MarketStore(context)
-    private val repository = MarketRepository(extras = ExtraSources::create)
+    private val repository = MarketRepository(complete = SourceAppDirectory(context)::list)
     private val controller = MarketController(repository)
 
     override val spec: WidgetSpec = MarketWidgetSpec.SPEC

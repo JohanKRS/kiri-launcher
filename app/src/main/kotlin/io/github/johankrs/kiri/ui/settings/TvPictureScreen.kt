@@ -104,10 +104,11 @@ fun TvPictureScreen(
             contentPadding = PaddingValues(bottom = 24.dp),
             modifier = Modifier.fillMaxSize(),
         ) {
-            if (otherApp != null || !allowed) {
+            val canAsk = !allowed && pictures.canAsk
+            if (otherApp != null || canAsk) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     SettingsGroup {
-                        if (!allowed) {
+                        if (canAsk) {
                             SettingsLinkRow(
                                 title = stringResource(R.string.tv_picker_allow),
                                 summary = stringResource(R.string.tv_picker_allow_summary),
