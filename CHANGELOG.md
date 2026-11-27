@@ -9,6 +9,8 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+## [0.4.0] - 2026-11-27
+
 ### Papéis de parede animados
 - Seis papéis de parede animados que o próprio Kiri desenha: Aurora viva, Bruma, Fios de névoa,
   Pastilhas de luz, Serra na névoa e Flores de kiri. Cada um vem nas seis cores do ícone do Kiri
@@ -76,6 +78,10 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 - Os ajustes do widget Mercado, abertos pelo menu do widget na TV, mostram o widget como a TV o
   desenha e só o que vale lá: atualizar a cada, a lista e de onde vêm os preços. Tamanho de teste,
   vidro, cantos e gráfico, que são do widget do celular, ficam de fora (#15).
+
+### Google Play
+- As notas desta versão para a Play ficam em `fastlane/metadata/android/*/changelogs/400.txt`,
+  em português e em inglês (#20).
 
 ## [0.3.0] - 2026-11-27
 

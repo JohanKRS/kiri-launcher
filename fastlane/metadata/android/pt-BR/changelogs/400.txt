@@ -1,0 +1,6 @@
+• Tema claro ou escuro nas configurações, e a TV começa no escuro.
+• Papéis de parede animados: seis cenas do Kiri, com a Aurora viva como padrão da TV.
+• Backup automático das configurações: todo dia, a cada alguns dias, toda semana ou todo mês.
+• TV: o botão Home do controle pode abrir o Kiri, só com a sua permissão.
+• TV: configurações só com o que vale na TV, sombra e espaço entre os banners.
+• Seletores alinhados em todas as telas de configurações.
