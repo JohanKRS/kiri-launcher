@@ -136,6 +136,7 @@ import io.github.johankrs.kiri.core.tv.HomeRoute
 import io.github.johankrs.kiri.core.tv.TvWallpaper
 import io.github.johankrs.kiri.core.tv.TvWidgetKind
 import io.github.johankrs.kiri.data.AppRepository
+import io.github.johankrs.kiri.data.AutoBackups
 import io.github.johankrs.kiri.data.Backups
 import io.github.johankrs.kiri.data.HomeButton
 import io.github.johankrs.kiri.data.InstalledCheck
@@ -149,6 +150,7 @@ import io.github.johankrs.kiri.data.expandNotifications
 import io.github.johankrs.kiri.isTelevision
 import io.github.johankrs.kiri.market.MarketWidgetSpec
 import io.github.johankrs.kiri.ui.settings.AppIconScreen
+import io.github.johankrs.kiri.ui.settings.AutoBackupScreen
 import io.github.johankrs.kiri.ui.settings.BackupScreen
 import io.github.johankrs.kiri.ui.settings.DrawerLookScreen
 import io.github.johankrs.kiri.ui.settings.FolderSettingsScreen
@@ -237,6 +239,9 @@ private enum class Screen {
     APP_ICON_SETTINGS,
     BACKUP,
     BACKUP_RESTORE,
+
+    /** When and where Kiri saves a backup by itself. */
+    BACKUP_AUTO,
     TV_SCREEN_SETTINGS,
 
     /** The pictures to choose the TV's wallpaper from. */
@@ -444,6 +449,7 @@ fun KiriApp(
     // The wallpaper as Kiri reads it, and its blurred picture for glass to show through.
     val wallpaper = remember { WallpaperSource.of(context) }
     val backups = remember { Backups.of(context) }
+    val autoBackups = remember { AutoBackups.of(context) }
     val systemBlur = rememberSystemBlurEnabled()
     val blurRadiusPx = with(density) { drawerLook.blurDp.dp.toPx() }
     val deepBlurPx = with(density) { DEEP_BLUR.toPx() }
@@ -1334,6 +1340,7 @@ fun KiriApp(
                             val back = targetState == Screen.SETTINGS ||
                                 (targetState == Screen.WIDGETS && initialState == Screen.WIDGET_SETTINGS) ||
                                 (targetState == Screen.BACKUP && initialState == Screen.BACKUP_RESTORE) ||
+                                (targetState == Screen.BACKUP && initialState == Screen.BACKUP_AUTO) ||
                                 (targetState == Screen.TV_SCREEN_SETTINGS && initialState == Screen.TV_PICTURE) ||
                                 initialState == Screen.LOCK_DISCLOSURE
                             val direction = if (back) -1 else 1
@@ -1775,6 +1782,15 @@ fun KiriApp(
                                 onAllowFiles = allowWallpaper,
                                 canAllowFiles = wallpaper.canAsk,
                                 onOpened = { push(Screen.BACKUP_RESTORE) },
+                                auto = autoBackups,
+                                onOpenAuto = { push(Screen.BACKUP_AUTO) },
+                                onBack = pop,
+                            )
+
+                            Screen.BACKUP_AUTO -> AutoBackupScreen(
+                                auto = autoBackups,
+                                backups = backups,
+                                formFactor = formFactor,
                                 onBack = pop,
                             )
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto_backup_title">Automatic backup</string>
+    <string name="auto_backup_caption">Kiri saves a backup by itself, without you opening anything. The ones you save by hand stay as they are.</string>
+    <string name="auto_backup_off">Off</string>
+    <string name="auto_backup_next">Next: %1$s, around %2$s</string>
+    <string name="auto_backup_next_soon">Next: as soon as it can</string>
+    <string name="auto_backup_today">today</string>
+    <string name="auto_backup_tomorrow">tomorrow</string>
+
+    <string name="auto_backup_section_when">When</string>
+    <string name="auto_backup_repeat">Repeat</string>
+    <string name="auto_backup_repeat_daily">Every day</string>
+    <string name="auto_backup_repeat_days">Every %1$d days</string>
+    <string name="auto_backup_repeat_weekly">Every week</string>
+    <string name="auto_backup_repeat_monthly">Every month</string>
+    <string name="auto_backup_every">Interval</string>
+    <string name="auto_backup_weekday">Day</string>
+    <string name="auto_backup_month_day">Day of the month</string>
+    <string name="auto_backup_hour">Time</string>
+    <string name="auto_backup_hour_note">Around that time: Android picks the best moment, to spare the battery. If the device is off then, it is made as soon as it can be.</string>
+
+    <string name="auto_backup_section_where">Where</string>
+    <string name="auto_backup_target">Save to</string>
+    <string name="auto_backup_target_folder">A folder</string>
+    <string name="auto_backup_target_file">One file</string>
+    <string name="auto_backup_folder">Folder</string>
+    <string name="auto_backup_file">File</string>
+    <string name="auto_backup_file_none">Choose where (Google Drive or another place)</string>
+    <string name="auto_backup_place">%1$s · %2$s</string>
+    <string name="auto_backup_where_device">on this device</string>
+    <string name="auto_backup_where_card">memory card</string>
+    <string name="auto_backup_where_other">another app</string>
+    <string name="auto_backup_keep">Keep the last</string>
+    <string name="auto_backup_only_changed">Only when something changed</string>
+    <string name="auto_backup_only_changed_summary">Skips a backup equal to the last one</string>
+    <string name="auto_backup_folder_note">Older automatic backups leave that folder by themselves. The ones you saved by hand stay.</string>
+    <string name="auto_backup_file_note">The same file is replaced each time. In Google Drive, the earlier versions stay under Manage versions for 30 days.</string>
+    <string name="auto_backup_place_refused">That place does not let Kiri save there again later. Choose another.</string>
+    <string name="auto_backup_no_picker">This device has no folder picker: backups stay in Download/Kiri.</string>
+
+    <string name="auto_backup_keys_on">Included, locked with your password</string>
+    <string name="auto_backup_keys_typing">Type the password that will lock them</string>
+    <string name="auto_backup_keys_saving">Keeping the key…</string>
+    <string name="auto_backup_keys_note">The password itself is not kept, only a key drawn from it, locked by Android. To restore the keys, type that same password.</string>
+    <string name="auto_backup_keys_failed">This device would not keep the key, so the keys stay out.</string>
+
+    <string name="auto_backup_section_last">Last automatic backup</string>
+    <string name="auto_backup_none">None yet</string>
+    <string name="auto_backup_none_on">The first one comes at the next time</string>
+    <string name="auto_backup_none_off">Turn it on to start</string>
+    <string name="auto_backup_unchanged">%1$s · nothing changed</string>
+    <string name="auto_backup_unchanged_summary">The one before stays: %1$s</string>
+    <string name="auto_backup_keys_left">%1$s · without the keys: type the password again</string>
+    <string name="auto_backup_failed">%1$s · could not save</string>
+    <string name="auto_backup_failed_access">The folder or file can no longer be reached. Choose it again under Where.</string>
+    <string name="auto_backup_failed_place">No file chosen under Where yet.</string>
+    <string name="auto_backup_failed_space">There is not enough room.</string>
+    <string name="auto_backup_failed_other">It tries again next time.</string>
+    <string name="auto_backup_now">Save one now</string>
+    <string name="auto_backup_now_summary">Right now, to the same place, even with no changes</string>
+
+    <string name="auto_backup_when_daily">Every day, around %1$s</string>
+    <string name="auto_backup_when_days">Every %1$d days, around %2$s</string>
+    <string name="auto_backup_when_weekly">Every %1$s, around %2$s</string>
+    <string name="auto_backup_when_monthly">Every month on day %1$s, around %2$s</string>
+
+    <plurals name="auto_backup_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+</resources>

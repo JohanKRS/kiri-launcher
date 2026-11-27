@@ -93,7 +93,7 @@ private const val HOLD_REPEAT_MS = 70L
 
 enum class Glyph {
     MINUS, PLUS, BACK, FORWARD, CLOSE, INFO, SHAPES, TUNE, CHECK, WIDGETS, PICTURE, EDIT, STORE, UNINSTALL, EYE, HIDE,
-    PAGES, SAVE, OPEN, UNDO, FILE, HOME,
+    PAGES, SAVE, OPEN, UNDO, FILE, HOME, CLOCK,
 }
 
 /** Small line icons drawn by hand, so no icon library is needed. Thin lines: they are quiet. */
@@ -330,6 +330,13 @@ fun GlyphIcon(glyph: Glyph, color: Color, modifier: Modifier = Modifier) {
                 line(0.44f, 0.82f, 0.44f, 0.62f)
                 line(0.44f, 0.62f, 0.56f, 0.62f)
                 line(0.56f, 0.62f, 0.56f, 0.82f)
+            }
+
+            // A clock face at a few past three: something made on its own, at a time.
+            Glyph.CLOCK -> {
+                drawCircle(color = color, radius = size.minDimension * 0.37f, style = Stroke(width = stroke))
+                line(0.5f, 0.3f, 0.5f, 0.5f)
+                line(0.5f, 0.5f, 0.64f, 0.59f)
             }
 
             // A sheet with a folded corner: a file.
@@ -863,6 +870,8 @@ fun ToggleCard(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     summary: String? = null,
+    /** The lines the summary takes at least, so a summary that grows does not move the rows under it. */
+    summaryLines: Int = 1,
 ) {
     val colors = KiriTheme.colors
     GroupRow(modifier) { row ->
@@ -876,7 +885,7 @@ fun ToggleCard(
             Column(Modifier.weight(1f)) {
                 BasicText(text = label, style = KiriType.body.copy(color = colors.onSurface))
                 if (summary != null) {
-                    BasicText(text = summary, style = KiriType.caption.copy(color = colors.onSurfaceMuted))
+                    BasicText(text = summary, style = KiriType.caption.copy(color = colors.onSurfaceMuted), minLines = summaryLines)
                 }
             }
             Spacer(Modifier.width(12.dp))

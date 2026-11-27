@@ -66,6 +66,7 @@ import io.github.johankrs.kiri.core.backup.BackupPart
 import io.github.johankrs.kiri.core.backup.BackupSummary
 import io.github.johankrs.kiri.core.backup.SecretLock
 import io.github.johankrs.kiri.core.backup.StoredValue
+import io.github.johankrs.kiri.data.AutoBackups
 import io.github.johankrs.kiri.data.Backups
 import io.github.johankrs.kiri.data.FoundBackup
 import io.github.johankrs.kiri.data.LastBackup
@@ -113,6 +114,9 @@ fun BackupScreen(
     onAllowFiles: () -> Unit,
     canAllowFiles: Boolean = true,
     onOpened: () -> Unit,
+    /** Opens the screen of the automatic backup, which [auto] makes. */
+    auto: AutoBackups,
+    onOpenAuto: () -> Unit,
     onBack: () -> Unit,
 ) {
     val colors = KiriTheme.colors
@@ -291,6 +295,14 @@ fun BackupScreen(
                     primary = true,
                     enabled = busy == null && (!keysWanted || passwordOk),
                     onClick = save,
+                )
+                ActionRow(
+                    glyph = Glyph.CLOCK,
+                    title = stringResource(R.string.auto_backup_title),
+                    summary = autoSummary(auto, formFactor),
+                    enabled = true,
+                    leads = true,
+                    onClick = onOpenAuto,
                 )
             }
 
@@ -505,7 +517,7 @@ private const val PASSWORD_PAUSE_MS = 450L
  * Without [onClick] it only says something.
  */
 @Composable
-private fun ActionRow(
+internal fun ActionRow(
     glyph: Glyph,
     title: String,
     summary: String,
@@ -555,7 +567,7 @@ private const val DISABLED_ALPHA = 0.45f
  * with it, or, [noteIsGood], that it is right. A tap anywhere on the row starts typing.
  */
 @Composable
-private fun PasswordRow(
+internal fun PasswordRow(
     label: String,
     hint: String,
     value: String,

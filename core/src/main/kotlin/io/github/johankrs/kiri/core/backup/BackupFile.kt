@@ -4,6 +4,8 @@ import io.github.johankrs.kiri.core.FormFactor
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.ByteBuffer
+import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -51,6 +53,47 @@ class Backup(
         /** [secrets] locked with [password], to go in a file. */
         fun lock(secrets: Map<String, StoredValue>, password: CharArray): Locked =
             SecretLock.lock(StoredValues.toJson(secrets).toString(), password)
+
+        /** [secrets] locked with a key prepared from a password, to go in a file. */
+        fun lock(secrets: Map<String, StoredValue>, prepared: PreparedKey): Locked =
+            SecretLock.lock(StoredValues.toJson(secrets).toString(), prepared)
+
+        /**
+         * What a backup holds, as one short text that changes whenever any of it changes and
+         * only then: its settings, the market's, the [secrets] it carries and the wallpaper.
+         * Not when it was made, nor on which device, nor the names it keeps. Two backups with
+         * the same are the same backup.
+         */
+        fun fingerprint(
+            settings: Map<String, StoredValue>,
+            market: Map<String, StoredValue>,
+            secrets: Map<String, StoredValue>?,
+            wallpaper: ByteArray?,
+        ): String {
+            val digest = MessageDigest.getInstance("SHA-256")
+            fun feed(text: String) {
+                val bytes = text.toByteArray(Charsets.UTF_8)
+                digest.update(ByteBuffer.allocate(4).putInt(bytes.size).array())
+                digest.update(bytes)
+            }
+            fun feed(values: Map<String, StoredValue>?) {
+                if (values == null) {
+                    feed("-")
+                    return
+                }
+                feed(values.size.toString())
+                for ((key, value) in values.toSortedMap()) {
+                    feed(key)
+                    feed(value::class.simpleName.orEmpty())
+                    feed(if (value is StoredValue.Texts) value.value.sorted().joinToString("\u0000") else value.raw.toString())
+                }
+            }
+            feed(settings)
+            feed(market)
+            feed(secrets)
+            if (wallpaper == null) feed("-") else digest.update(wallpaper)
+            return digest.digest().joinToString("") { "%02x".format(it) }
+        }
     }
 }
 

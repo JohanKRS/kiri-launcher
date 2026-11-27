@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto_backup_title">Backup automático</string>
+    <string name="auto_backup_caption">O Kiri salva um backup sozinho, sem você abrir nada. Os que você salva à mão continuam iguais.</string>
+    <string name="auto_backup_off">Desligado</string>
+    <string name="auto_backup_next">Próximo: %1$s, por volta das %2$s</string>
+    <string name="auto_backup_next_soon">Próximo: assim que der</string>
+    <string name="auto_backup_today">hoje</string>
+    <string name="auto_backup_tomorrow">amanhã</string>
+
+    <string name="auto_backup_section_when">Quando</string>
+    <string name="auto_backup_repeat">Repetir</string>
+    <string name="auto_backup_repeat_daily">Todo dia</string>
+    <string name="auto_backup_repeat_days">A cada %1$d dias</string>
+    <string name="auto_backup_repeat_weekly">Toda semana</string>
+    <string name="auto_backup_repeat_monthly">Todo mês</string>
+    <string name="auto_backup_every">Intervalo</string>
+    <string name="auto_backup_weekday">Dia</string>
+    <string name="auto_backup_month_day">Dia do mês</string>
+    <string name="auto_backup_hour">Horário</string>
+    <string name="auto_backup_hour_note">Por volta desse horário: o Android escolhe o melhor momento, sem gastar bateria. Se o aparelho estiver desligado, sai assim que der.</string>
+
+    <string name="auto_backup_section_where">Onde</string>
+    <string name="auto_backup_target">Salvar em</string>
+    <string name="auto_backup_target_folder">Uma pasta</string>
+    <string name="auto_backup_target_file">Um arquivo</string>
+    <string name="auto_backup_folder">Pasta</string>
+    <string name="auto_backup_file">Arquivo</string>
+    <string name="auto_backup_file_none">Escolher onde (Google Drive ou outro lugar)</string>
+    <string name="auto_backup_place">%1$s · %2$s</string>
+    <string name="auto_backup_where_device">neste aparelho</string>
+    <string name="auto_backup_where_card">cartão de memória</string>
+    <string name="auto_backup_where_other">outro app</string>
+    <string name="auto_backup_keep">Guardar os últimos</string>
+    <string name="auto_backup_only_changed">Só quando algo mudar</string>
+    <string name="auto_backup_only_changed_summary">Não salva outro igual ao último</string>
+    <string name="auto_backup_folder_note">Os mais antigos do backup automático saem sozinhos dessa pasta. Os que você salvou à mão ficam.</string>
+    <string name="auto_backup_file_note">O mesmo arquivo é trocado a cada vez. No Google Drive, as versões anteriores ficam em Gerenciar versões por 30 dias.</string>
+    <string name="auto_backup_place_refused">Esse lugar não deixa o Kiri voltar a salvar depois. Escolha outro.</string>
+    <string name="auto_backup_no_picker">Este aparelho não tem seletor de pastas: os backups ficam em Download/Kiri.</string>
+
+    <string name="auto_backup_keys_on">Vão trancadas com a sua senha</string>
+    <string name="auto_backup_keys_typing">Digite a senha que vai trancar as chaves</string>
+    <string name="auto_backup_keys_saving">Guardando a chave…</string>
+    <string name="auto_backup_keys_note">A senha em si não fica guardada: só uma chave tirada dela, trancada pelo Android. Para restaurar as chaves, é essa mesma senha.</string>
+    <string name="auto_backup_keys_failed">Este aparelho não deixou guardar a chave, então as chaves ficam de fora.</string>
+
+    <string name="auto_backup_section_last">Último automático</string>
+    <string name="auto_backup_none">Nenhum ainda</string>
+    <string name="auto_backup_none_on">O primeiro sai no próximo horário</string>
+    <string name="auto_backup_none_off">Ligue para começar</string>
+    <string name="auto_backup_unchanged">%1$s · nada mudou</string>
+    <string name="auto_backup_unchanged_summary">Ficou o anterior: %1$s</string>
+    <string name="auto_backup_keys_left">%1$s · sem as chaves: digite a senha de novo</string>
+    <string name="auto_backup_failed">%1$s · não deu para salvar</string>
+    <string name="auto_backup_failed_access">A pasta ou o arquivo não está mais acessível. Escolha de novo em Onde.</string>
+    <string name="auto_backup_failed_place">Falta escolher o arquivo em Onde.</string>
+    <string name="auto_backup_failed_space">Falta espaço.</string>
+    <string name="auto_backup_failed_other">Tenta de novo no próximo horário.</string>
+    <string name="auto_backup_now">Salvar um agora</string>
+    <string name="auto_backup_now_summary">Agora, no mesmo lugar, mesmo sem mudanças</string>
+
+    <string name="auto_backup_when_daily">Todo dia, por volta das %1$s</string>
+    <string name="auto_backup_when_days">A cada %1$d dias, por volta das %2$s</string>
+    <string name="auto_backup_when_weekly">Toda semana, %1$s, por volta das %2$s</string>
+    <string name="auto_backup_when_monthly">Todo mês, dia %1$s, por volta das %2$s</string>
+
+    <plurals name="auto_backup_days">
+        <item quantity="one">%d dia</item>
+        <item quantity="many">%d dias</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+</resources>

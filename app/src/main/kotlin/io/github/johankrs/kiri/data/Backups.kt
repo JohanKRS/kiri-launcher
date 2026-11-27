@@ -20,11 +20,14 @@ import io.github.johankrs.kiri.core.backup.BackupFile
 import io.github.johankrs.kiri.core.backup.BackupInfo
 import io.github.johankrs.kiri.core.backup.BackupPart
 import io.github.johankrs.kiri.core.backup.BackupSummary
+import io.github.johankrs.kiri.core.backup.PreparedKey
 import io.github.johankrs.kiri.core.backup.StoredValue
 import io.github.johankrs.kiri.core.look.WallpaperSetup
 import io.github.johankrs.kiri.widgets.market.MarketStore
 import io.github.johankrs.kiri.widgets.system.SystemWidgets
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -151,26 +154,70 @@ class Backups private constructor(private val appContext: Context) {
             lock.withLock {
                 val backup = make(appNames, formFactor, password, forUndo = false) ?: return@withLock false
                 val name = suggestedName()
-                runCatching {
-                    val resolver = appContext.contentResolver
-                    val values = ContentValues().apply {
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                        put(MediaStore.MediaColumns.MIME_TYPE, BackupFile.MIME)
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, DOWNLOADS_FOLDER)
-                        put(MediaStore.MediaColumns.IS_PENDING, 1)
-                    }
-                    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return@runCatching false
-                    val written = resolver.openOutputStream(uri, "w")?.use { BackupFile.write(backup, it) } != null
-                    if (!written) {
-                        resolver.delete(uri, null, null)
-                        return@runCatching false
-                    }
-                    resolver.update(uri, ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }, null, null)
-                    remember(LastBackup(name, DOWNLOADS_AUTHORITY, System.currentTimeMillis()))
-                    true
-                }.getOrDefault(false)
+                val written = writeToDownloads(name) { BackupFile.write(backup, it) } != null
+                if (written) remember(LastBackup(name, DOWNLOADS_AUTHORITY, System.currentTimeMillis()))
+                written
             }
         }
+
+    /**
+     * Writes a new file named [name] in the device's Download/Kiri folder, with what [write] puts
+     * in it. The file, or null when it could not be written; then nothing is left behind.
+     */
+    internal fun writeToDownloads(name: String, write: (OutputStream) -> Unit): Uri? = runCatching {
+        val resolver = appContext.contentResolver
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, BackupFile.MIME)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, DOWNLOADS_FOLDER)
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return@runCatching null
+        val written = runCatching { resolver.openOutputStream(uri, "w")?.use(write) != null }.getOrDefault(false)
+        if (!written) {
+            resolver.delete(uri, null, null)
+            return@runCatching null
+        }
+        resolver.update(uri, ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }, null, null)
+        uri
+    }.getOrNull()
+
+    /**
+     * Everything as it is now, as the bytes of a backup file, for the automatic backup. The
+     * market keys go in locked with [prepared], or, without it, not at all. Null when the
+     * settings could not be read.
+     */
+    internal suspend fun snapshot(appNames: Map<String, String>, formFactor: FormFactor, prepared: PreparedKey?): Snapshot? =
+        withContext(Dispatchers.IO) {
+            lock.withLock {
+                val backup = make(appNames, formFactor, password = null, forUndo = false, prepared = prepared) ?: return@withLock null
+                val carried = if (backup.lockedSecrets != null) market.dumpAll()?.second else null
+                val bytes = runCatching { ByteArrayOutputStream().also { BackupFile.write(backup, it) }.toByteArray() }.getOrNull()
+                    ?: return@withLock null
+                Snapshot(
+                    bytes = bytes,
+                    fingerprint = Backup.fingerprint(backup.settings, backup.market, carried, backup.wallpaper),
+                    hasKeys = backup.lockedSecrets != null,
+                    keysLeftOut = prepared == null && market.dumpAll()?.second?.isNotEmpty() == true,
+                )
+            }
+        }
+
+    /** A backup made for the automatic backup, ready to be written. */
+    class Snapshot(
+        val bytes: ByteArray,
+        /** What it holds, summed up: equal to the last one's when nothing changed. */
+        val fingerprint: String,
+        /** Whether the market keys are in it, locked. */
+        val hasKeys: Boolean,
+        /** Whether there are market keys that were left out of it. */
+        val keysLeftOut: Boolean,
+    )
+
+    /** Notes a backup saved somewhere else, such as by the automatic backup, as the last one. */
+    fun noteSaved(backup: LastBackup) {
+        remember(backup)
+    }
 
     /** The backups in the device's Download/Kiri folder, newest first. */
     suspend fun findInDownloads(): List<FoundBackup> = withContext(Dispatchers.IO) {
@@ -343,7 +390,13 @@ class Backups private constructor(private val appContext: Context) {
     }
 
     /** A backup of everything as it is now; null when the settings could not be read. */
-    private suspend fun make(appNames: Map<String, String>, formFactor: FormFactor, password: CharArray?, forUndo: Boolean): Backup? {
+    private suspend fun make(
+        appNames: Map<String, String>,
+        formFactor: FormFactor,
+        password: CharArray?,
+        forUndo: Boolean,
+        prepared: PreparedKey? = null,
+    ): Backup? {
         val saved = settings.dumpAll() ?: return null
         val (plain, secrets) = market.dumpAll() ?: (emptyMap<String, StoredValue>() to emptyMap())
         val names = HashMap<String, String>()
@@ -364,13 +417,19 @@ class Backups private constructor(private val appContext: Context) {
             settings = saved + (APP_ICON to StoredValue.Text(appIcons.current().name)),
             market = plain,
             secrets = if (forUndo) secrets else null,
-            lockedSecrets = if (!forUndo && password != null && secrets.isNotEmpty()) Backup.lock(secrets, password) else null,
+            lockedSecrets = when {
+                forUndo || secrets.isEmpty() -> null
+                password != null -> Backup.lock(secrets, password)
+                prepared != null -> Backup.lock(secrets, prepared)
+                else -> null
+            },
             names = names,
             wallpaper = if (studio.version > 0) studio.originalBytes(BackupFile.MAX_WALLPAPER) else null,
         )
     }
 
     private fun remember(backup: LastBackup) {
+        // Also from the automatic backup, which may run away from the main thread.
         notes.edit()
             .putString(KEY_LAST_NAME, backup.name)
             .putString(KEY_LAST_AUTHORITY, backup.authority)

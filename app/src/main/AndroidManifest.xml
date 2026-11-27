@@ -100,6 +100,12 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
 
+    <!--
+        Lets the automatic backup, when it is on, still be made after the device restarts:
+        Android keeps Kiri's job to wake it only for apps that may hear the device start.
+    -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!-- Lets a gesture pull down the notification shade. -->
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
@@ -223,6 +229,12 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Where Android wakes Kiri to make the automatic backup (see AutoBackups). -->
+        <service
+            android:name=".AutoBackupJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <!-- Kiri's live wallpapers, drawn by Kiri; chosen in Kiri's wallpaper settings. -->
         <service

@@ -45,6 +45,13 @@ class Locked(val salt: ByteArray, val iv: ByteArray, val rounds: Int, val data: 
 }
 
 /**
+ * The key a password stands for, drawn from it once with its [salt] and [rounds]: what locks a
+ * text the same way the password would, without the password itself being kept. For the
+ * automatic backup, which locks the market keys while nobody is there to type the password.
+ */
+class PreparedKey(val salt: ByteArray, val rounds: Int, val key: ByteArray)
+
+/**
  * Locks a text with a password and opens it again: AES in GCM mode, with a key drawn from the
  * password by PBKDF2 (SHA-256) and a salt of its own. A wrong password, or a locked text that
  * was changed, opens to nothing.
@@ -65,6 +72,23 @@ object SecretLock {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key(password, salt, rounds), GCMParameterSpec(128, iv))
         return Locked(salt = salt, iv = iv, rounds = rounds, data = cipher.doFinal(text.toByteArray(Charsets.UTF_8)))
+    }
+
+    /** The key [password] stands for, with a salt of its own, to [lock] with later. */
+    fun prepare(password: CharArray, random: SecureRandom = SecureRandom(), rounds: Int = ROUNDS): PreparedKey {
+        val salt = ByteArray(16).also(random::nextBytes)
+        return PreparedKey(salt = salt, rounds = rounds, key = key(password, salt, rounds).encoded)
+    }
+
+    /**
+     * Locks [text] with a key [prepare]d from a password: what comes out opens with [open] and
+     * that password, exactly like a lock made with the password itself.
+     */
+    fun lock(text: String, prepared: PreparedKey, random: SecureRandom = SecureRandom()): Locked {
+        val iv = ByteArray(12).also(random::nextBytes)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(prepared.key, "AES"), GCMParameterSpec(128, iv))
+        return Locked(salt = prepared.salt.copyOf(), iv = iv, rounds = prepared.rounds, data = cipher.doFinal(text.toByteArray(Charsets.UTF_8)))
     }
 
     /** The text [locked] holds, or null when [password] is not the one it was locked with. */
