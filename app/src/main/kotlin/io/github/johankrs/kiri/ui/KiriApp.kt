@@ -515,12 +515,14 @@ fun KiriApp(
     val push: (Screen) -> Unit = { screen -> stack = stack + screen }
 
     // On a TV, once: where the Home button opens another home screen, Kiri offers to be it.
-    LaunchedEffect(root, loaded.tv.homeButtonOffered) {
-        if (root != Screen.TV_HOME || loaded.tv.homeButtonOffered) return@LaunchedEffect
+    // The screen opens before the offer is saved: saving it ends this effect.
+    val homeButtonOffered = loaded.tv.homeButtonOffered
+    LaunchedEffect(root, homeButtonOffered) {
+        if (root != Screen.TV_HOME || homeButtonOffered) return@LaunchedEffect
         val home = withContext(Dispatchers.Default) { HomeButton.state(context) }
         if (home.route == HomeRoute.KIRI) return@LaunchedEffect
-        settings.setTvHomeButtonOffered()
         if (stack == listOf(root)) push(Screen.TV_HOME_BUTTON)
+        settings.setTvHomeButtonOffered()
     }
     // The backup being restored is not kept when Android ends the app: its screen closes.
     LaunchedEffect(current) { if (current == Screen.BACKUP_RESTORE && backups.opened == null) pop() }

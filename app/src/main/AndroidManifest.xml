@@ -37,6 +37,16 @@
         <intent>
             <action android:name="android.settings.MANAGE_DEFAULT_APPS_SETTINGS" />
         </intent>
+        <!-- The accessibility settings, to open the page that is really there (a TV's own one). -->
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_DETAILS_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.ACCESSIBILITY_TV_OEM_LINK" />
+        </intent>
         <!-- Icon packs, so their icons can be chosen for an app. -->
         <intent>
             <action android:name="org.adw.launcher.THEMES" />

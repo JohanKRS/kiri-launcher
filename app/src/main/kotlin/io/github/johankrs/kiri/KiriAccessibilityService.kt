@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
@@ -14,6 +15,7 @@ import io.github.johankrs.kiri.core.tv.OtherHome
 import io.github.johankrs.kiri.core.tv.TvHomeButton
 import io.github.johankrs.kiri.data.HomeButton
 import io.github.johankrs.kiri.data.SettingsStore
+import io.github.johankrs.kiri.data.openFirstReal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -153,8 +155,27 @@ class KiriAccessibilityService : AccessibilityService() {
             runCatching {
                 if (pm.getComponentEnabledSetting(me) != state) {
                     pm.setComponentEnabledSetting(me, state, PackageManager.DONT_KILL_APP)
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) tellAndroid11(context)
                 }
             }
+        }
+
+        /**
+         * Makes Android 11 look at Kiri's services again. Up to Android 11 the accessibility
+         * settings only look again when a whole app changes, not one of its parts: a service
+         * just turned on stays out of the list (seen on a Hisense TV, Android 11). Kiri switches
+         * between the two ways of being enabled that mean the same (on by default, on by choice),
+         * which Android tells as a change of the whole app, without stopping it.
+         */
+        private fun tellAndroid11(context: Context) {
+            val pm = context.packageManager
+            val now = pm.getApplicationEnabledSetting(context.packageName)
+            val next = if (now == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
+            } else {
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            }
+            pm.setApplicationEnabledSetting(context.packageName, next, PackageManager.DONT_KILL_APP)
         }
 
         /**
@@ -195,6 +216,8 @@ class KiriAccessibilityService : AccessibilityService() {
         /**
          * Opens Android's accessibility settings, on Kiri's own page where Android lets an app
          * go there, and otherwise on the list with Kiri picked out where the device does that.
+         * A TV with Google TV has its own page for them, under another name: the usual one only
+         * leads to "No app can perform this action" there.
          */
         fun openSettings(context: Context) {
             val me = ComponentName(context, KiriAccessibilityService::class.java).flattenToString()
@@ -202,13 +225,13 @@ class KiriAccessibilityService : AccessibilityService() {
             val list = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 .putExtra(FRAGMENT_ARGS_KEY, me)
                 .putExtra(SHOW_FRAGMENT_ARGS, Bundle().apply { putString(FRAGMENT_ARGS_KEY, me) })
-            for (intent in listOf(details, list)) {
-                val opened = runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-                if (opened.isSuccess) return
-            }
+            val tv = Intent(TV_SETTINGS)
+            val ways = if (context.isTelevision()) listOf(tv, details, list) else listOf(details, list)
+            context.openFirstReal(ways)
         }
 
         private const val DETAILS_SETTINGS = "android.settings.ACCESSIBILITY_DETAILS_SETTINGS"
+        private const val TV_SETTINGS = "android.settings.ACCESSIBILITY_TV_OEM_LINK"
         private const val FRAGMENT_ARGS_KEY = ":settings:fragment_args_key"
         private const val SHOW_FRAGMENT_ARGS = ":settings:show_fragment_args"
     }

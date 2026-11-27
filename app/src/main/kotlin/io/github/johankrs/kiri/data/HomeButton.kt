@@ -85,7 +85,5 @@ object HomeButton {
     /** Android's settings where the home screen is chosen, where the device has them. */
     fun settingsIntent(context: Context): Intent? =
         listOf(Intent(Settings.ACTION_HOME_SETTINGS), Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-            .firstOrNull { intent ->
-                runCatching { intent.resolveActivity(context.packageManager) != null }.getOrDefault(false)
-            }
+            .firstOrNull { intent -> context.opensReal(intent) }
 }
