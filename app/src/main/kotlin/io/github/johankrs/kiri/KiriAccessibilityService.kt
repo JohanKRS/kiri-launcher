@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
+import kotlinx.coroutines.delay
 
 /**
  * Kiri's accessibility service. It does only what an app cannot do by itself and what the person
@@ -63,8 +65,8 @@ class KiriAccessibilityService : AccessibilityService() {
 
         /**
          * Lets Android list the service ([wanted]) or takes it away again. Taken away, it is not
-         * only off but gone from the accessibility settings; offered again, it comes back on by
-         * itself when the person had turned it on before.
+         * only off but gone from the accessibility settings, and Android forgets it was on:
+         * offered again, the person turns it on once more (seen on a Galaxy S24, Android 17).
          */
         fun offer(context: Context, wanted: Boolean) {
             if (!exists(context)) return
@@ -81,6 +83,29 @@ class KiriAccessibilityService : AccessibilityService() {
                     pm.setComponentEnabledSetting(me, state, PackageManager.DONT_KILL_APP)
                 }
             }
+        }
+
+        /**
+         * Offers the service and opens Android's settings once they list it. Android takes a
+         * moment to see a component that was just turned on, and a settings page opened before
+         * that knows nothing of Kiri (One UI then shows only the general list).
+         */
+        suspend fun offerAndOpenSettings(context: Context) {
+            offer(context, true)
+            val manager = context.getSystemService(AccessibilityManager::class.java)
+            val me = ComponentName(context, KiriAccessibilityService::class.java)
+            fun listed(): Boolean = runCatching {
+                manager?.installedAccessibilityServiceList.orEmpty().any {
+                    val info = it.resolveInfo?.serviceInfo
+                    info != null && ComponentName(info.packageName, info.name) == me
+                }
+            }.getOrDefault(false)
+            // Two seconds at most: past that, the general list is still better than nothing.
+            for (attempt in 0 until 20) {
+                if (listed()) break
+                delay(100)
+            }
+            openSettings(context)
         }
 
         /** True when the person turned the service on, even before Android has started it. */

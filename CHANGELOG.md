@@ -44,7 +44,8 @@ Primeira versão também para o Google Play: o release traz, além do APK, o pac
 - O serviço de acessibilidade do Kiri só existe para o Android enquanto um gesto bloqueia a tela.
   Sem esse gesto ele some da lista de acessibilidade do aparelho, e os apps que se recusam a abrir
   ao lado de um serviço assim (alguns bancos) deixam de ver um no Kiri. Escolher de novo
-  "Bloquear a tela" o traz de volta (#5).
+  "Bloquear a tela" o traz de volta à lista e abre a página dele, onde é preciso ligá-lo outra
+  vez: o Android esquece que estava ligado (#5).
 
 ### Google Play
 - O Kiri passa a mirar o Android 16 (API 36), como o Google Play exige de todo app novo desde

@@ -491,8 +491,7 @@ fun KiriApp(
             LauncherAction.OpenNotifications -> context.expandNotifications()
             // Not on yet: Android's settings are where it is turned on (in a build that has it).
             LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen() && KiriAccessibilityService.exists(context)) {
-                KiriAccessibilityService.offer(context, true)
-                KiriAccessibilityService.openSettings(context)
+                scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
             }
             LauncherAction.OpenWidgets -> push(Screen.WIDGETS)
             LauncherAction.OpenPages -> if (root == Screen.HOME) {
@@ -1253,8 +1252,11 @@ fun KiriApp(
                                     // Chosen to lock the screen: straight to where that is turned on, with
                                     // the service listed there before Android's settings open.
                                     if (action == LauncherAction.LockScreen && KiriAccessibilityService.exists(context)) {
-                                        KiriAccessibilityService.offer(context, true)
-                                        if (!KiriAccessibilityService.isOn(context)) KiriAccessibilityService.openSettings(context)
+                                        if (KiriAccessibilityService.isOn(context)) {
+                                            KiriAccessibilityService.offer(context, true)
+                                        } else {
+                                            scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
+                                        }
                                     }
                                 },
                                 onBack = pop,
