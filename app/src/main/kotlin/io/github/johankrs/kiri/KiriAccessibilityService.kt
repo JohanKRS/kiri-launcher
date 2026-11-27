@@ -6,31 +6,97 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import io.github.johankrs.kiri.core.tv.OtherHome
+import io.github.johankrs.kiri.core.tv.TvHomeButton
+import io.github.johankrs.kiri.data.HomeButton
+import io.github.johankrs.kiri.data.SettingsStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Kiri's accessibility service. It does only what an app cannot do by itself and what the person
- * asked for: today, locking the screen from a gesture on the home screen ([lockScreen]). It
- * reads nothing on the screen and is sent no events. It stays off until the person turns it on
- * in Android's accessibility settings ([openSettings]).
+ * asked for:
+ * - locking the screen from a gesture on the home screen ([lockScreen]);
+ * - on a TV whose own home screen outranks every other (Google TV's does), coming in its place
+ *   when the Home button opens it, if the person asked for that ([watchHome]).
+ *
+ * It reads nothing on the screen. For the first it is sent no events at all; for the second only
+ * one kind, from that home screen's app alone: that one of its windows came up, with the name of
+ * its class. It stays off until the person turns it on in Android's accessibility settings
+ * ([openSettings]).
  *
  * More than off, it is absent while nothing needs it ([offer]): the manifest leaves it disabled,
- * and Kiri lets Android list it only while a gesture locks the screen. So a device where nobody
- * chose that has no accessibility service from Kiri at all, which apps that refuse to work beside
- * one (some banks do) can see.
+ * and Kiri lets Android list it only while a gesture locks the screen or the TV's Home button is
+ * to open Kiri. So a device where nobody chose that has no accessibility service from Kiri at all,
+ * which apps that refuse to work beside one (some banks do) can see.
  *
- * There is one service for all of Kiri: whatever else comes to need it, such as the buttons of
- * a TV remote, is added here rather than in a second one, so the person turns on only one.
+ * There is one service for all of Kiri: whatever else comes to need it, such as the other buttons
+ * of a TV remote, is added here rather than in a second one, so the person turns on only one.
  */
 class KiriAccessibilityService : AccessibilityService() {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    /** Whether the person wants Kiri in place of the TV's own home screen. */
+    private var homeWanted = false
+
+    /** The TV's own home screen while Kiri watches for it to come up; null while it does not. */
+    private var watched: OtherHome? = null
+
+    /** When Kiri last came in place of it, on the clock of [SystemClock.uptimeMillis]. */
+    private var lastReturn: Long? = null
+
     override fun onServiceConnected() {
         running = this
+        if (isTelevision()) {
+            scope.launch {
+                SettingsStore.of(this@KiriAccessibilityService).tvHomeButton.collect { wanted ->
+                    homeWanted = wanted
+                    watchHome()
+                }
+            }
+        }
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
+    /**
+     * Asks Android for the windows of the TV's own home screen coming up, and for nothing else,
+     * while the person wants Kiri on the Home button; for no events at all otherwise. What that
+     * home screen is can change (an update, another one chosen), so it is looked up again
+     * whenever Kiri comes to the front ([refresh]).
+     */
+    private fun watchHome() {
+        val other = if (homeWanted) HomeButton.other(this) else null
+        watched = other
+        val info = serviceInfo ?: return
+        val types = if (other != null) AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED else 0
+        val packages = other?.let { arrayOf(it.packageName) }
+        if (info.eventTypes == types && info.packageNames.contentEquals(packages)) return
+        info.eventTypes = types
+        info.packageNames = packages
+        serviceInfo = info
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        val other = watched ?: return
+        if (event == null || event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        if (!other.isShowing(event.packageName?.toString(), event.className?.toString())) return
+        val now = SystemClock.uptimeMillis()
+        if (!TvHomeButton.comesBack(now, lastReturn)) return
+        lastReturn = now
+        // As the Home button would open Kiri if it could: on its first screen.
+        val home = Intent(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_HOME)
+            .setClass(this, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        runCatching { startActivity(home) }
+    }
 
     override fun onInterrupt() = Unit
 
@@ -41,6 +107,7 @@ class KiriAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         if (running === this) running = null
+        scope.cancel()
         super.onDestroy()
     }
 
@@ -62,6 +129,11 @@ class KiriAccessibilityService : AccessibilityService() {
 
         /** Locks the screen, as the power button does. False when the service is not on. */
         fun lockScreen(): Boolean = running?.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN) == true
+
+        /** Looks again at what the Home button opens, as Kiri comes to the front. */
+        fun refresh() {
+            running?.watchHome()
+        }
 
         /**
          * Lets Android list the service ([wanted]) or takes it away again. Taken away, it is not

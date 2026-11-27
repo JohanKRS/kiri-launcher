@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_lock_screen">Bloquear a tela</string>
-    <string name="accessibility_description">Deixa o Kiri bloquear a tela quando você escolhe um gesto para isso, como o toque duplo na tela inicial. O Kiri não lê nada do que está na tela.</string>
+    <string name="accessibility_description">Deixa o Kiri bloquear a tela quando você escolhe um gesto para isso, como o toque duplo na tela inicial, e, numa TV cuja tela inicial de fábrica sempre vem na frente, abrir o Kiri no lugar dela quando você aperta Home. O Kiri não lê nada do que está na tela.</string>
     <string name="lock_turn_on">Ativar o bloqueio da tela</string>
     <string name="lock_turn_on_summary">O Android pede que o Kiri seja ligado em Acessibilidade antes de bloquear a tela</string>
     <string name="lock_not_in_this_build">Esta versão do Kiri, a do Google Play, não tem serviço de acessibilidade, então aqui nenhum gesto bloqueia a tela. O APK do GitHub bloqueia.</string>

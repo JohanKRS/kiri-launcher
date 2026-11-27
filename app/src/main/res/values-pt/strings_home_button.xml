@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fazer do Kiri o que o botão Home do controle da TV abre -->
+    <string name="tv_home_title">Botão Home</string>
+    <string name="tv_home_section">Tela inicial</string>
+    <string name="tv_home_summary_kiri">Abre o Kiri</string>
+    <string name="tv_home_summary_other">Por enquanto abre: %1$s</string>
+    <string name="tv_home_summary_waiting">Falta ligar o Kiri na Acessibilidade</string>
+    <string name="tv_home_opens">O botão Home abre</string>
+    <string name="tv_home_tv_own">Tela inicial da TV</string>
+    <string name="tv_home_tv_own_inline">a tela inicial de fábrica</string>
+    <string name="tv_home_note_kiri">Nada a fazer: o Kiri já é a tela inicial.</string>
+    <string name="tv_home_note_taken_over">%1$s ainda aparece por um instante, e o Kiri vem no lugar.</string>
+    <string name="tv_home_note_locked">Nesta TV, %1$s veio com prioridade sobre qualquer outra tela inicial: o Android abre essa tela mesmo quando você escolhe outra.</string>
+    <string name="tv_home_note_ask">O Android deixa escolher a tela inicial nesta TV.</string>
+    <string name="tv_home_note_asked">O Android manteve %1$s. O Kiri ainda pode vir no lugar.</string>
+
+    <string name="tv_home_official">Jeito do Android</string>
+    <string name="tv_home_ask">Pedir ao Android</string>
+    <string name="tv_home_ask_summary">O Android pergunta se o Kiri deve ser a tela inicial</string>
+    <string name="tv_home_ask_settings">Abrir Apps padrão</string>
+    <string name="tv_home_ask_settings_summary">Escolha o Kiri como app de tela inicial e volte</string>
+
+    <string name="tv_home_takeover">Kiri no lugar</string>
+    <string name="tv_home_takeover_intro">O Kiri pode perceber quando a tela inicial de fábrica aparece e abrir no lugar dela. Para isso ele usa o serviço de acessibilidade do Android, o único jeito que o Android dá a um app para saber disso.</string>
+    <string name="tv_home_does_title">O que o serviço faz</string>
+    <string name="tv_home_does">Quando uma janela de %1$s aparece, o Android conta ao Kiri qual é, e o Kiri abre se for a tela inicial. Ele não ouve nenhum outro app.</string>
+    <string name="tv_home_not_title">O que ele não faz</string>
+    <string name="tv_home_not">Não lê nada do que aparece na tela, não vê o que você digita nem o que você assiste, e não coleta nem envia dados.</string>
+    <string name="tv_home_off_title">Como desligar</string>
+    <string name="tv_home_off">Aqui mesmo, em Desligar: o serviço some da lista do Android e o Home volta a abrir %1$s.</string>
+    <string name="tv_home_allow">Permitir</string>
+    <string name="tv_home_allow_summary">Abre a Acessibilidade da TV, onde você liga o Kiri</string>
+    <string name="tv_home_decline">Agora não</string>
+    <string name="tv_home_decline_summary">O Home continua abrindo %1$s</string>
+
+    <string name="tv_home_on_title">Ligado</string>
+    <string name="tv_home_on">O Kiri vem no lugar de %1$s sempre que o botão Home abrir essa tela.</string>
+    <string name="tv_home_waiting_title">Falta um passo</string>
+    <string name="tv_home_waiting">Ligue o Kiri na Acessibilidade das configurações da TV e volte.</string>
+    <string name="tv_home_open_accessibility">Abrir a Acessibilidade</string>
+    <string name="tv_home_open_accessibility_summary">Ligue o Kiri lá</string>
+    <string name="tv_home_turn_off">Desligar</string>
+    <string name="tv_home_turn_off_summary">O Home volta a abrir %1$s, e o serviço some da lista do Android</string>
+</resources>
