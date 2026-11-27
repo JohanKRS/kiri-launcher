@@ -1,0 +1,6 @@
+• Light or dark theme in settings, and the TV starts in dark.
+• Animated wallpapers: six Kiri scenes, with live Aurora as the TV default.
+• Automatic settings backup: daily, every few days, weekly or monthly.
+• TV: the remote's Home button can open Kiri, only with your permission.
+• TV: settings show only what applies to the TV, plus shadow and banner spacing.
+• Aligned selectors on every settings screen.
