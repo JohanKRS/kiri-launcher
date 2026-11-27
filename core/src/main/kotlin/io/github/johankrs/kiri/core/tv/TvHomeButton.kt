@@ -66,10 +66,11 @@ object TvHomeButton {
     /**
      * Whether Kiri comes in place of the other home screen at [now], having come last at [last]
      * (both in milliseconds of the same clock): not twice within [GAP_MS], so a home screen that
-     * shows its window twice on the way up opens Kiri only once.
+     * tells of its window twice on the way up opens Kiri only once. The gap is shorter than Kiri
+     * takes to come up, so a Home pressed again once Kiri is there is never missed.
      */
     fun comesBack(now: Long, last: Long?): Boolean = last == null || now - last >= GAP_MS || now < last
 
     /** The least time between two returns to Kiri. */
-    const val GAP_MS = 600L
+    const val GAP_MS = 250L
 }

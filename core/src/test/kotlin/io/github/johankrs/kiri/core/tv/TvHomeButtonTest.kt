@@ -66,7 +66,7 @@ class TvHomeButtonTest {
     @Test
     fun `kiri comes back once for a home screen that shows twice`() {
         assertTrue(TvHomeButton.comesBack(now = 1_000, last = null))
-        assertFalse(TvHomeButton.comesBack(now = 1_200, last = 1_000))
+        assertFalse(TvHomeButton.comesBack(now = 1_100, last = 1_000))
         assertTrue(TvHomeButton.comesBack(now = 1_000 + TvHomeButton.GAP_MS, last = 1_000))
         // A clock that went back (a restart) never blocks.
         assertTrue(TvHomeButton.comesBack(now = 50, last = 1_000))
