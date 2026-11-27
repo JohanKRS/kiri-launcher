@@ -37,6 +37,11 @@ Primeira versão também para o Google Play: o release traz, além do APK, o pac
   31 de agosto de 2026 (#5).
 - Cada release traz também o `.aab`, assinado com a chave de release, e `scripts/release.sh`
   confere a assinatura dele como confere a do APK (#5).
+- O `.aab` é a versão do Google Play: o mesmo Kiri sem o que o Play pede para declarar e justificar
+  antes de publicar até um teste (acesso a todos os arquivos, ver todos os apps, fotos e o serviço
+  de acessibilidade). Nela o vidro desfoca o papel de parede escolhido no Kiri, nenhum gesto
+  bloqueia a tela, a TV escolhe a imagem por outro app e os widgets de apps sem ícone não
+  aparecem; cada tela que ofereceria uma dessas coisas diz isso. O APK continua com tudo (#5).
 - Política de privacidade: [docs/privacidade.md](docs/privacidade.md) (#5).
 
 ## [0.1.0] - 2026-11-26

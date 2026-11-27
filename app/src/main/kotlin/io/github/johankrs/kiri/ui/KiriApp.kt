@@ -489,8 +489,8 @@ fun KiriApp(
             LauncherAction.OpenDrawer -> push(Screen.DRAWER)
             LauncherAction.OpenSettings -> push(Screen.SETTINGS)
             LauncherAction.OpenNotifications -> context.expandNotifications()
-            // Not on yet: Android's settings are where it is turned on.
-            LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen()) {
+            // Not on yet: Android's settings are where it is turned on (in a build that has it).
+            LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen() && KiriAccessibilityService.exists(context)) {
                 KiriAccessibilityService.offer(context, true)
                 KiriAccessibilityService.openSettings(context)
             }
@@ -1242,7 +1242,7 @@ fun KiriApp(
                                     scope.launch { settings.setGesture(gesture, action) }
                                     // Chosen to lock the screen: straight to where that is turned on, with
                                     // the service listed there before Android's settings open.
-                                    if (action == LauncherAction.LockScreen) {
+                                    if (action == LauncherAction.LockScreen && KiriAccessibilityService.exists(context)) {
                                         KiriAccessibilityService.offer(context, true)
                                         if (!KiriAccessibilityService.isOn(context)) KiriAccessibilityService.openSettings(context)
                                     }
@@ -1250,6 +1250,7 @@ fun KiriApp(
                                 onBack = pop,
                                 lockReady = remember(refreshTick, gestures) { KiriAccessibilityService.isOn(context) },
                                 onTurnOnLock = { KiriAccessibilityService.openSettings(context) },
+                                canLock = remember(context) { KiriAccessibilityService.exists(context) },
                             )
 
                             Screen.MOTION_SETTINGS -> MotionSettingsScreen(
@@ -1265,6 +1266,8 @@ fun KiriApp(
                                 systemBlur = systemBlur,
                                 reading = wallpaper.reading,
                                 onAllowWallpaper = allowWallpaper,
+                                canAllowWallpaper = wallpaper.canAsk,
+                                onOpenWallpaper = { push(Screen.WALLPAPER_SETTINGS) },
                                 preview = { draft ->
                                     WallpaperStandIn(Modifier.fillMaxSize(), blurred = true) {
                                         DrawerSurface(
@@ -1480,6 +1483,7 @@ fun KiriApp(
                                 screen = backdrop.screenSize,
                                 canSeeFiles = wallpaper.canRead(),
                                 onAllowFiles = allowWallpaper,
+                                canAllowFiles = wallpaper.canAsk,
                                 onOpened = { push(Screen.BACKUP_RESTORE) },
                                 onBack = pop,
                             )

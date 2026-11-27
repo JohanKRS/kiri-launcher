@@ -368,6 +368,8 @@ fun DrawerLookScreen(
     reading: WallpaperReading?,
     onAllowWallpaper: () -> Unit,
     preview: @Composable (DrawerLook) -> Unit,
+    canAllowWallpaper: Boolean = true,
+    onOpenWallpaper: () -> Unit = {},
 ) {
     var draft by remember { mutableStateOf(look) }
     val change: (DrawerLook) -> Unit = { next ->
@@ -397,6 +399,8 @@ fun DrawerLookScreen(
                     systemBlur = systemBlur,
                     reading = reading,
                     onAllowWallpaper = onAllowWallpaper,
+                    canAllowWallpaper = canAllowWallpaper,
+                    onOpenWallpaper = onOpenWallpaper,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -415,6 +419,8 @@ fun DrawerLookScreen(
                 systemBlur = systemBlur,
                 reading = reading,
                 onAllowWallpaper = onAllowWallpaper,
+                canAllowWallpaper = canAllowWallpaper,
+                onOpenWallpaper = onOpenWallpaper,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -430,6 +436,8 @@ private fun DrawerLookControls(
     systemBlur: Boolean,
     reading: WallpaperReading?,
     onAllowWallpaper: () -> Unit,
+    canAllowWallpaper: Boolean,
+    onOpenWallpaper: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var glassOpen by remember { mutableStateOf(false) }
@@ -491,17 +499,27 @@ private fun DrawerLookControls(
                     WallpaperReading.READY -> R.string.blur_copy_ready
                     WallpaperReading.ANIMATED -> R.string.blur_copy_animated
                     WallpaperReading.UNREADABLE -> R.string.blur_copy_unreadable
-                    WallpaperReading.NOT_ALLOWED, null -> R.string.blur_copy_not_allowed
+                    WallpaperReading.NOT_ALLOWED, null ->
+                        if (canAllowWallpaper) R.string.blur_copy_not_allowed else R.string.blur_copy_not_in_this_build
                 },
             ),
             modifier = Modifier.fillMaxWidth(),
         )
         if (reading == WallpaperReading.NOT_ALLOWED) {
-            SettingsLinkRow(
-                title = stringResource(R.string.blur_allow),
-                summary = stringResource(R.string.blur_allow_summary),
-                onClick = onAllowWallpaper,
-            )
+            if (canAllowWallpaper) {
+                SettingsLinkRow(
+                    title = stringResource(R.string.blur_allow),
+                    summary = stringResource(R.string.blur_allow_summary),
+                    onClick = onAllowWallpaper,
+                )
+            } else {
+                // This build cannot read another app's wallpaper: one made in Kiri it always has.
+                SettingsLinkRow(
+                    title = stringResource(R.string.blur_choose_in_kiri),
+                    summary = stringResource(R.string.blur_choose_in_kiri_summary),
+                    onClick = onOpenWallpaper,
+                )
+            }
         }
         }
         Spacer(Modifier.height(16.dp))
@@ -545,6 +563,7 @@ fun GestureSettingsScreen(
     onBack: () -> Unit,
     lockReady: Boolean = true,
     onTurnOnLock: () -> Unit = {},
+    canLock: Boolean = true,
 ) {
     var openGesture by remember { mutableStateOf<Gesture?>(null) }
     val muted = KiriType.caption.copy(color = KiriTheme.colors.onSurfaceMuted)
@@ -564,8 +583,11 @@ fun GestureSettingsScreen(
             SettingsGroup {
             for (gesture in Gesture.entries) {
                 val chosen = gestures.chosenFor(gesture)
-                // An action that needs more than a tap to pick (an app) is listed only while chosen.
-                val offered = LauncherAction.simple.let { if (chosen in it) it else it + chosen }
+                // An action that needs more than a tap to pick (an app), or that this build cannot
+                // do (locking the screen, in Google Play's), is listed only while chosen.
+                val offered = LauncherAction.simple
+                    .filter { canLock || it != LauncherAction.LockScreen }
+                    .let { if (chosen in it) it else it + chosen }
                 ChoiceCard(
                     label = gestureLabel(gesture),
                     valueText = actionLabel(chosen, appsByKey),
@@ -581,13 +603,21 @@ fun GestureSettingsScreen(
                 )
             }
             // Locking the screen needs Kiri turned on in Android's accessibility settings.
-            if (gestures.locksScreen && !lockReady) {
+            if (gestures.locksScreen && !lockReady && canLock) {
                 SettingsLinkRow(
                     title = stringResource(R.string.lock_turn_on),
                     summary = stringResource(R.string.lock_turn_on_summary),
                     onClick = onTurnOnLock,
                 )
             }
+            }
+            // Chosen before, as in a backup from the APK: say why it does nothing here.
+            if (gestures.locksScreen && !canLock) {
+                BasicText(
+                    text = stringResource(R.string.lock_not_in_this_build),
+                    style = muted,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
             }
             if (!gestures.settingsReachable) {
                 BasicText(

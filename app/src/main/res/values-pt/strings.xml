@@ -110,6 +110,9 @@
     <string name="blur_copy_unreadable">O Kiri tem permissão para ler o papel de parede, mas o aparelho não entregou a imagem.</string>
     <string name="blur_allow">Permitir que o Kiri leia o papel de parede</string>
     <string name="blur_allow_summary">Abre a permissão “acesso a todos os arquivos”. O Kiri só lê o papel de parede.</string>
+    <string name="blur_copy_not_in_this_build">Esta versão do Kiri, a do Google Play, desfoca o papel de parede escolhido no Kiri, do qual ele guarda a própria cópia. Um posto em outro lugar o Android só entrega a apps com acesso a todos os arquivos, que só o APK do GitHub pede.</string>
+    <string name="blur_choose_in_kiri">Escolher o papel de parede no Kiri</string>
+    <string name="blur_choose_in_kiri_summary">Aí o vidro fica fosco atrás da gaveta, dos widgets, dos menus e dos ícones.</string>
 
     <string name="settings_icons">Ícones</string>
     <string name="settings_icons_summary">Forma, vidro, pastilha de vidro e tamanho do desenho</string>

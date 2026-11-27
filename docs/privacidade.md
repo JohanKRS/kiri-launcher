@@ -25,12 +25,17 @@ com senha, se ela ligar essa opção.
   política de privacidade.
 - **Acesso a todos os arquivos** (opcional): o Android só entrega a imagem do papel de parede a
   apps com essa permissão. O Kiri a usa só para ler o papel de parede e desfocar a sua cópia atrás
-  do vidro. Ele não lê nem envia nenhum outro arquivo.
+  do vidro, e para achar os backups do próprio Kiri salvos no aparelho. Ele não lê nem envia nenhum
+  outro arquivo.
 - **Fotos** (só na TV, opcional): para escolher uma imagem do aparelho como fundo da tela inicial.
 - **Papel de parede**: para aplicar a imagem que a pessoa escolher no Kiri.
 - **Serviço de acessibilidade** (opcional): só para um gesto poder bloquear a tela. Ele não lê nada
   da tela, não recebe eventos e só aparece no Android quando a pessoa escolhe esse gesto.
 - **Abrir a barra de notificações** e **pedir para desinstalar um app**: ações que a pessoa toca.
+
+A versão do Google Play não pede acesso a todos os arquivos, a lista completa dos apps, as fotos
+nem o serviço de acessibilidade. Nela o vidro desfoca só um papel de parede escolhido no próprio
+Kiri, e nenhum gesto bloqueia a tela.
 
 ## Outros apps
 

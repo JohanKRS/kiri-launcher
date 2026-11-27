@@ -46,6 +46,18 @@ class KiriAccessibilityService : AccessibilityService() {
         @Volatile
         private var running: KiriAccessibilityService? = null
 
+        /**
+         * Whether this build has the service at all. Google Play's build does not (see
+         * app/src/play/AndroidManifest.xml), and then no gesture can lock the screen.
+         */
+        fun exists(context: Context): Boolean = runCatching {
+            @Suppress("DEPRECATION")
+            context.packageManager.getServiceInfo(
+                ComponentName(context, KiriAccessibilityService::class.java),
+                PackageManager.MATCH_DISABLED_COMPONENTS,
+            )
+        }.isSuccess
+
         /** Locks the screen, as the power button does. False when the service is not on. */
         fun lockScreen(): Boolean = running?.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN) == true
 
@@ -55,6 +67,7 @@ class KiriAccessibilityService : AccessibilityService() {
          * itself when the person had turned it on before.
          */
         fun offer(context: Context, wanted: Boolean) {
+            if (!exists(context)) return
             val me = ComponentName(context, KiriAccessibilityService::class.java)
             val state = if (wanted) {
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED

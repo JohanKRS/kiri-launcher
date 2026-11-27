@@ -42,6 +42,13 @@ Para lançar uma versão:
    tag, as notas do changelog, o APK e o `.aab`.
 4. Para o Google Play, enviar o `.aab` do release no Play Console (teste interno ou outra faixa).
 
+O `.aab` é a versão do Google Play (o tipo de build `play`): o mesmo Kiri sem o que o Play pede
+para declarar e justificar antes de publicar até um teste interno, que são o acesso a todos os
+arquivos, ver todos os apps, as fotos e o serviço de acessibilidade
+([app/src/play/AndroidManifest.xml](app/src/play/AndroidManifest.xml)). Cada tela que ofereceria
+um deles pergunta antes se a versão o tem (`declares`, `KiriAccessibilityService.exists`) e, se
+não tem, diz o que dá para fazer. O `scripts/release.sh` confere que nenhum ficou no `.aab`.
+
 Rodado à mão (Actions › Release › Run workflow), o workflow lança a versão que está na branch
 escolhida, ou, se ela já tem release, compila de novo e troca o APK e as notas.
 
@@ -139,7 +146,8 @@ um app fazer isso de outro jeito). Ele não lê nada da tela e não recebe event
 gesto bloqueia a tela, o serviço nem aparece para o Android: o manifesto o deixa desativado, e o
 Kiri só o oferece quando a pessoa escolhe "Bloquear a tela" para um gesto
 (`KiriAccessibilityService.offer`). Assim, quem não usa esse gesto não tem nenhum serviço de
-acessibilidade do Kiri no aparelho, o que alguns apps de banco exigem.
+acessibilidade do Kiri no aparelho, o que alguns apps de banco exigem. A versão do Google Play não
+tem o serviço (ver Releases).
 
 ## Privacidade
 

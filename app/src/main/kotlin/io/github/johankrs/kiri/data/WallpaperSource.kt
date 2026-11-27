@@ -119,6 +119,14 @@ class WallpaperSource private constructor(private val appContext: Context) {
         (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && appContext.checkSelfPermission(LEGACY_PERMISSION) == PackageManager.PERMISSION_GRANTED)
 
     /**
+     * Whether this build can ask for the reading at all. Google Play's build cannot (it has no
+     * access to all files, see [declares]): there only a wallpaper made in Kiri is blurred.
+     */
+    val canAsk: Boolean
+        get() = appContext.declares(Manifest.permission.MANAGE_EXTERNAL_STORAGE) ||
+            (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && appContext.declares(LEGACY_PERMISSION))
+
+    /**
      * The permission to ask for with the usual dialog, on the Android versions where that is
      * enough. Null where only the "access to all files" screen will do (see [accessScreens]).
      */

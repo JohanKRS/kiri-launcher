@@ -9,7 +9,9 @@
 # It builds the public app (without the folder `personal`), runs the tests, makes sure nothing of
 # `personal` went in, checks that the APK and the bundle are signed with Kiri's release key, and
 # leaves in build/release/ the APK, the bundle, their SHA-256 and the release notes taken from
-# CHANGELOG.md. The bundle is what Google Play takes; the APK is for everyone else.
+# CHANGELOG.md. The bundle is what Google Play takes; the APK is for everyone else. The bundle is
+# Google Play's build (the build type "play"): the same app less what Play asks to be declared
+# before it publishes (app/src/play/AndroidManifest.xml), which the script checks is gone.
 # Extra arguments go to Gradle.
 set -euo pipefail
 
@@ -62,10 +64,10 @@ awk -v v="$version" '
 ' CHANGELOG.md | sed -e '/./,$!d' > "$notes"
 [ -s "$notes" ] || { echo "CHANGELOG.md has no section \"## [$version]\"" >&2; exit 1; }
 
-./gradlew -Pkiri.public=true :core:test :app:assembleRelease :app:bundleRelease "$@"
+./gradlew -Pkiri.public=true :core:test :app:assembleRelease :app:bundlePlay "$@"
 
 apk="app/build/outputs/apk/release/app-release.apk"
-aab="app/build/outputs/bundle/release/app-release.aab"
+aab="app/build/outputs/bundle/play/app-play.aab"
 [ -f "$apk" ] && [ -f "$aab" ] || {
     echo "No signed APK or bundle: set KIRI_RELEASE_STORE and KIRI_RELEASE_PASSWORD, or keystore.properties" >&2
     exit 1
@@ -83,6 +85,24 @@ fi
 if unzip -p "$apk" 'classes*.dex' | grep -a -q -E "$markers" \
     || unzip -p "$aab" 'base/dex/classes*.dex' | grep -a -q -E "$markers"; then
     echo "The release holds code from the personal folder." >&2
+    exit 1
+fi
+
+# Google Play's build must leave out what Play asks to be declared. Its manifest is kept as a
+# protocol buffer, in which every name is written out whole, so a search finds any that stayed.
+manifest="$(unzip -p "$aab" base/manifest/AndroidManifest.xml | tr -d '\000')"
+if [[ "$manifest" != *io.github.johankrs.kiri* ]]; then
+    echo "The bundle has no manifest to check." >&2
+    exit 1
+fi
+left=""
+for name in MANAGE_EXTERNAL_STORAGE QUERY_ALL_PACKAGES READ_MEDIA_IMAGES BIND_ACCESSIBILITY_SERVICE KiriAccessibilityService; do
+    if [[ "$manifest" == *"$name"* ]]; then
+        left="$left $name"
+    fi
+done
+if [ -n "$left" ]; then
+    echo "The bundle for Google Play still asks for:$left" >&2
     exit 1
 fi
 

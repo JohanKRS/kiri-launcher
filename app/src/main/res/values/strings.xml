@@ -112,6 +112,9 @@
     <string name="blur_copy_unreadable">Kiri is allowed to read the wallpaper, but the device did not hand it over.</string>
     <string name="blur_allow">Let Kiri read the wallpaper</string>
     <string name="blur_allow_summary">Opens the “access to all files” permission. Kiri only reads the wallpaper.</string>
+    <string name="blur_copy_not_in_this_build">This build of Kiri, the one from Google Play, blurs a wallpaper chosen in Kiri, of which it keeps its own copy. One set elsewhere Android hands only to apps with access to all files, which only the APK from GitHub asks for.</string>
+    <string name="blur_choose_in_kiri">Choose the wallpaper in Kiri</string>
+    <string name="blur_choose_in_kiri_summary">Then glass turns frosted behind the drawer, widgets, menus and icons.</string>
 
     <string name="settings_icons">Icons</string>
     <string name="settings_icons_summary">Shape, glass, glass tile and size of the drawing</string>
