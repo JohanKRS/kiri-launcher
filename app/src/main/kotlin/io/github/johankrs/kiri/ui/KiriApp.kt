@@ -99,6 +99,7 @@ import io.github.johankrs.kiri.core.HomeGridGeometry
 import io.github.johankrs.kiri.core.HomeRoom
 import io.github.johankrs.kiri.core.Surface
 import io.github.johankrs.kiri.core.WidgetCells
+import io.github.johankrs.kiri.core.gesture.Gesture
 import io.github.johankrs.kiri.core.gesture.LauncherAction
 import io.github.johankrs.kiri.core.layout.CellSpan
 import io.github.johankrs.kiri.core.layout.GridSize
@@ -152,6 +153,7 @@ import io.github.johankrs.kiri.ui.settings.IconPickerScreen
 import io.github.johankrs.kiri.ui.settings.MotionSettingsScreen
 import io.github.johankrs.kiri.ui.settings.RestoreScreen
 import io.github.johankrs.kiri.ui.settings.SettingsIndexScreen
+import io.github.johankrs.kiri.ui.settings.LockDisclosureScreen
 import io.github.johankrs.kiri.ui.settings.TvPictureScreen
 import io.github.johankrs.kiri.ui.settings.TvScreenSettings
 import io.github.johankrs.kiri.ui.settings.TypographyScreen
@@ -222,6 +224,9 @@ private enum class Screen {
 
     /** The pictures to choose the TV's wallpaper from. */
     TV_PICTURE,
+
+    /** What the accessibility service is for, before Android's settings open for it. */
+    LOCK_DISCLOSURE,
 }
 
 private val ScreenStackSaver = Saver<List<Screen>, String>(
@@ -348,6 +353,9 @@ fun KiriApp(
     val root = if (formFactor == FormFactor.TV) Screen.TV_HOME else Screen.HOME
     var stack by rememberSaveable(root, stateSaver = ScreenStackSaver) { mutableStateOf(listOf(root)) }
     val pop: () -> Unit = { if (stack.size > 1) stack = stack.dropLast(1) }
+    // The gesture waiting to lock the screen while LOCK_DISCLOSURE is on show, by key: it is set
+    // only once the person allows the service. Null when the service is only being turned on.
+    var lockFor by rememberSaveable { mutableStateOf<String?>(null) }
     // Always handled: a home screen has nowhere to go back to.
     BackHandler { pop() }
 
@@ -491,7 +499,8 @@ fun KiriApp(
             LauncherAction.OpenNotifications -> context.expandNotifications()
             // Not on yet: Android's settings are where it is turned on (in a build that has it).
             LauncherAction.LockScreen -> if (!KiriAccessibilityService.lockScreen() && KiriAccessibilityService.exists(context)) {
-                scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
+                lockFor = null
+                push(Screen.LOCK_DISCLOSURE)
             }
             LauncherAction.OpenWidgets -> push(Screen.WIDGETS)
             LauncherAction.OpenPages -> if (root == Screen.HOME) {
@@ -1181,7 +1190,8 @@ fun KiriApp(
                             val back = targetState == Screen.SETTINGS ||
                                 (targetState == Screen.WIDGETS && initialState == Screen.WIDGET_SETTINGS) ||
                                 (targetState == Screen.BACKUP && initialState == Screen.BACKUP_RESTORE) ||
-                                (targetState == Screen.TV_SCREEN_SETTINGS && initialState == Screen.TV_PICTURE)
+                                (targetState == Screen.TV_SCREEN_SETTINGS && initialState == Screen.TV_PICTURE) ||
+                                initialState == Screen.LOCK_DISCLOSURE
                             val direction = if (back) -1 else 1
                             val slide = tween<IntOffset>((280 * pace).roundToInt())
                             val arriving = fadeIn(tween((220 * pace).roundToInt())) +
@@ -1244,24 +1254,45 @@ fun KiriApp(
 
                             Screen.APP_ICON_SETTINGS -> AppIconScreen(onBack = pop)
 
+                            // Allowed: the gesture is set, the service listed, and Android's settings
+                            // open on it. Not allowed: everything stays as it was.
+                            Screen.LOCK_DISCLOSURE -> LockDisclosureScreen(
+                                forGesture = lockFor,
+                                onAllow = {
+                                    Gesture.entries.firstOrNull { it.key == lockFor }?.let { gesture ->
+                                        scope.launch { settings.setGesture(gesture, LauncherAction.LockScreen) }
+                                    }
+                                    lockFor = null
+                                    pop()
+                                    scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
+                                },
+                                onDecline = {
+                                    lockFor = null
+                                    pop()
+                                },
+                            )
+
                             Screen.GESTURE_SETTINGS -> GestureSettingsScreen(
                                 gestures = gestures,
                                 appsByKey = appsByKey,
                                 onChange = { gesture, action ->
-                                    scope.launch { settings.setGesture(gesture, action) }
-                                    // Chosen to lock the screen: straight to where that is turned on, with
-                                    // the service listed there before Android's settings open.
-                                    if (action == LauncherAction.LockScreen && KiriAccessibilityService.exists(context)) {
-                                        if (KiriAccessibilityService.isOn(context)) {
-                                            KiriAccessibilityService.offer(context, true)
-                                        } else {
-                                            scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
-                                        }
+                                    val needsService = action == LauncherAction.LockScreen &&
+                                        KiriAccessibilityService.exists(context) && !KiriAccessibilityService.isOn(context)
+                                    if (needsService) {
+                                        // First what the service is for; the gesture is set once it is allowed.
+                                        lockFor = gesture.key
+                                        push(Screen.LOCK_DISCLOSURE)
+                                    } else {
+                                        scope.launch { settings.setGesture(gesture, action) }
+                                        if (action == LauncherAction.LockScreen) KiriAccessibilityService.offer(context, true)
                                     }
                                 },
                                 onBack = pop,
                                 lockReady = remember(refreshTick, gestures) { KiriAccessibilityService.isOn(context) },
-                                onTurnOnLock = { KiriAccessibilityService.openSettings(context) },
+                                onTurnOnLock = {
+                                    lockFor = null
+                                    push(Screen.LOCK_DISCLOSURE)
+                                },
                                 canLock = remember(context) { KiriAccessibilityService.exists(context) },
                             )
 

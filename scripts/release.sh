@@ -96,7 +96,7 @@ if [[ "$manifest" != *io.github.johankrs.kiri* ]]; then
     exit 1
 fi
 left=""
-for name in MANAGE_EXTERNAL_STORAGE QUERY_ALL_PACKAGES READ_MEDIA_IMAGES BIND_ACCESSIBILITY_SERVICE KiriAccessibilityService; do
+for name in MANAGE_EXTERNAL_STORAGE QUERY_ALL_PACKAGES READ_MEDIA_IMAGES; do
     if [[ "$manifest" == *"$name"* ]]; then
         left="$left $name"
     fi

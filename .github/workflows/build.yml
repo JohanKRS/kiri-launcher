@@ -35,7 +35,7 @@ jobs:
         run: |
           ./gradlew :app:bundlePlay --stacktrace
           manifest="$(unzip -p app/build/outputs/bundle/play/app-play.aab base/manifest/AndroidManifest.xml | tr -d '\000')"
-          for name in MANAGE_EXTERNAL_STORAGE QUERY_ALL_PACKAGES READ_MEDIA_IMAGES BIND_ACCESSIBILITY_SERVICE KiriAccessibilityService; do
+          for name in MANAGE_EXTERNAL_STORAGE QUERY_ALL_PACKAGES READ_MEDIA_IMAGES; do
             if [[ "$manifest" == *"$name"* ]]; then
               echo "Google Play's bundle still has $name." >&2
               exit 1

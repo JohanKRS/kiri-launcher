@@ -5,4 +5,19 @@
     <string name="lock_turn_on">Ativar o bloqueio da tela</string>
     <string name="lock_turn_on_summary">O Android pede que o Kiri seja ligado em Acessibilidade antes de bloquear a tela</string>
     <string name="lock_not_in_this_build">Esta versão do Kiri, a do Google Play, não tem serviço de acessibilidade, então aqui nenhum gesto bloqueia a tela. O APK do GitHub bloqueia.</string>
+
+    <!-- O aviso antes de abrir a Acessibilidade (o Google Play pede que fique à parte e com uma escolha). -->
+    <string name="lock_disclosure_title">Bloquear a tela</string>
+    <string name="lock_disclosure_intro">Para um gesto bloquear a tela, como o toque duplo na tela inicial, o Kiri usa o serviço de acessibilidade do Android. É o único jeito que o Android dá a um app para bloquear a tela.</string>
+    <string name="lock_disclosure_does_title">O que o serviço faz</string>
+    <string name="lock_disclosure_does">Só bloqueia a tela, e só quando você faz o gesto que escolheu.</string>
+    <string name="lock_disclosure_not_title">O que ele não faz</string>
+    <string name="lock_disclosure_not">Não lê nada do que aparece na tela, não vê o que você digita, não recebe nada de outros apps e não coleta nem envia dados.</string>
+    <string name="lock_disclosure_off_title">Como desligar</string>
+    <string name="lock_disclosure_off">Troque o gesto por outra ação: o serviço some da lista do Android.</string>
+    <string name="lock_disclosure_allow">Permitir</string>
+    <string name="lock_disclosure_allow_summary">Abre a Acessibilidade do Android, onde você liga o Kiri</string>
+    <string name="lock_disclosure_decline">Agora não</string>
+    <string name="lock_disclosure_decline_summary">O gesto fica como estava</string>
+    <string name="lock_disclosure_decline_summary_off">O gesto não bloqueia a tela até você permitir</string>
 </resources>
