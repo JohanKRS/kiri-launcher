@@ -17,11 +17,17 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import io.github.johankrs.kiri.R
 import io.github.johankrs.kiri.core.look.AppOpenStyle
 import io.github.johankrs.kiri.core.look.DrawerStyle
@@ -65,10 +71,9 @@ internal fun GraphicsLayerScope.drawerSheet(style: DrawerStyle, progress: Float)
         return
     }
     when (style) {
-        DrawerStyle.SLIDE -> {
-            translationY = (1f - progress) * size.height
-            alpha = (progress * 4f).coerceAtMost(1f)
-        }
+        // It fades in as it starts to rise, but in [drawerGlass], not here: the soft edge above
+        // it is drawn outside its bounds, and a see-through layer would cut that off.
+        DrawerStyle.SLIDE -> translationY = (1f - progress) * size.height
 
         DrawerStyle.ZOOM -> {
             val scale = 1.12f - 0.12f * progress
@@ -120,6 +125,85 @@ internal fun DrawScope.heldStill(style: DrawerStyle, progress: Float, block: Dra
         DrawerStyle.FADE -> block()
     }
 }
+
+/**
+ * The glass of the drawer sheet when it is [progress] of the way open: what it shows through
+ * itself ([frost], the blurred wallpaper) under its [tint].
+ *
+ * A sheet that [rises] has no hard top edge: above it the glass dissolves into what is
+ * behind, from its full colour to nothing over the height of [edge]. Fully open, that soft
+ * edge is above the screen, and the whole screen is the same glass. Such a sheet also fades
+ * in over the first part of its way (the apps on it only come later).
+ */
+internal fun DrawScope.drawerGlass(
+    style: DrawerStyle,
+    progress: Float,
+    tint: Color,
+    edge: SheetEdge,
+    frost: DrawScope.() -> Unit,
+) {
+    val rises = style.rises
+    val fade = if (rises) (progress * RISE_FADE_IN).coerceIn(0f, 1f) else 1f
+    // Fully open, the soft edge lies above the screen: nothing of it would be seen.
+    val soft = if (rises && progress < 1f) edge.heightPx else 0f
+    val width = size.width
+    val height = size.height
+    val canvas = drawContext.canvas
+    if (fade < 1f) {
+        edge.faded.alpha = fade
+        canvas.saveLayer(Rect(0f, -soft, width, height), edge.faded)
+    }
+    clipRect(0f, 0f, width, height) {
+        frost()
+        drawRect(tint)
+    }
+    if (soft > 0f) {
+        // Only the strip of the soft edge is drawn apart, to be dissolved: a small layer.
+        val strip = Rect(0f, -soft, width, 0f)
+        canvas.saveLayer(strip, edge.layer)
+        clipRect(strip.left, strip.top, strip.right, strip.bottom) {
+            frost()
+            drawRect(tint, topLeft = strip.topLeft, size = strip.size)
+        }
+        drawRect(edge.mask, topLeft = strip.topLeft, size = strip.size, blendMode = BlendMode.DstIn)
+        canvas.restore()
+    }
+    if (fade < 1f) canvas.restore()
+}
+
+/**
+ * The soft top edge of a rising drawer sheet, [heightPx] tall, made once for a screen.
+ * Its glass goes from nothing to full on an S-curve, so neither end of it reads as a line.
+ */
+internal class SheetEdge(val heightPx: Float) {
+    val mask: Brush = Brush.verticalGradient(
+        colorStops = Array(EDGE_STOPS + 1) { i ->
+            val along = i / EDGE_STOPS.toFloat()
+            along to Color.Black.copy(alpha = along * along * (3f - 2f * along))
+        },
+        startY = -heightPx,
+        endY = 0f,
+    )
+    val layer = Paint()
+    val faded = Paint()
+}
+
+/** How tall the soft top edge of a rising drawer sheet is. */
+internal val SHEET_EDGE = 140.dp
+
+/** How many steps the S-curve of the soft edge is drawn with. */
+private const val EDGE_STOPS = 12
+
+/** A sheet that rises fades in over the first 1/this of its way. */
+private const val RISE_FADE_IN = 4f
+
+/**
+ * Whether the drawer sheet comes from below in this style, so that its top edge crosses the
+ * screen: that edge is drawn soft (see [drawerGlass]). A sheet that only grows or fades in
+ * has its edges outside the screen all the way.
+ */
+internal val DrawerStyle.rises: Boolean
+    get() = this == DrawerStyle.SLIDE
 
 /** How far the drawer has come when the home screen under it can no longer be seen. */
 private const val HOME_GONE = 0.34f

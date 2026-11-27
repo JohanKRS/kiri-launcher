@@ -9,6 +9,11 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Gaveta
+- Abrindo ou fechando a gaveta, a borda de cima da folha não é mais uma linha reta: o vidro
+  (desfoque e cor) vai de transparente até a cor da gaveta num degradê suave, que acompanha o
+  dedo. Com a gaveta toda aberta, a tela inteira continua com o mesmo vidro (#8).
+
 ## [0.2.1] - 2026-11-27
 
 ### Gestos
