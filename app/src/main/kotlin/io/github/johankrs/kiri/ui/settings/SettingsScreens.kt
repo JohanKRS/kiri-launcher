@@ -510,7 +510,11 @@ private fun DrawerStyle.labelRes(): Int = when (this) {
     DrawerStyle.FADE -> R.string.motion_fade
 }
 
-/** One of [choices], by name, stepped through with the arrows and round again at either end. */
+/**
+ * One of [choices], by name, stepped through with the arrows and round again at either end. The
+ * name of the setting is above, so that its arrows line up with those of the rows around it
+ * whatever the names are.
+ */
 @Composable
 private fun NamedChoice(label: String, choices: List<String>, chosen: Int, onChoose: (Int) -> Unit) {
     val at = chosen.coerceAtLeast(0)
@@ -519,6 +523,7 @@ private fun NamedChoice(label: String, choices: List<String>, chosen: Int, onCho
         valueText = choices[at],
         values = choices,
         named = true,
+        nameAbove = true,
         canDecrease = true,
         canIncrease = true,
         onDecrease = { onChoose((at - 1 + choices.size) % choices.size) },

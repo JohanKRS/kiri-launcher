@@ -600,14 +600,20 @@ private val StepperNameRoom = 104.dp
  * The name of a stepper and its buttons: side by side where there is room, the buttons at the
  * far end, and otherwise the name above the buttons, which then take the whole width.
  */
-private val StepperLayout = MeasurePolicy { measurables, constraints ->
+private val StepperLayout = stepperLayout(nameAbove = false)
+
+/** For [StepperCard] with its name always above its buttons. */
+private val StepperNameAbove = stepperLayout(nameAbove = true)
+
+private fun stepperLayout(nameAbove: Boolean) = MeasurePolicy { measurables, constraints ->
     val name = measurables[0]
     val buttons = measurables[1]
     val start = SeamInset.roundToPx()
     val end = 4.dp.roundToPx()
     val bounded = constraints.hasBoundedWidth
     val buttonsWidth = buttons.minIntrinsicWidth(Constraints.Infinity)
-    val beside = !bounded || constraints.maxWidth - start - end - buttonsWidth >= StepperNameRoom.roundToPx()
+    val beside = !nameAbove &&
+        (!bounded || constraints.maxWidth - start - end - buttonsWidth >= StepperNameRoom.roundToPx())
     if (beside) {
         val placedButtons = buttons.measure(Constraints())
         val nameRoom = if (bounded) {
@@ -647,6 +653,10 @@ private val StepperLayout = MeasurePolicy { measurables, constraints ->
  * The value always has the same room, centred in it: [StepValueRoom], or more if one of
  * [values] (all it can show) is wider. So the buttons never move as it changes, and they line
  * up from row to row. Menus follow the same pattern (`ItemMenu`).
+ *
+ * The name goes beside the buttons when there is room for it, else above them, with the buttons
+ * at either end of the row below. [nameAbove] always puts it above, for rows of long names that
+ * must line up with each other however wide the screen and the text are.
  */
 @Composable
 fun StepperCard(
@@ -659,6 +669,7 @@ fun StepperCard(
     modifier: Modifier = Modifier,
     values: List<String> = emptyList(),
     named: Boolean = false,
+    nameAbove: Boolean = false,
     /** Lets a screen put a remote's focus on the first button, for it to start there. */
     firstButton: FocusRequester? = null,
 ) {
@@ -700,7 +711,7 @@ fun StepperCard(
                 }
             },
             modifier = row,
-            measurePolicy = StepperLayout,
+            measurePolicy = if (nameAbove) StepperNameAbove else StepperLayout,
         )
     }
 }
