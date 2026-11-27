@@ -16,6 +16,12 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   desenhada uma vez por banner, não cinco (#24).
 - O ícone das entradas HDMI agora é a porta HDMI, mais larga em cima e com a lingueta dentro.
   Antes ele tinha "perninhas" e parecia uma mesa (#24).
+- A tela inicial da TV pede muito menos da placa de vídeo enquanto o foco anda. Cada banner, cada
+  widget e o papel de parede parado são desenhados uma vez e depois só reaproveitados; só o banner
+  com o foco é desenhado de novo, para ficar nítido maior. As sombras saem prontas de uma imagem
+  feita uma vez, sem desfoque nem recorte a cada quadro, com o mesmo visual. E a janela fica opaca
+  quando o papel de parede não é o "Da TV": a TV não junta mais o papel de parede do sistema por
+  baixo do Kiri a cada quadro, o que numa TV 4K ela fazia com a mesma placa de vídeo.
 
 ## [0.4.1] - 2026-11-27
 

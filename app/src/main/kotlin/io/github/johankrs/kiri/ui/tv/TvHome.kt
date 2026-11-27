@@ -44,15 +44,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
@@ -87,6 +84,7 @@ import io.github.johankrs.kiri.core.tv.TvPlacement
 import io.github.johankrs.kiri.core.tv.TvSettings
 import io.github.johankrs.kiri.core.tv.TvWidget
 import io.github.johankrs.kiri.core.tv.TvWidgetKind
+import io.github.johankrs.kiri.core.tv.TvWallpaper
 import io.github.johankrs.kiri.core.tv.TvWidgets
 import io.github.johankrs.kiri.data.AppRepository
 import io.github.johankrs.kiri.data.TvInput
@@ -577,6 +575,7 @@ fun TvHome(
         }
 
         CompositionLocalProvider(LocalTvUnits provides units, LocalTvInk provides tvInk(look)) {
+            TvWindow(showsSystem = look.wallpaper == TvWallpaper.SYSTEM)
             TvBackdrop(look, running = active)
             // "All apps" covers the home screen, which fades out under it.
             val allOpen = layer == TvLayer.ALL || (layer != TvLayer.HOME && (menu?.from == TvLayer.ALL || editor?.from == TvLayer.ALL))
@@ -890,7 +889,11 @@ private fun BannerSlot(
         Modifier
             .offset { IntOffset(units.px(x.value).roundToInt(), units.px(y.value).roundToInt()) }
             .zIndex(if (focused || moving) 3f else 1f)
-            .graphicsLayer { alpha = seen.value },
+            .graphicsLayer {
+                alpha = seen.value
+                // Fading, each part fades by itself: they do not overlap, and nothing is drawn twice.
+                compositingStrategy = CompositingStrategy.ModulateAlpha
+            },
     ) {
         Box(
             Modifier
@@ -903,14 +906,13 @@ private fun BannerSlot(
                 }
                 .drawWithCache {
                     val corner = size.width * (12f / 148f)
-                    val face = Path().apply { addRoundRect(RoundRect(0f, 0f, size.width, size.height, CornerRadius(corner))) }
                     // A close shadow, and a wider one that comes in with the focus, as if lifted.
-                    val near = if (shadow > 0f) SoftShadow(units.px(BANNER_SHADOW_BLUR)) else null
-                    val far = if (shadow > 0f) SoftShadow(units.px(BANNER_LIFT_BLUR)) else null
+                    // Only around the banner (hollow): glass banners would show it under them.
+                    val near = if (shadow > 0f) SoftShadow(units.px(BANNER_SHADOW_BLUR), hollow = true) else null
+                    val far = if (shadow > 0f) SoftShadow(units.px(BANNER_LIFT_BLUR), hollow = true) else null
                     onDrawBehind {
                         val r = ring.value
-                        // Only around the banner: glass banners would show it under them.
-                        if (near != null && far != null) clipPath(face, ClipOp.Difference) {
+                        if (near != null && far != null) {
                             near.draw(this, BANNER_SHADOW * shadow, units.px(BANNER_SHADOW_DROP), corner)
                             if (r > 0f) far.draw(this, BANNER_LIFT_SHADOW * shadow * r, units.px(BANNER_LIFT_DROP), corner)
                         }
@@ -927,7 +929,9 @@ private fun BannerSlot(
                     }
                 },
         ) {
-            TvBannerFace(item.art, bw, repository)
+            // Still, the banner is drawn once and kept (see [kept]); lifted, it is drawn as large
+            // as it is shown, so the one with the focus stays sharp.
+            TvBannerFace(item.art, bw, repository, modifier = Modifier.kept(!focused && !moving))
         }
         if (moving) {
             BasicText(
@@ -1314,7 +1318,7 @@ private fun AllTile(item: TvShown, tile: TvBox, focused: Boolean, onHome: Boolea
             units.dp(bannerW),
             repository,
             corner = units.dp(9f),
-            modifier = Modifier.offset(units.dp(pad), units.dp(pad)),
+            modifier = Modifier.offset(units.dp(pad), units.dp(pad)).kept(!focused),
         )
         BasicText(
             item.name,

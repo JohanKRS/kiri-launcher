@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -158,6 +159,8 @@ private fun WidgetSlot(
             .graphicsLayer {
                 this.shape = shape
                 clip = true
+                // Kept and only laid down at each frame, as a banner (see `kept`), unless lifted.
+                compositingStrategy = if (focused || moving) CompositingStrategy.Auto else CompositingStrategy.Offscreen
             }
             .background(WidgetGlass)
             .drawBehind {

@@ -32,6 +32,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
@@ -177,6 +178,37 @@ internal sealed interface BannerArt {
 
 /** How a banner is cut: its corners at the size of a banner of the home screen. */
 internal fun bannerShape(width: Dp): RoundedCornerShape = RoundedCornerShape(width * (12f / 148f))
+
+/**
+ * Draws what this holds once, into a picture the graphics card keeps, and from then on only lays
+ * that picture down, until something in it changes: moving it or fading it draws nothing again.
+ * A TV's graphics card is slow, and it otherwise drew every banner, every widget and the whole
+ * wallpaper again at every frame of every move of the focus.
+ *
+ * Off ([on] false) for what is being shown larger than it is, as a banner with the focus: a kept
+ * picture would be stretched, and blur. That one is drawn as it is shown, every time.
+ */
+internal fun Modifier.kept(on: Boolean = true): Modifier = graphicsLayer {
+    compositingStrategy = if (on) CompositingStrategy.Offscreen else CompositingStrategy.Auto
+}
+
+/**
+ * The shade that keeps what is written on the wallpaper readable: darker along the top and the
+ * bottom, [strength] of the usual. Drawn only where there is any, not over the whole screen.
+ */
+internal fun DrawScope.wallpaperShade(strength: Float = 1f) {
+    val top = size.height * 0.26f
+    val bottom = size.height * 0.7f
+    drawRect(
+        Brush.verticalGradient(0f to Color(0x47040A0E).copy(alpha = 0.28f * strength), 1f to Color(0x00040A0E), startY = 0f, endY = top),
+        size = Size(size.width, top),
+    )
+    drawRect(
+        Brush.verticalGradient(0f to Color(0x00040A0E), 1f to Color(0x59040A0E).copy(alpha = 0.35f * strength), startY = bottom, endY = size.height),
+        topLeft = Offset(0f, bottom),
+        size = Size(size.width, size.height - bottom),
+    )
+}
 
 /**
  * One banner, [width] wide and 16:9, cut to its rounded corners with the thin bright edge of
@@ -768,21 +800,9 @@ internal fun TvBackdrop(look: TvLook, running: Boolean, small: Boolean = false) 
         return
     }
     if (small) LiveCanvas(live) else LiveSurface(live, running)
-    Box(
-        Modifier
-            .fillMaxSize()
-            .drawWithCache {
-                // Over a pale one, the shade is lighter: the writing on it turns dark instead.
-                val k = if (live.color.light) 0.3f else 1f
-                val shade = Brush.verticalGradient(
-                    0f to Color(0x47040A0E).copy(alpha = 0.28f * k),
-                    0.26f to Color(0x00040A0E),
-                    0.7f to Color(0x00040A0E),
-                    1f to Color(0x59040A0E).copy(alpha = 0.35f * k),
-                )
-                onDrawBehind { drawRect(shade) }
-            },
-    )
+    // Over a pale one, the shade is lighter: the writing on it turns dark instead.
+    val strength = if (live.color.light) 0.3f else 1f
+    Box(Modifier.fillMaxSize().drawBehind { wallpaperShade(strength) })
 }
 
 /**
@@ -799,16 +819,14 @@ internal fun TvWallpaperArt(wallpaper: io.github.johankrs.kiri.core.tv.TvWallpap
     } else {
         null
     }
+    // The TV's own wallpaper shows through the window: only the shade is drawn over it.
+    val drawn = wallpaper != io.github.johankrs.kiri.core.tv.TvWallpaper.SYSTEM
     Box(
         modifier
             .fillMaxSize()
+            // Still: drawn once, then only laid down at each frame.
+            .then(if (drawn) Modifier.kept() else Modifier)
             .drawWithCache {
-                val shade = Brush.verticalGradient(
-                    0f to Color(0x47040A0E),
-                    0.26f to Color(0x00040A0E),
-                    0.7f to Color(0x00040A0E),
-                    1f to Color(0x59040A0E),
-                )
                 val w = size.width
                 val h = size.height
                 onDrawBehind {
@@ -859,11 +877,19 @@ internal fun TvWallpaperArt(wallpaper: io.github.johankrs.kiri.core.tv.TvWallpap
                             drawRect(cssLinear(150f, size, 0f to Color(0xFF1A1D22), 1f to Color(0xFF111316)))
                         }
                     }
-                    drawRect(shade)
+                    if (drawn) drawRect(STILL_SHADE) else wallpaperShade()
                 }
             },
     )
 }
+
+/** The shade over a still wallpaper, whole: it is drawn once, with the wallpaper. */
+private val STILL_SHADE = Brush.verticalGradient(
+    0f to Color(0x47040A0E),
+    0.26f to Color(0x00040A0E),
+    0.7f to Color(0x00040A0E),
+    1f to Color(0x59040A0E),
+)
 
 /** The look of glass over the TV's screen: menus, the editor, "All apps". */
 internal fun Modifier.tvGlass(shape: RoundedCornerShape, strong: Boolean = false): Modifier = this
