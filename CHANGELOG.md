@@ -14,7 +14,7 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   continua no mesmo lugar da tela inicial ou da pasta, com o nome, o ícone e o fundo que você
   escolheu para ele, em vez de sumir da tela inicial e ficar só na gaveta. Vale também para o
   gesto que abre o app, para a tela inicial da TV e para um app cuja atualização muda a tela
-  por onde ele abre.
+  por onde ele abre (#10).
 
 ### Pastas
 - A pasta aberta tem uma casa quadrada para cada app: os ícones ficam à mesma distância na
