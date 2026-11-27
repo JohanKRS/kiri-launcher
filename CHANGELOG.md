@@ -9,9 +9,16 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Tela inicial
+- Um app que troca o próprio ícone por dentro (os que oferecem vários ícones para escolher)
+  continua no mesmo lugar da tela inicial ou da pasta, com o nome, o ícone e o fundo que você
+  escolheu para ele, em vez de sumir da tela inicial e ficar só na gaveta. Vale também para o
+  gesto que abre o app, para a tela inicial da TV e para um app cuja atualização muda a tela
+  por onde ele abre (#10).
+
 ### Google Play
 - A ficha da loja fica no repositório, em `fastlane/metadata/android/pt-BR/`: nome, descrições,
-  ícone, imagem de destaque, banner da TV e capturas do celular e da TV (#12). Os textos também em inglês, em `en-US/` (#12).
+  ícone, imagem de destaque, banner da TV e capturas do celular e da TV, e os textos também em inglês, em `en-US/` (#12).
 
 ### Gaveta
 - Abrindo ou fechando a gaveta, a borda de cima da folha não é mais uma linha reta: o vidro

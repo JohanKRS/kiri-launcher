@@ -219,6 +219,54 @@ fun HomeLayout.withAppTakenOut(appKey: String, keepFolderId: String? = null): Ho
 }
 
 /**
+ * The layout with each app of [moves] under its new key, old key to new: an app that turned to
+ * another of its icons (an `activity-alias` each) is the same app, so it keeps its cell or its
+ * place in its folder. An app already on this home screen under its new key stays where it is,
+ * and the old shortcut goes, so the app is never shown twice; a folder left with one app
+ * becomes that app.
+ */
+fun HomeLayout.withAppsMoved(moves: Map<String, String>): HomeLayout {
+    if (moves.isEmpty()) return this
+    // The apps that stay as they are, and among them the ones standing on their own.
+    val taken = HashSet<String>()
+    val standing = HashSet<String>()
+    var mentioned = false
+    for (item in items) {
+        when (val content = item.content) {
+            is ItemContent.App -> if (content.appKey in moves) {
+                mentioned = true
+            } else {
+                taken += content.appKey
+                standing += content.appKey
+            }
+
+            is ItemContent.Folder -> for (key in content.appKeys) if (key in moves) mentioned = true else taken += key
+            is ItemContent.Widget, is ItemContent.AppWidget -> Unit
+        }
+    }
+    if (!mentioned) return this
+    val moved = items.mapNotNull { item ->
+        when (val content = item.content) {
+            is ItemContent.App -> {
+                val to = moves[content.appKey] ?: return@mapNotNull item
+                if (taken.add(to)) item.copy(content = ItemContent.App(to)) else null
+            }
+
+            is ItemContent.Folder -> {
+                val apps = content.appKeys.mapNotNull { key ->
+                    val to = moves[key] ?: return@mapNotNull key
+                    to.takeIf { taken.add(it) }
+                }
+                if (apps == content.appKeys) item else item.withFolderApps(content, apps, standing)
+            }
+
+            is ItemContent.Widget, is ItemContent.AppWidget -> item
+        }
+    }
+    return copy(items = moved).keepingPagesOf(this)
+}
+
+/**
  * This folder item holding only [apps]: with two or more it stays a folder; with one it becomes
  * that app, unless the app already [standingApps] on its own elsewhere; with none it is gone.
  */

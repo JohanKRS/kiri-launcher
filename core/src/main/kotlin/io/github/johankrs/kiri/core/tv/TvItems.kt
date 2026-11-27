@@ -65,6 +65,21 @@ data class TvHomeItems(val items: List<TvItem>) {
         return if (kept.size == items.size) this else TvHomeItems(kept)
     }
 
+    /**
+     * With each app of [moves] under its new key, old key to new, in the same place: it turned
+     * to another of its icons. An app already here under its new key keeps its own place.
+     */
+    fun withAppsMoved(moves: Map<String, String>): TvHomeItems {
+        if (moves.isEmpty() || items.none { it is TvItem.App && it.appKey in moves }) return this
+        val seen = HashSet<TvItem>()
+        val kept = items.filter { it !is TvItem.App || it.appKey !in moves }.toHashSet()
+        val moved = items.mapNotNull { item ->
+            val to = (item as? TvItem.App)?.appKey?.let(moves::get)?.let(TvItem::App) ?: return@mapNotNull item
+            to.takeIf { it !in kept && seen.add(it) }
+        }
+        return TvHomeItems(moved)
+    }
+
     companion object {
         const val KEY = "tv.home.items"
 
