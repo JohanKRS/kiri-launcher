@@ -337,7 +337,7 @@ class SettingsStore private constructor(context: Context) {
     suspend fun setMotion(motion: MotionSettings) {
         store.edit { preferences ->
             preferences[KEY_APP_OPEN] = motion.appOpen.key
-            preferences[KEY_HOME_RETURN] = motion.homeReturn.key
+            preferences[KEY_HOME] = motion.home.key
             preferences[KEY_DRAWER] = motion.drawer.key
             preferences[KEY_SPEED] = motion.speed
         }
@@ -699,7 +699,7 @@ class SettingsStore private constructor(context: Context) {
         private const val LAYOUT_SUFFIX = ".layout"
 
         private val KEY_APP_OPEN = stringPreferencesKey(MotionSettings.KEY_APP_OPEN)
-        private val KEY_HOME_RETURN = stringPreferencesKey(MotionSettings.KEY_HOME_RETURN)
+        private val KEY_HOME = stringPreferencesKey(MotionSettings.KEY_HOME)
         private val KEY_DRAWER = stringPreferencesKey(MotionSettings.KEY_DRAWER)
         private val KEY_SPEED = intPreferencesKey(MotionSettings.KEY_SPEED)
 

@@ -16,6 +16,28 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   gesto que abre o app, para a tela inicial da TV e para um app cuja atualização muda a tela
   por onde ele abre (#10).
 
+### Gaveta
+- Abrindo ou fechando a gaveta, a borda de cima da folha não é mais uma linha reta: o vidro
+  (desfoque e cor) vai de transparente até a cor da gaveta num degradê suave, que acompanha o
+  dedo. Com a gaveta toda aberta, a tela inteira continua com o mesmo vidro (#8).
+
+### Movimento
+- Duas maneiras novas de abrir e fechar a gaveta, acompanhando o dedo como as outras: **Revelar
+  do dedo** (o vidro se abre num círculo de borda suave a partir de onde o dedo começou, e cada
+  app aparece quando o círculo passa por ele) e **Cascata** (o vidro embaça no lugar e os apps
+  sobem fileira por fileira, de baixo para cima). "Deslizar de baixo" virou **Subir** e "Zoom"
+  virou **Aproximar** (#9).
+- A tela inicial sai e volta do mesmo jeito para a gaveta e para os apps, com cinco maneiras:
+  **Recuar** (a de antes), **Voo de volta** (ganha zoom por fora e volta voando rapidinho para o
+  lugar, com um leve assentar; ao abrir um app, o zoom sai do ícone tocado), **Voo em onda**
+  (cada item voa sozinho e os mais perto chegam primeiro), **Foco** (desfoca como o fundo de uma
+  foto) e **Esmaecer**, além de **Nenhuma**. Enquanto um app abre, a tela não some, para nunca
+  ficar vazia se o app demorar (#9).
+- Abrir um app a partir do ícone, que mostra o app num recorte que se abre do ícone, passou a se
+  chamar **Revelar do ícone**. Quem desenha o app abrindo é o Android (#9).
+- As escolhas de Animações são passadas com as setas, como os outros nomes das configurações, com
+  o nome em cima e as setas alinhadas de uma linha para a outra (#9).
+
 ## [0.2.1] - 2026-11-27
 
 ### Gestos

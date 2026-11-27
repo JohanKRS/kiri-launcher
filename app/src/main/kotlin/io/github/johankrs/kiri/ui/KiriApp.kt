@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -23,7 +24,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
@@ -64,8 +64,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -89,6 +89,9 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import io.github.johankrs.kiri.KiriAccessibilityService
 import io.github.johankrs.kiri.R
 import io.github.johankrs.kiri.core.AppEntry
@@ -120,7 +123,7 @@ import io.github.johankrs.kiri.core.look.DrawerLook
 import io.github.johankrs.kiri.core.look.FolderGround
 import io.github.johankrs.kiri.core.look.FolderLook
 import io.github.johankrs.kiri.core.look.GlassBevel
-import io.github.johankrs.kiri.core.look.HomeReturnStyle
+import io.github.johankrs.kiri.core.look.HomeStyle
 import io.github.johankrs.kiri.core.look.IconSettings
 import io.github.johankrs.kiri.core.look.LabelLook
 import io.github.johankrs.kiri.core.look.WidgetLook
@@ -295,6 +298,8 @@ private class Carry(val app: AppEntry, private val iconCenter: Offset, private v
  *
  * [refreshTick] changes whenever the launcher comes back to the front.
  * [homeTick] changes whenever the Home button is pressed (go back to the first screen).
+ * [resumeTick] changes when the launcher is back in front without having been out of sight,
+ * as when something that only covered part of it closes.
  */
 @Composable
 fun KiriApp(
@@ -303,6 +308,7 @@ fun KiriApp(
     backdrop: Backdrop,
     refreshTick: Int,
     homeTick: Int,
+    resumeTick: Int = 0,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -496,11 +502,55 @@ fun KiriApp(
     // The backup being restored is not kept when Android ends the app: its screen closes.
     LaunchedEffect(current) { if (current == Screen.BACKUP_RESTORE && backups.opened == null) pop() }
 
+    // How far the launcher's screen is out of sight because of an app (see [homeAway]): it
+    // goes while an app opens over it and comes back when the launcher is in front again.
+    // `arrivedTick` is the return the animation belongs to: until the animation of a new
+    // return has started, the screen is held out of sight instead of flashing whole.
+    val appAway = remember { Animatable(0f) }
+    val arrivedTick = remember { mutableIntStateOf(-1) }
+    // Where it goes from and comes back to: the icon of the app last opened. Null is the middle.
+    var appPivot by remember { mutableStateOf<Offset?>(null) }
+    // Going out of sight for an app that is opening: it does not fade then (see [homeAway]).
+    var leavingForApp by remember { mutableStateOf(false) }
+    var launchTick by remember { mutableIntStateOf(0) }
+    val comeBack: suspend () -> Unit = {
+        leavingForApp = false
+        appAway.animateTo(0f, homeReturnSpring(motion.home, motion.stiffnessScale))
+    }
+
     val launch: (AppEntry, Rect?) -> Unit = { app, iconBounds ->
-        runCatching {
+        val started = runCatching {
             val options = appOpenOptions(motion.appOpen, view, iconBounds)
             context.startActivity(repository.launchIntent(app), options?.toBundle())
+        }.isSuccess
+        if (started && motion.home != HomeStyle.NONE) {
+            appPivot = iconBounds?.center
+            leavingForApp = true
+            launchTick++
+            scope.launch {
+                appAway.animateTo(
+                    targetValue = 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow * motion.stiffnessScale,
+                        visibilityThreshold = 0.001f,
+                    ),
+                )
+            }
         }
+    }
+    // An app that never came over the launcher (it failed to start, or showed nothing) leaves
+    // the screen where it was: it comes back by itself.
+    val activity = LocalActivity.current
+    LaunchedEffect(launchTick) {
+        if (launchTick == 0) return@LaunchedEffect
+        delay(LAUNCH_PATIENCE_MS)
+        val resumed = (activity as? LifecycleOwner)?.lifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) == true
+        if (leavingForApp && resumed) comeBack()
+    }
+    // Something that only covered part of the launcher closed: the screen comes back.
+    LaunchedEffect(resumeTick) {
+        if (leavingForApp) comeBack()
     }
 
     // [at] is where on screen the gesture was made, when it has a place.
@@ -533,6 +583,7 @@ fun KiriApp(
     // Still open while a settings screen is over it, so it is there again when that closes.
     val drawerOpen = Screen.DRAWER in stack
     val drawerMotion = remember { DrawerMotion(initiallyOpen = drawerOpen, scope = scope) }
+    val sheetEdge = remember(density) { SheetEdge(with(density) { SHEET_EDGE.toPx() }) }
     SideEffect { drawerMotion.stiffnessScale = motion.stiffnessScale }
     val flingPx = with(density) { 400.dp.toPx() }
     // Back, Home or an action changed whether the drawer is open: glide there.
@@ -569,24 +620,55 @@ fun KiriApp(
     }
 
     // Each time the launcher returns to the front, its screen comes back the chosen way.
-    // `arrivedTick` is the return the animation belongs to: until the animation of a new
-    // return has started, the screen is held at its starting point instead of flashing whole.
-    val arrival = remember { Animatable(0f) }
-    val arrivedTick = remember { mutableIntStateOf(-1) }
     LaunchedEffect(refreshTick) {
-        arrival.snapTo(0f)
+        leavingForApp = false
         arrivedTick.intValue = refreshTick
-        if (motion.homeReturn == HomeReturnStyle.NONE) {
-            arrival.snapTo(1f)
+        if (motion.home == HomeStyle.NONE) {
+            appAway.snapTo(0f)
         } else {
-            arrival.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow * motion.stiffnessScale,
-                    visibilityThreshold = 0.001f,
-                ),
-            )
+            appAway.snapTo(1f)
+            appAway.animateTo(0f, homeReturnSpring(motion.home, motion.stiffnessScale))
+        }
+        // Back in place: the next return that no app started (the screen turned on) comes
+        // from the middle.
+        appPivot = null
+    }
+    val latestRefresh = rememberUpdatedState(refreshTick)
+    val appAwayNow: () -> Float = remember { { if (arrivedTick.intValue == latestRefresh.value) appAway.value else 1f } }
+
+    // Where the circle of the drawer opens from (see [DrawerStyle.REVEAL]): where the finger
+    // last went down while the drawer was closed. Read only while drawing.
+    val revealFrom = remember { arrayOf(Offset.Unspecified) }
+
+    // Where each item goes when it moves on its own: as the drawer or an app comes over the
+    // home screen in a wave (see [homeItemAway]), and as the apps arrive on the drawer (see
+    // [drawerItemArriving]). Read only while drawing, so nothing is composed for it.
+    val homeItemMove: ItemMove? = remember(motion.home) {
+        if (motion.home != HomeStyle.WAVE) {
+            null
+        } else {
+            { center ->
+                val screen = backdrop.screenSize.toSize()
+                val forApp = appAwayNow()
+                if (forApp != 0f) {
+                    homeItemAway(forApp, appPivot, screen, center, fades = !leavingForApp)
+                } else {
+                    homeItemAway(drawerMotion.progress, null, screen, center)
+                }
+            }
+        }
+    }
+    val drawerItemMove: ItemMove? = remember(motion.home, motion.drawer) {
+        val arriving = !motion.drawer.arrivesWhole
+        val waving = motion.home == HomeStyle.WAVE
+        if (!arriving && !waving) {
+            null
+        } else {
+            { center ->
+                val screen = backdrop.screenSize.toSize()
+                if (arriving) drawerItemArriving(motion.drawer, drawerMotion.progress, revealFrom[0], screen, center)
+                if (waving) homeItemAway(appAwayNow(), appPivot, screen, center, fades = !leavingForApp)
+            }
         }
     }
 
@@ -895,6 +977,8 @@ fun KiriApp(
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                         drawerLift[0] = null
+                        // A touch while the drawer is closed may be what opens it.
+                        if (drawerMotion.progress <= 0f) revealFrom[0] = down.position
                         var previous = down.position
                         var liftedAt: Offset? = null
                         var active: Carry? = null
@@ -955,13 +1039,18 @@ fun KiriApp(
                             if (covered) {
                                 alpha = 0f
                             } else {
-                                val arrived = if (arrivedTick.intValue == refreshTick) arrival.value else 0f
-                                homeReturning(motion.homeReturn, arrived)
+                                homeAway(
+                                    style = motion.home,
+                                    away = appAwayNow(),
+                                    pivot = appPivot,
+                                    fades = !leavingForApp,
+                                    byItem = root == Screen.HOME,
+                                )
                             }
                         }
                         .then(if (covered) Modifier.clearAndSetSemantics { } else Modifier),
                 ) {
-                    if (root == Screen.HOME) {
+                    if (root == Screen.HOME) CompositionLocalProvider(LocalItemMove provides homeItemMove) {
                         HomeSurface(
                             layout = behind.homeLayout,
                             appsByKey = appsByKey,
@@ -994,7 +1083,7 @@ fun KiriApp(
                             // The home screen steps back as the drawer comes over it. A folder
                             // opening over it leaves every icon where it is and as large.
                             modifier = Modifier.graphicsLayer {
-                                homeBehindDrawer(motion.drawer, drawerMotion.progress)
+                                homeAway(motion.home, drawerMotion.progress, pivot = null, underDrawer = true, byItem = true)
                                 // The pages draw it themselves while they are out.
                                 if (pagesOpening.covering) alpha = 0f
                             },
@@ -1036,34 +1125,38 @@ fun KiriApp(
                             .drawWithContent { if (drawerMotion.progress > 0f) drawContent() }
                             .graphicsLayer { drawerSheet(motion.drawer, drawerMotion.progress) },
                     ) {
-                        DrawerSurface(
-                            apps = shownApps,
-                            spec = behind.drawerSpec,
-                            look = behind.drawerLook,
-                            repository = repository,
-                            interactive = true,
-                            onLaunch = launch,
-                            // On a TV the drawer is the first screen: there is nothing to pull it
-                            // down to, and no home screen to carry apps to yet.
-                            pull = if (root == Screen.HOME) drawerPull else null,
-                            settle = { drawerMotion.progress },
-                            // The sheet is what blurs the wallpaper: the blurred picture is part
-                            // of it, cut to it, and stays put on the screen while the sheet moves.
-                            frost = {
-                                val picture = backdrop.image
-                                if (picture != null) {
-                                    clipRect {
-                                        heldStill(motion.drawer, drawerMotion.progress) {
-                                            drawWallpaper(picture, backdrop.travel, size.width, size.height)
+                        CompositionLocalProvider(LocalItemMove provides drawerItemMove) {
+                            DrawerSurface(
+                                apps = shownApps,
+                                spec = behind.drawerSpec,
+                                look = behind.drawerLook,
+                                repository = repository,
+                                interactive = true,
+                                onLaunch = launch,
+                                // On a TV the drawer is the first screen: there is nothing to pull it
+                                // down to, and no home screen to carry apps to yet.
+                                pull = if (root == Screen.HOME) drawerPull else null,
+                                settle = if (motion.drawer.arrivesWhole) ({ drawerMotion.progress }) else null,
+                                // The sheet is what blurs the wallpaper: the blurred picture is part
+                                // of it, cut to it, and stays put on the screen while the sheet moves.
+                                // As it rises its top edge is soft, never a line.
+                                sheet = { tint ->
+                                    val progress = drawerMotion.progress
+                                    drawerGlass(motion.drawer, progress, tint, sheetEdge, revealFrom[0]) {
+                                        val picture = backdrop.image
+                                        if (picture != null) {
+                                            heldStill(motion.drawer, progress) {
+                                                drawWallpaper(picture, backdrop.travel, size.width, size.height)
+                                            }
                                         }
                                     }
-                                }
-                            },
-                            onLongPress = { app, iconBounds ->
-                                menuTarget = MenuTarget.App(app, iconBounds)
-                                if (root == Screen.HOME) drawerLift[0] = DrawerLift(app, iconBounds)
-                            },
-                        )
+                                },
+                                onLongPress = { app, iconBounds ->
+                                    menuTarget = MenuTarget.App(app, iconBounds)
+                                    if (root == Screen.HOME) drawerLift[0] = DrawerLift(app, iconBounds)
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -1081,7 +1174,7 @@ fun KiriApp(
                         }
                         // A swipe beside it takes the home screen back as the drawer comes, and the
                         // folder closing there goes along with the rest of it.
-                        Box(Modifier.fillMaxSize().graphicsLayer { homeBehindDrawer(motion.drawer, drawerMotion.progress) }) {
+                        Box(Modifier.fillMaxSize().graphicsLayer { homeAway(motion.home, drawerMotion.progress, pivot = null, underDrawer = true) }) {
                             FolderOverlay(
                                 opening = folderOpening,
                                 folder = folder,
@@ -1954,6 +2047,9 @@ private const val APP_MOVE_SETTLE_MS = 1_000L
 /** How tall names are guessed to be, room above them included, before the home screen was laid out. */
 private const val NAMES_GUESS_DP = 38f
 
+/** How long an opened app has to come over the launcher before its screen comes back. */
+private const val LAUNCH_PATIENCE_MS = 1500L
+
 /** How finely the blur follows the drawer: this many steps between closed and open. */
 private const val BLUR_STEPS = 20f
 
@@ -2058,7 +2154,8 @@ class DrawerPull(
  * [settle] says how far open the sheet is, for the apps to settle onto it a moment after it
  * arrives (see [drawerContents]). Without it the apps are simply there, as in a preview.
  *
- * [frost] draws what the glass of the sheet shows through itself: the blurred wallpaper.
+ * [sheet] draws the glass of the sheet, given its tint: what it shows through itself (the
+ * blurred wallpaper) under the tint. Without it the sheet is only the tint, as in a preview.
  */
 @Composable
 fun DrawerSurface(
@@ -2072,7 +2169,7 @@ fun DrawerSurface(
     pull: DrawerPull? = null,
     onLongPress: ((app: AppEntry, iconBounds: Rect) -> Unit)? = null,
     settle: (() -> Float)? = null,
-    frost: (DrawScope.() -> Unit)? = null,
+    sheet: (DrawScope.(tint: Color) -> Unit)? = null,
 ) {
     val glass = look.glass.spec(look.opacityPercent)
     val currentPull by rememberUpdatedState(pull)
@@ -2122,9 +2219,8 @@ fun DrawerSurface(
     Box(
         modifier = modifier
             .fillMaxSize()
-            // What the glass of the sheet shows through itself, under its tint.
-            .drawBehind { frost?.invoke(this) }
-            .background(glass.fill)
+            // The glass of the sheet: what it shows through itself, under its tint.
+            .drawBehind { sheet?.invoke(this, glass.fill) ?: drawRect(glass.fill) }
             .then(insetModifier),
     ) {
         // The sheet is the glass here, with the blurred wallpaper behind all of it. Glass on

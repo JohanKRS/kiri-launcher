@@ -34,6 +34,16 @@ class MainActivity : ComponentActivity() {
     /** Bumped every time the Home button is pressed, so the launcher returns to its first screen. */
     private var homeTick by mutableIntStateOf(0)
 
+    /**
+     * Bumped when the launcher is in front again without having been out of sight, as when
+     * something that covered only part of it closes. A return from out of sight bumps
+     * [refreshTick] instead.
+     */
+    private var resumeTick by mutableIntStateOf(0)
+
+    /** Whether the launcher came back from out of sight since it was last in front. */
+    private var startedSinceResume = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -53,6 +63,7 @@ class MainActivity : ComponentActivity() {
                     backdrop = backdrop,
                     refreshTick = refreshTick,
                     homeTick = homeTick,
+                    resumeTick = resumeTick,
                 )
             }
         }
@@ -63,6 +74,13 @@ class MainActivity : ComponentActivity() {
         // Widgets of other apps only change what they show while someone listens for it.
         SystemWidgets.of(this).startListening()
         refreshTick++
+        startedSinceResume = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!startedSinceResume) resumeTick++
+        startedSinceResume = false
     }
 
     override fun onStop() {

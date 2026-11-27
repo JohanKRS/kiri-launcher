@@ -57,7 +57,7 @@ import io.github.johankrs.kiri.core.gesture.LauncherAction
 import io.github.johankrs.kiri.core.look.AppOpenStyle
 import io.github.johankrs.kiri.core.look.DrawerLook
 import io.github.johankrs.kiri.core.look.DrawerStyle
-import io.github.johankrs.kiri.core.look.HomeReturnStyle
+import io.github.johankrs.kiri.core.look.HomeStyle
 import io.github.johankrs.kiri.core.look.MotionSettings
 import io.github.johankrs.kiri.data.WallpaperReading
 import io.github.johankrs.kiri.ui.actionLabel
@@ -241,8 +241,6 @@ fun MotionSettingsScreen(
             onChange(next)
         }
     }
-    // Which list of choices is open, if any: 0 opening apps, 1 coming back, 2 the drawer.
-    var open by remember { mutableIntStateOf(-1) }
     val muted = KiriType.caption.copy(color = KiriTheme.colors.onSurfaceMuted)
 
     SettingsScaffold(title = stringResource(R.string.settings_motion), onBack = onBack) {
@@ -265,48 +263,27 @@ fun MotionSettingsScreen(
             )
 
             val drawerStyles = DrawerStyle.entries
-            ChoiceCard(
+            NamedChoice(
                 label = stringResource(R.string.motion_drawer),
-                valueText = stringResource(draft.drawer.labelRes()),
-                expanded = open == 2,
-                onToggle = { open = if (open == 2) -1 else 2 },
-                options = drawerStyles.map { stringResource(it.labelRes()) },
-                selectedIndex = drawerStyles.indexOf(draft.drawer),
-                onSelect = { index ->
-                    change(draft.copy(drawer = drawerStyles[index]))
-                    open = -1
-                },
-                modifier = Modifier.fillMaxWidth(),
+                choices = drawerStyles.map { stringResource(it.labelRes()) },
+                chosen = drawerStyles.indexOf(draft.drawer),
+                onChoose = { change(draft.copy(drawer = drawerStyles[it])) },
+            )
+
+            val homeStyles = HomeStyle.entries
+            NamedChoice(
+                label = stringResource(R.string.motion_home),
+                choices = homeStyles.map { stringResource(it.labelRes()) },
+                chosen = homeStyles.indexOf(draft.home),
+                onChoose = { change(draft.copy(home = homeStyles[it])) },
             )
 
             val openStyles = AppOpenStyle.entries
-            ChoiceCard(
+            NamedChoice(
                 label = stringResource(R.string.motion_app_open),
-                valueText = stringResource(draft.appOpen.labelRes()),
-                expanded = open == 0,
-                onToggle = { open = if (open == 0) -1 else 0 },
-                options = openStyles.map { stringResource(it.labelRes()) },
-                selectedIndex = openStyles.indexOf(draft.appOpen),
-                onSelect = { index ->
-                    change(draft.copy(appOpen = openStyles[index]))
-                    open = -1
-                },
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            val returnStyles = HomeReturnStyle.entries
-            ChoiceCard(
-                label = stringResource(R.string.motion_home_return),
-                valueText = stringResource(draft.homeReturn.labelRes()),
-                expanded = open == 1,
-                onToggle = { open = if (open == 1) -1 else 1 },
-                options = returnStyles.map { stringResource(it.labelRes()) },
-                selectedIndex = returnStyles.indexOf(draft.homeReturn),
-                onSelect = { index ->
-                    change(draft.copy(homeReturn = returnStyles[index]))
-                    open = -1
-                },
-                modifier = Modifier.fillMaxWidth(),
+                choices = openStyles.map { stringResource(it.labelRes()) },
+                chosen = openStyles.indexOf(draft.appOpen),
+                onChoose = { change(draft.copy(appOpen = openStyles[it])) },
             )
             }
             BasicText(
@@ -528,21 +505,48 @@ private fun DrawerLookControls(
 
 private fun AppOpenStyle.labelRes(): Int = when (this) {
     AppOpenStyle.FROM_ICON -> R.string.motion_app_open_icon
-    AppOpenStyle.SLIDE_UP -> R.string.motion_slide_up
+    AppOpenStyle.SLIDE_UP -> R.string.motion_rise
     AppOpenStyle.FADE -> R.string.motion_fade
     AppOpenStyle.SYSTEM -> R.string.motion_system
 }
 
-private fun HomeReturnStyle.labelRes(): Int = when (this) {
-    HomeReturnStyle.ZOOM -> R.string.motion_zoom
-    HomeReturnStyle.FADE -> R.string.motion_fade
-    HomeReturnStyle.NONE -> R.string.motion_none
+private fun HomeStyle.labelRes(): Int = when (this) {
+    HomeStyle.RECEDE -> R.string.motion_home_recede
+    HomeStyle.FLY_BACK -> R.string.motion_home_fly_back
+    HomeStyle.WAVE -> R.string.motion_home_wave
+    HomeStyle.FOCUS -> R.string.motion_home_focus
+    HomeStyle.FADE -> R.string.motion_fade
+    HomeStyle.NONE -> R.string.motion_none
 }
 
 private fun DrawerStyle.labelRes(): Int = when (this) {
-    DrawerStyle.SLIDE -> R.string.motion_slide_up
-    DrawerStyle.ZOOM -> R.string.motion_zoom
+    DrawerStyle.SLIDE -> R.string.motion_rise
+    DrawerStyle.ZOOM -> R.string.motion_drawer_closer
+    DrawerStyle.REVEAL -> R.string.motion_drawer_reveal
+    DrawerStyle.CASCADE -> R.string.motion_drawer_cascade
     DrawerStyle.FADE -> R.string.motion_fade
+}
+
+/**
+ * One of [choices], by name, stepped through with the arrows and round again at either end. The
+ * name of the setting is above, so that its arrows line up with those of the rows around it
+ * whatever the names are.
+ */
+@Composable
+private fun NamedChoice(label: String, choices: List<String>, chosen: Int, onChoose: (Int) -> Unit) {
+    val at = chosen.coerceAtLeast(0)
+    StepperCard(
+        label = label,
+        valueText = choices[at],
+        values = choices,
+        named = true,
+        nameAbove = true,
+        canDecrease = true,
+        canIncrease = true,
+        onDecrease = { onChoose((at - 1 + choices.size) % choices.size) },
+        onIncrease = { onChoose((at + 1) % choices.size) },
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 internal fun GlassStyle.labelRes(): Int = when (this) {

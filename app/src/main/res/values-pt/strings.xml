@@ -74,12 +74,18 @@
     <string name="motion_speed">Velocidade das animações</string>
     <string name="motion_drawer">Abrir e fechar a gaveta</string>
     <string name="motion_app_open">Abrir um app</string>
-    <string name="motion_home_return">Voltar para a tela inicial</string>
-    <string name="motion_home_return_note">O jeito como o app sai da tela é desenhado pelo próprio Android. O que se escolhe aqui é como a tela inicial reaparece atrás dele.</string>
-    <string name="motion_app_open_icon">Crescer a partir do ícone</string>
-    <string name="motion_slide_up">Deslizar de baixo</string>
+    <string name="motion_home">A tela inicial sai e volta</string>
+    <string name="motion_home_return_note">A tela inicial sai e volta do mesmo jeito para a gaveta e para os apps. Como o próprio app abre e fecha é desenhado pelo Android: o Kiri pede o jeito de abrir, e só o launcher que vem no aparelho consegue desenhar o app encolhendo de volta para o ícone.</string>
+    <string name="motion_app_open_icon">Revelar do ícone</string>
+    <string name="motion_rise">Subir</string>
     <string name="motion_fade">Esmaecer</string>
-    <string name="motion_zoom">Zoom</string>
+    <string name="motion_drawer_closer">Aproximar</string>
+    <string name="motion_drawer_reveal">Revelar do dedo</string>
+    <string name="motion_drawer_cascade">Cascata</string>
+    <string name="motion_home_recede">Recuar</string>
+    <string name="motion_home_fly_back">Voo de volta</string>
+    <string name="motion_home_wave">Voo em onda</string>
+    <string name="motion_home_focus">Foco</string>
     <string name="motion_none">Nenhuma</string>
     <string name="motion_system">Padrão do aparelho</string>
 
