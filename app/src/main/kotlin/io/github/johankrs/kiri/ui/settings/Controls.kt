@@ -32,8 +32,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -65,6 +69,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.res.stringResource
@@ -80,6 +85,7 @@ import androidx.compose.ui.unit.dp
 import io.github.johankrs.kiri.R
 import io.github.johankrs.kiri.ui.theme.KiriTheme
 import io.github.johankrs.kiri.ui.theme.KiriType
+import io.github.johankrs.kiri.ui.theme.ShadeIndication
 import kotlinx.coroutines.delay
 
 private const val HOLD_DELAY_MS = 450L
@@ -413,6 +419,23 @@ fun SettingsScaffold(
     focusFirst: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // The steppers of this screen give their values the same room (see StepperCard).
+    val stepRooms = remember { StepRooms() }
+    // A shade that shows on either theme where a row or a button is pressed or has the focus.
+    val dark = KiriTheme.colors.dark
+    val shade = remember(dark) { ShadeIndication.of(dark) }
+    CompositionLocalProvider(LocalStepRooms provides stepRooms, LocalIndication provides shade) {
+        ScaffoldColumn(title, onBack, focusFirst, content)
+    }
+}
+
+@Composable
+private fun ScaffoldColumn(
+    title: String,
+    onBack: () -> Unit,
+    focusFirst: Boolean,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     val colors = KiriTheme.colors
     Column(
         modifier = Modifier
@@ -669,8 +692,10 @@ private fun stepperLayout(nameAbove: Boolean) = MeasurePolicy { measurables, con
  * stepping. The buttons are only their signs, with no background of their own.
  *
  * The value always has the same room, centred in it: [StepValueRoom], or more if one of
- * [values] (all it can show) is wider. So the buttons never move as it changes, and they line
- * up from row to row. Menus follow the same pattern (`ItemMenu`).
+ * [values] (all it can show) is wider, or more again if another stepper of the same screen
+ * needs more. So the buttons never move as it changes, and the minus and the left arrow of every
+ * row of a screen sit in one column, as the plus and the right arrow do. Menus follow the same
+ * pattern (`ItemMenu`).
  *
  * The name goes beside the buttons when there is room for it, else above them, with the buttons
  * at either end of the row below. [nameAbove] always puts it above, for rows of long names that
@@ -697,8 +722,13 @@ fun StepperCard(
     val density = LocalDensity.current
     val room = remember(values, valueText, measurer, density) {
         val widest = (values + valueText).maxOf { measurer.measure(it, valueStyle, maxLines = 1).size.width }
-        maxOf(StepValueRoom, with(density) { widest.toDp() })
+        maxOf(with(density) { StepValueRoom.roundToPx() }, widest)
     }
+    // A name above has its buttons at either end of the row, so it needs no shared room.
+    val rooms = LocalStepRooms.current.takeUnless { nameAbove }
+    val owner = remember { Any() }
+    SideEffect { rooms?.claim(owner, room) }
+    DisposableEffect(rooms, owner) { onDispose { rooms?.release(owner) } }
     GroupRow(modifier) { row ->
         Layout(
             content = {
@@ -718,7 +748,7 @@ fun StepperCard(
                         text = valueText,
                         style = valueStyle,
                         maxLines = 1,
-                        modifier = Modifier.width(room),
+                        modifier = Modifier.valueRoom(room, rooms),
                     )
                     StepButton(
                         glyph = if (named) Glyph.FORWARD else Glyph.PLUS,
@@ -736,6 +766,39 @@ fun StepperCard(
 
 /** The room every stepper gives its value, enough for "Padrão", "100%" or "30 min". */
 val StepValueRoom = 64.dp
+
+/**
+ * The room the steppers of one screen give their values: as much as the widest of them needs,
+ * so that their buttons line up in two columns down the screen.
+ */
+@Stable
+class StepRooms {
+    private val rooms = mutableStateMapOf<Any, Int>()
+
+    /** [owner] needs [px] for its widest value. */
+    fun claim(owner: Any, px: Int) {
+        if (rooms[owner] != px) rooms[owner] = px
+    }
+
+    fun release(owner: Any) {
+        rooms.remove(owner)
+    }
+
+    /** The most any stepper of the screen needs. Read while measuring, so a change only re-measures. */
+    val widest: Int get() = rooms.values.maxOrNull() ?: 0
+}
+
+/** The steppers of the screen on show; null outside a settings screen. */
+val LocalStepRooms = staticCompositionLocalOf<StepRooms?> { null }
+
+/** [own] wide, or as wide as the widest value of the screen's other steppers. */
+private fun Modifier.valueRoom(own: Int, rooms: StepRooms?): Modifier = layout { measurable, constraints ->
+    val width = maxOf(own, rooms?.widest ?: 0)
+    val placeable = measurable.measure(
+        Constraints(minWidth = width, maxWidth = width, minHeight = constraints.minHeight, maxHeight = constraints.maxHeight),
+    )
+    layout(width, placeable.height) { placeable.place(0, 0) }
+}
 
 @Composable
 private fun StepButton(
