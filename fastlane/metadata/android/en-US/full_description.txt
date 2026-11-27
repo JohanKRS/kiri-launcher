@@ -1,0 +1,35 @@
+Kiri is a home screen (launcher) for phones, tablets and Android TV: light, ad-free and open source.
+
+<b>Glass everywhere</b>
+Folders, menus, panels and widgets share the same glass, Smoke, Crystal or Mist, over your wallpaper, with the blur done by Kiri itself. Animations follow your finger, without jolts.
+
+<b>Your screen, your way</b>
+• A grid with adjustable rows, columns and sizes, always with a live preview.
+• App names are never cut off: they wrap onto up to two lines.
+• Folders on the home screen, with a square glass panel.
+• Icons per app: shape (circle, rounded corners or squircle), size, glass behind them and icon packs.
+• Several pages that you add, remove and reorder.
+• Hide apps from the drawer and the home screen.
+• New apps go to the drawer only and never clutter your screen.
+
+<b>Full-screen drawer</b>
+All your apps in order, opening with your finger.
+
+<b>Widgets</b>
+• Market: stocks and currencies with charts, in a panel that opens from the widget, plus a currency converter.
+• Other apps' widgets, with Kiri's look if you want.
+• All resizable and always readable.
+
+<b>Gestures</b>
+Swipe to open the drawer or the notifications, and choose what each gesture does, like double-tapping to lock the screen.
+
+<b>Android TV</b>
+A home screen made for the TV: banners in a grid or a carousel, HDMI inputs with ready-made banners, clock and market widgets, its own wallpaper, and everything with the remote.
+
+<b>Privacy</b>
+Kiri has no account, ads or usage analytics, and collects no data. Market prices come straight from the quote services you choose. The backup is your own file, saved wherever you want.
+
+<b>Accessibility</b>
+Kiri's accessibility service is optional and only exists so a gesture can lock the screen. It reads nothing on the screen and collects no data. Kiri explains this first and only goes ahead if you allow it.
+
+Open source, GPL-3.0 license: https://github.com/JohanKRS/kiri-launcher

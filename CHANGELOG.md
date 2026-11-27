@@ -11,7 +11,7 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ### Google Play
 - A ficha da loja fica no repositório, em `fastlane/metadata/android/pt-BR/`: nome, descrições,
-  ícone, imagem de destaque, banner da TV e capturas do celular e da TV (#12).
+  ícone, imagem de destaque, banner da TV e capturas do celular e da TV (#12). Os textos também em inglês, em `en-US/` (#12).
 
 ### Gaveta
 - Abrindo ou fechando a gaveta, a borda de cima da folha não é mais uma linha reta: o vidro
