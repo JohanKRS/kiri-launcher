@@ -16,9 +16,9 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   prioridade sobre qualquer escolha, como a do Google TV, o Kiri vem no lugar dela sempre que ela
   aparece, pelo mesmo serviço de acessibilidade do toque duplo: só depois de você permitir, com
   aviso do que o serviço faz e não faz, e desligável na mesma tela. O serviço só fica sabendo
-  quando uma janela da tela inicial de fábrica aparece, e de nenhum outro app (#PR).
+  quando uma janela da tela inicial de fábrica aparece, e de nenhum outro app (#14).
 - Uma TV que lista o mesmo sintonizador duas vezes (uma Hisense lista "Tuner" duas vezes) mostra
-  uma entrada só (#PR).
+  uma entrada só (#14).
 
 ## [0.3.0] - 2026-11-27
 
