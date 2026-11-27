@@ -64,7 +64,7 @@
 
     <!-- Settings of the TV's home screen -->
     <string name="settings_tv_screen">TV screen</string>
-    <string name="settings_tv_screen_summary">Grid or carousel, banners and wallpaper</string>
+    <string name="settings_tv_screen_summary">Grid or carousel, banners, shadow and wallpaper</string>
     <string name="tv_look_arrangement">Arrangement</string>
     <string name="tv_arrangement_grid">Grid</string>
     <string name="tv_arrangement_carousel">Carousel</string>
@@ -73,10 +73,12 @@
     <string name="tv_align_center">Center</string>
     <string name="tv_align_spread">Justified</string>
     <string name="tv_look_size">Banner size</string>
+    <string name="tv_look_gap">Space between banners</string>
     <string name="tv_look_names">Names</string>
     <string name="tv_names_always">Below</string>
     <string name="tv_names_focus">When focused</string>
     <string name="tv_names_never">Hidden</string>
+    <string name="tv_look_shadow">Shadow</string>
     <string name="tv_look_wallpaper">Wallpaper</string>
     <string name="tv_wallpaper_aurora">Aurora</string>
     <string name="tv_wallpaper_oceano">Ocean</string>
@@ -95,4 +97,9 @@
     <string name="tv_picker_none">No pictures on the TV yet. Copy some to a USB drive or the TV\'s Pictures folder.</string>
     <string name="tv_picker_failed">That picture could not be read</string>
     <string name="tv_settings_caption">Hold OK on a banner on the TV’s home screen to move it, change its banner and name, or remove it.</string>
+
+    <!-- Animations, on a TV: no drawer, and apps open from their banner -->
+    <string name="settings_motion_summary_tv">Opening apps, going home and speed</string>
+    <string name="motion_app_open_banner">Reveal from the banner</string>
+    <string name="motion_home_return_note_tv">The home screen leaves when an app opens and comes back when it closes. How the app itself opens is drawn by Android: Kiri asks for a way, and some TVs open every app the same way, whatever is asked.</string>
 </resources>

@@ -877,7 +877,7 @@ fun KiriApp(
     val launchNow by rememberUpdatedState(launch)
     val tvActions = remember(repository, settings, tvInputs) {
         TvHomeActions(
-            launch = { app -> launchNow(app, null) },
+            launch = { app, banner -> launchNow(app, banner) },
             watch = { input ->
                 tvInputs?.watchIntents(input).orEmpty().any { intent -> runCatching { context.startActivity(intent) }.isSuccess }
             },
@@ -1315,10 +1315,12 @@ fun KiriApp(
                                 onOpenDrawerGrid = if (root == Screen.TV_HOME) null else { { push(Screen.DRAWER_GRID_SETTINGS) } },
                                 onOpenGestures = if (root == Screen.HOME) { { push(Screen.GESTURE_SETTINGS) } } else null,
                                 onOpenDrawerLook = if (root == Screen.TV_HOME) null else { { push(Screen.DRAWER_LOOK_SETTINGS) } },
-                                onOpenIcons = { push(Screen.ICON_LOOK_SETTINGS) },
+                                // A TV's banners and wallpaper are in "TV screen"; the icons, the
+                                // names and the wallpaper of a phone are not on it.
+                                onOpenIcons = if (root == Screen.TV_HOME) null else { { push(Screen.ICON_LOOK_SETTINGS) } },
                                 onOpenMotion = { push(Screen.MOTION_SETTINGS) },
-                                onOpenWallpaper = { push(Screen.WALLPAPER_SETTINGS) },
-                                onOpenTypography = { push(Screen.TYPOGRAPHY_SETTINGS) },
+                                onOpenWallpaper = if (root == Screen.TV_HOME) null else { { push(Screen.WALLPAPER_SETTINGS) } },
+                                onOpenTypography = if (root == Screen.TV_HOME) null else { { push(Screen.TYPOGRAPHY_SETTINGS) } },
                                 onOpenWidgets = if (root == Screen.HOME) { { push(Screen.WIDGETS) } } else null,
                                 onOpenFolders = if (root == Screen.HOME) { { push(Screen.FOLDER_SETTINGS) } } else null,
                                 onOpenHiddenApps = { push(Screen.HIDDEN_APPS) },
@@ -1406,6 +1408,7 @@ fun KiriApp(
                                 motion = motion,
                                 onChange = { next -> scope.launch { settings.setMotion(next) } },
                                 onBack = pop,
+                                tv = root == Screen.TV_HOME,
                             )
 
                             Screen.DRAWER_LOOK_SETTINGS -> DrawerLookScreen(

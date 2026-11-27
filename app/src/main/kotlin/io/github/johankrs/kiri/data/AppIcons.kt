@@ -13,13 +13,19 @@ import io.github.johankrs.kiri.R
  * the paulownia). Each one is an `activity-alias` of the manifest that opens MainActivity, with
  * its own icon and TV banner.
  */
-enum class AppIconColor(val alias: String, @DrawableRes val icon: Int, @StringRes val label: Int) {
-    LILAC("IconLilac", R.mipmap.ic_launcher_lilac, R.string.app_icon_lilac),
-    MIST("IconMist", R.mipmap.ic_launcher_mist, R.string.app_icon_mist),
-    SMOKE("IconSmoke", R.mipmap.ic_launcher_smoke, R.string.app_icon_smoke),
-    NIGHT("IconNight", R.mipmap.ic_launcher_night, R.string.app_icon_night),
-    ROSE("IconRose", R.mipmap.ic_launcher_rose, R.string.app_icon_rose),
-    BLUE("IconBlue", R.mipmap.ic_launcher_blue, R.string.app_icon_blue),
+enum class AppIconColor(
+    val alias: String,
+    @DrawableRes val icon: Int,
+    @StringRes val label: Int,
+    /** What a TV shows in its list of apps instead of the icon. */
+    @DrawableRes val banner: Int,
+) {
+    LILAC("IconLilac", R.mipmap.ic_launcher_lilac, R.string.app_icon_lilac, R.drawable.tv_banner_lilac),
+    MIST("IconMist", R.mipmap.ic_launcher_mist, R.string.app_icon_mist, R.drawable.tv_banner_mist),
+    SMOKE("IconSmoke", R.mipmap.ic_launcher_smoke, R.string.app_icon_smoke, R.drawable.tv_banner_smoke),
+    NIGHT("IconNight", R.mipmap.ic_launcher_night, R.string.app_icon_night, R.drawable.tv_banner_night),
+    ROSE("IconRose", R.mipmap.ic_launcher_rose, R.string.app_icon_rose, R.drawable.tv_banner_rose),
+    BLUE("IconBlue", R.mipmap.ic_launcher_blue, R.string.app_icon_blue, R.drawable.tv_banner_blue),
     ;
 
     fun next(): AppIconColor = entries[(ordinal + 1) % entries.size]

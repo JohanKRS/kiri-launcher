@@ -9,6 +9,22 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Configurações na TV
+- Na TV, as configurações mostram só o que vale para a TV. Saem Papel de parede (o da TV fica em
+  Tela da TV), Ícones e Tipografia, que eram dos ícones e nomes do celular, e "Tela da TV" passa a
+  ser a primeira linha. Em Animações saem a gaveta e o "Voo em onda", que na TV era igual ao "Voo
+  de volta" (#15).
+- Tela da TV ganha "Espaço entre os banners" (7 níveis; o 4 é o de antes) e "Sombra" (Nenhuma,
+  Leve, Média, Forte), que vale para os banners e os widgets. Antes a única sombra era a dos ícones
+  do celular, e desligá-la não mudava nada na TV (#15).
+- "Revelar do banner": na TV o app abre a partir do banner dele, e a tela inicial volta para o
+  banner, como o celular faz com o ícone (#15).
+- "Ícone do Kiri" vira "Banner do Kiri" na TV e mostra os banners de cada cor, que são o que a TV
+  mostra na lista de apps (#15).
+- Os ajustes do widget Mercado, abertos pelo menu do widget na TV, mostram o widget como a TV o
+  desenha e só o que vale lá: atualizar a cada, a lista e de onde vêm os preços. Tamanho de teste,
+  vidro, cantos e gráfico, que são do widget do celular, ficam de fora (#15).
+
 ## [0.3.0] - 2026-11-27
 
 ### Tela inicial

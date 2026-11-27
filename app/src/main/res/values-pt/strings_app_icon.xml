@@ -12,5 +12,8 @@
     <string name="app_icon_blue">Azul</string>
 
     <string name="app_icon_note_title">Onde muda</string>
+    <string name="settings_app_banner">Banner do Kiri</string>
+    <string name="settings_app_banner_summary">A cor do banner do próprio Kiri na lista de apps da TV</string>
+    <string name="app_banner_note">Na lista de apps da TV e na tela inicial que veio com ela. Algumas TVs levam alguns segundos para mostrar a cor nova.</string>
     <string name="app_icon_note">Nas listas de apps do Android e de outros launchers, e nas TVs. Alguns levam alguns segundos para mostrar a cor nova. Nos ícones temáticos (Android 13 ou mais novo) a cor é a do sistema.</string>
 </resources>

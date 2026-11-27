@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -62,6 +63,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.johankrs.kiri.R
+import io.github.johankrs.kiri.isTelevision
+import io.github.johankrs.kiri.ui.tv.TvMarketPreview
 import io.github.johankrs.kiri.core.GlassStyle
 import io.github.johankrs.kiri.core.layout.CellSpan
 import io.github.johankrs.kiri.market.Instrument
@@ -153,6 +156,10 @@ private fun MarketSettingsPage(
     val change = onChange
     val configuration = LocalConfiguration.current
     val wide = configuration.screenWidthDp > configuration.screenHeightDp
+    // A TV draws the widget its own way: only what changes it there is offered, and the
+    // preview is the widget as the TV shows it.
+    val context = LocalContext.current
+    val tv = remember(context) { context.isTelevision() }
 
     // The preview draws cells at about the size they have on a home screen, so it offers the
     // sizes that fit on this screen at that scale.
@@ -168,16 +175,26 @@ private fun MarketSettingsPage(
     SettingsScaffold(title = title, onBack = onBack, focusFirst = true) {
         if (wide) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxSize()) {
-                WidgetPreview(
-                    size = size,
-                    limit = limit,
-                    controller = controller,
-                    prefs = prefs,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(bottom = 16.dp),
-                )
+                val previewModifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(bottom = 16.dp)
+                if (tv) {
+                    TvMarketPreview(
+                        rows = marketRows(prefs.watchlist.visible, controller),
+                        modifier = previewModifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(KiriTheme.colors.previewBackdrop),
+                    )
+                } else {
+                    WidgetPreview(
+                        size = size,
+                        limit = limit,
+                        controller = controller,
+                        prefs = prefs,
+                        modifier = previewModifier,
+                    )
+                }
                 Controls(
                     prefs = prefs,
                     repository = repository,
@@ -186,6 +203,7 @@ private fun MarketSettingsPage(
                     sizeLimit = limit,
                     onSizeChange = onChoose,
                     onChange = change,
+                    tv = tv,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -260,6 +278,8 @@ private fun Controls(
     onSizeChange: (CellSpan) -> Unit,
     onChange: (MarketPrefs) -> Unit,
     modifier: Modifier = Modifier,
+    /** On a TV the widget has one look of its own, no chart and its sizes on its menu. */
+    tv: Boolean = false,
 ) {
     val settings = prefs.settings
     val setSettings: (MarketSettings) -> Unit = { onChange(prefs.copy(settings = it.coerced())) }
@@ -268,83 +288,7 @@ private fun Controls(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.verticalScroll(rememberScrollState()),
     ) {
-        SectionTitle(stringResource(R.string.market_preview_size))
-        val minSize = MarketWidgetSpec.SPEC.minSize
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min),
-        ) {
-            StepperCard(
-                label = stringResource(R.string.market_preview_width),
-                valueText = size.columns.toString(),
-                canDecrease = size.columns > minSize.columns,
-                canIncrease = size.columns < sizeLimit.columns,
-                onDecrease = { onSizeChange(CellSpan(size.columns - 1, size.rows)) },
-                onIncrease = { onSizeChange(CellSpan(size.columns + 1, size.rows)) },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-            )
-            StepperCard(
-                label = stringResource(R.string.market_preview_height),
-                valueText = size.rows.toString(),
-                canDecrease = size.rows > minSize.rows,
-                canIncrease = size.rows < sizeLimit.rows,
-                onDecrease = { onSizeChange(CellSpan(size.columns, size.rows - 1)) },
-                onIncrease = { onSizeChange(CellSpan(size.columns, size.rows + 1)) },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-            )
-        }
-        BasicText(
-            text = stringResource(R.string.market_preview_note),
-            style = KiriType.caption.copy(color = KiriTheme.colors.onSurfaceMuted),
-            modifier = Modifier.padding(horizontal = 4.dp),
-        )
-
-        SectionTitle(stringResource(R.string.market_section_glass))
-        ChoiceRow(
-            options = listOf(
-                GlassStyle.FUME to stringResource(R.string.market_glass_fume),
-                GlassStyle.CRISTAL to stringResource(R.string.market_glass_cristal),
-                GlassStyle.NEVOA to stringResource(R.string.market_glass_nevoa),
-            ),
-            selected = settings.glass,
-            onSelect = { setSettings(settings.withGlass(it)) },
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min),
-        ) {
-            StepperCard(
-                label = stringResource(R.string.market_opacity),
-                valueText = stringResource(R.string.market_percent, settings.opacityPercent),
-                canDecrease = settings.opacityPercent > GlassStyle.OPACITY_PERCENT.first,
-                canIncrease = settings.opacityPercent < GlassStyle.OPACITY_PERCENT.last,
-                onDecrease = { setSettings(settings.copy(opacityPercent = settings.opacityPercent - 1)) },
-                onIncrease = { setSettings(settings.copy(opacityPercent = settings.opacityPercent + 1)) },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-            )
-            StepperCard(
-                label = stringResource(R.string.market_corners),
-                // A level, not a measure: each tap rounds the corners one step more.
-                valueText = settings.cornerDp.toString(),
-                canDecrease = settings.cornerDp > MarketSettings.CORNER_DP.first,
-                canIncrease = settings.cornerDp < MarketSettings.CORNER_DP.last,
-                onDecrease = { setSettings(settings.copy(cornerDp = settings.cornerDp - 1)) },
-                onIncrease = { setSettings(settings.copy(cornerDp = settings.cornerDp + 1)) },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-            )
-        }
+        if (!tv) SizeAndLook(size, sizeLimit, onSizeChange, settings, setSettings)
         // Each on a line of its own: side by side, "30 min" and the name of the switch had no room.
         val shorter = settings.refreshStepped(-1)
         val longer = settings.refreshStepped(1)
@@ -361,12 +305,14 @@ private fun Controls(
             onIncrease = { longer?.let(setSettings) },
             modifier = Modifier.fillMaxWidth(),
         )
-        ToggleCard(
-            label = stringResource(R.string.market_chart),
-            checked = settings.showChart,
-            onCheckedChange = { setSettings(settings.copy(showChart = it)) },
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (!tv) {
+            ToggleCard(
+                label = stringResource(R.string.market_chart),
+                checked = settings.showChart,
+                onCheckedChange = { setSettings(settings.copy(showChart = it)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
 
         SectionTitle(stringResource(R.string.market_section_list))
         prefs.watchlist.entries.forEachIndexed { index, entry ->
@@ -383,6 +329,94 @@ private fun Controls(
 
         MarketSourcesSection(prefs = prefs, repository = repository, onChange = onChange, onOpenGuide = onOpenGuide)
         Spacer(Modifier.height(16.dp))
+    }
+}
+
+/** The size the preview is tried at, and the glass of the widget: a home screen's, not a TV's. */
+@Composable
+private fun SizeAndLook(
+    size: CellSpan,
+    sizeLimit: CellSpan,
+    onSizeChange: (CellSpan) -> Unit,
+    settings: MarketSettings,
+    setSettings: (MarketSettings) -> Unit,
+) {
+    SectionTitle(stringResource(R.string.market_preview_size))
+    val minSize = MarketWidgetSpec.SPEC.minSize
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+    ) {
+        StepperCard(
+            label = stringResource(R.string.market_preview_width),
+            valueText = size.columns.toString(),
+            canDecrease = size.columns > minSize.columns,
+            canIncrease = size.columns < sizeLimit.columns,
+            onDecrease = { onSizeChange(CellSpan(size.columns - 1, size.rows)) },
+            onIncrease = { onSizeChange(CellSpan(size.columns + 1, size.rows)) },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+        )
+        StepperCard(
+            label = stringResource(R.string.market_preview_height),
+            valueText = size.rows.toString(),
+            canDecrease = size.rows > minSize.rows,
+            canIncrease = size.rows < sizeLimit.rows,
+            onDecrease = { onSizeChange(CellSpan(size.columns, size.rows - 1)) },
+            onIncrease = { onSizeChange(CellSpan(size.columns, size.rows + 1)) },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+        )
+    }
+    BasicText(
+        text = stringResource(R.string.market_preview_note),
+        style = KiriType.caption.copy(color = KiriTheme.colors.onSurfaceMuted),
+        modifier = Modifier.padding(horizontal = 4.dp),
+    )
+
+    SectionTitle(stringResource(R.string.market_section_glass))
+    ChoiceRow(
+        options = listOf(
+            GlassStyle.FUME to stringResource(R.string.market_glass_fume),
+            GlassStyle.CRISTAL to stringResource(R.string.market_glass_cristal),
+            GlassStyle.NEVOA to stringResource(R.string.market_glass_nevoa),
+        ),
+        selected = settings.glass,
+        onSelect = { setSettings(settings.withGlass(it)) },
+    )
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+    ) {
+        StepperCard(
+            label = stringResource(R.string.market_opacity),
+            valueText = stringResource(R.string.market_percent, settings.opacityPercent),
+            canDecrease = settings.opacityPercent > GlassStyle.OPACITY_PERCENT.first,
+            canIncrease = settings.opacityPercent < GlassStyle.OPACITY_PERCENT.last,
+            onDecrease = { setSettings(settings.copy(opacityPercent = settings.opacityPercent - 1)) },
+            onIncrease = { setSettings(settings.copy(opacityPercent = settings.opacityPercent + 1)) },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+        )
+        StepperCard(
+            label = stringResource(R.string.market_corners),
+            // A level, not a measure: each tap rounds the corners one step more.
+            valueText = settings.cornerDp.toString(),
+            canDecrease = settings.cornerDp > MarketSettings.CORNER_DP.first,
+            canIncrease = settings.cornerDp < MarketSettings.CORNER_DP.last,
+            onDecrease = { setSettings(settings.copy(cornerDp = settings.cornerDp - 1)) },
+            onIncrease = { setSettings(settings.copy(cornerDp = settings.cornerDp + 1)) },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+        )
     }
 }
 

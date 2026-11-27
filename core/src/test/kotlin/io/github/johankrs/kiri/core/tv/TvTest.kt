@@ -1,5 +1,6 @@
 package io.github.johankrs.kiri.core.tv
 
+import io.github.johankrs.kiri.core.look.GlassLevel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -81,6 +82,41 @@ class TvTest {
         assertEquals(TvNameShow.FOCUS, look.names)
         assertEquals(TvLook.SIZES.last, look.bannerSize)
         assertEquals(226f, look.bannerWidthDp)
+    }
+
+    @Test
+    fun `the room between banners and their shadow are read and kept within their levels`() {
+        val default = TvLook.fromStored({ null }, { null })
+        assertEquals(TvLook.DEFAULT_GAP, default.gap)
+        assertEquals(1f, default.gapScale)
+        assertEquals(GlassLevel.MEDIUM, default.shadow)
+        assertEquals(1f, default.shadowAmount)
+        val stored = mapOf(TvLook.KEY_SHADOW to "off")
+        val look = TvLook.fromStored({ stored[it] }, { if (it == TvLook.KEY_GAP) 40 else null })
+        assertEquals(TvLook.GAPS.last, look.gap)
+        assertEquals(GlassLevel.OFF, look.shadow)
+        assertEquals(0f, look.shadowAmount)
+        assertEquals(TvLook.GAPS.first, TvLook().withGap(-3).gap)
+        assertTrue(TvLook(shadow = GlassLevel.LIGHT).shadowAmount < 1f)
+        assertTrue(TvLook(shadow = GlassLevel.STRONG).shadowAmount > 1f)
+    }
+
+    @Test
+    fun `more room between banners moves them apart, in the grid and in the carousel`() {
+        val usual = TvArrange.place(11, TvLook(), TvArrange.HEIGHT, 0, 0f).boxes
+        val close = TvArrange.place(11, TvLook(gap = 1), TvArrange.HEIGHT, 0, 0f).boxes
+        val far = TvArrange.place(11, TvLook(gap = 7), TvArrange.HEIGHT, 0, 0f).boxes
+        val step: (List<TvBox>) -> Float = { boxes -> boxes[1].left - boxes[0].left }
+        assertTrue(step(close) < step(usual))
+        assertTrue(step(far) > step(usual))
+        assertTrue(far.all { it.right <= TvArrange.WIDTH })
+        // The rows come apart too, as long as there is a second one.
+        val rowGap: (List<TvBox>) -> Float = { boxes -> boxes.first { it.top > boxes[0].top }.top - boxes[0].bottom }
+        assertTrue(rowGap(close) < rowGap(usual))
+        val carousel = TvLook(arrangement = TvArrangement.CAROUSEL)
+        val c1 = TvArrange.place(8, carousel, TvArrange.HEIGHT, 0, 0f).boxes
+        val c7 = TvArrange.place(8, carousel.withGap(7), TvArrange.HEIGHT, 0, 0f).boxes
+        assertTrue(step(c7) > step(c1))
     }
 
     @Test

@@ -12,5 +12,8 @@
     <string name="app_icon_blue">Blue</string>
 
     <string name="app_icon_note_title">Where it changes</string>
+    <string name="settings_app_banner">Kiri\'s banner</string>
+    <string name="settings_app_banner_summary">The color of Kiri\'s own banner in the TV\'s list of apps</string>
+    <string name="app_banner_note">In the TV\'s list of apps and on the home screen the TV came with. Some TVs take a few seconds to show the new color.</string>
     <string name="app_icon_note">In the app lists of Android and of other launchers, and on TVs. Some take a few seconds to show the new color. Themed icons (Android 13 and later) take the color of the system instead.</string>
 </resources>
