@@ -24,8 +24,8 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 - As chaves do Mercado ficam de fora, como no backup à mão. Ligadas, você digita a senha uma vez:
   o Kiri não guarda a senha, só a chave tirada dela, trancada pelo Android, e cada backup abre na
   restauração com essa mesma senha (#17).
-- "Salvar um agora" faz um do mesmo jeito que o automático, e "Último automático" diz quando foi,
-  onde ficou ou o que deu errado e como resolver (#17).
+- "Salvar um agora" salva na hora, no mesmo lugar, mesmo sem mudanças, e "Último automático" diz
+  quando foi, em que pasta ou arquivo ficou ou o que deu errado e como resolver (#17).
 
 ### Configurações
 - "Tema" em Configurações › Aparência: Do sistema, Claro ou Escuro. As próprias configurações

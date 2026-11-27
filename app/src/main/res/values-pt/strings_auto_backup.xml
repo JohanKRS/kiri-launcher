@@ -58,7 +58,7 @@
     <string name="auto_backup_failed_space">Falta espaço.</string>
     <string name="auto_backup_failed_other">Tenta de novo no próximo horário.</string>
     <string name="auto_backup_now">Salvar um agora</string>
-    <string name="auto_backup_now_summary">Do mesmo jeito que o automático</string>
+    <string name="auto_backup_now_summary">Agora, no mesmo lugar, mesmo sem mudanças</string>
 
     <string name="auto_backup_when_daily">Todo dia, por volta das %1$s</string>
     <string name="auto_backup_when_days">A cada %1$d dias, por volta das %2$s</string>

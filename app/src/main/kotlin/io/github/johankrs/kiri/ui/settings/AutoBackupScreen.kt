@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
@@ -17,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -24,8 +26,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -98,11 +102,19 @@ fun AutoBackupScreen(
     // Whether there are market keys to carry; the block for them shows only then.
     val hasKeys by produceState(auto.keysOn, formFactor) { value = auto.keysOn || backups.current(formFactor)?.hasKeys == true }
 
+    // The page never gets shorter while it is open: a row going away near the end (the number to
+    // keep, when the target becomes one file) would otherwise pull the page, and the arrows just
+    // tapped, down under the finger.
+    var tallest by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+
     SettingsScaffold(title = stringResource(R.string.auto_backup_title), onBack = onBack, focusFirst = tv) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = with(density) { tallest.toDp() })
+                .onSizeChanged { if (it.height > tallest) tallest = it.height },
         ) {
             Caption(stringResource(R.string.auto_backup_caption), top = 0)
             problem?.let { shown ->
@@ -114,6 +126,8 @@ fun AutoBackupScreen(
                 ToggleCard(
                     label = stringResource(R.string.auto_backup_title),
                     summary = nextText(auto),
+                    // Two lines kept, so a next date that needs the second one does not move the rows under it.
+                    summaryLines = 2,
                     checked = schedule.on,
                     onCheckedChange = { update(schedule.copy(on = it)) },
                 )
@@ -358,7 +372,7 @@ private fun LastRunRow(run: AutoRun?, on: Boolean) {
         return
     }
     val time = whenText(context, run.at)
-    val where = run.kind?.let { shortPlace(it) }
+    val where = run.folder ?: run.kind?.let { shortPlace(it) }
     val title = when (run.outcome) {
         AutoOutcome.SAVED -> where?.let { stringResource(R.string.backup_when_where, time, it) } ?: time
         AutoOutcome.UNCHANGED -> stringResource(R.string.auto_backup_unchanged, time)

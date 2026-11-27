@@ -86,6 +86,8 @@ data class AutoRun(
     val kind: PlaceKind? = null,
     /** True when there are market keys that could not go in it, locked, because the key for them is gone. */
     val keysLeftOut: Boolean = false,
+    /** The folder it went into, when one was chosen: "Download/Backups". */
+    val folder: String? = null,
 )
 
 /**
@@ -262,6 +264,7 @@ class AutoBackups private constructor(private val appContext: Context) {
                 .putString(KEY_LAST_NAME, outcome.name)
                 .putString(KEY_LAST_KIND, outcome.kind?.name)
                 .putBoolean(KEY_LAST_KEYS_LEFT, outcome.keysLeftOut)
+                .putString(KEY_LAST_FOLDER, outcome.folder)
                 .apply()
             withContext(Dispatchers.Main) { lastRun = outcome }
             outcome
@@ -288,7 +291,7 @@ class AutoBackups private constructor(private val appContext: Context) {
         if (!force && schedule.onlyWhenChanged && snapshot.fingerprint == prefs.getString(KEY_SAVED_PRINT, null)) {
             val saved = prefs.getString(KEY_SAVED_URI, null)?.let(Uri::parse)
             if (saved != null && exists(saved)) {
-                return AutoRun(now, AutoOutcome.UNCHANGED, prefs.getString(KEY_SAVED_NAME, null), lastRun?.kind, keysLeftOut)
+                return AutoRun(now, AutoOutcome.UNCHANGED, prefs.getString(KEY_SAVED_NAME, null), lastRun?.kind, keysLeftOut, lastRun?.folder)
             }
         }
 
@@ -318,7 +321,8 @@ class AutoBackups private constructor(private val appContext: Context) {
             else -> written.authority
         }
         withContext(Dispatchers.Main) { backups.noteSaved(LastBackup(name, authority, now)) }
-        return AutoRun(now, AutoOutcome.SAVED, name, kind, keysLeftOut)
+        val into = place?.name?.takeIf { target == BackupTarget.FOLDER }
+        return AutoRun(now, AutoOutcome.SAVED, name, kind, keysLeftOut, into)
     }
 
     /** A new file named [name] in the folder [tree], holding [bytes]. */
@@ -481,6 +485,7 @@ class AutoBackups private constructor(private val appContext: Context) {
             name = prefs.getString(KEY_LAST_NAME, null),
             kind = prefs.getString(KEY_LAST_KIND, null)?.let { runCatching { PlaceKind.valueOf(it) }.getOrNull() },
             keysLeftOut = prefs.getBoolean(KEY_LAST_KEYS_LEFT, false),
+            folder = prefs.getString(KEY_LAST_FOLDER, null),
         )
     }
 
@@ -552,6 +557,7 @@ class AutoBackups private constructor(private val appContext: Context) {
         private const val KEY_LAST_NAME = "last.name"
         private const val KEY_LAST_KIND = "last.kind"
         private const val KEY_LAST_KEYS_LEFT = "last.keysLeftOut"
+        private const val KEY_LAST_FOLDER = "last.folder"
         private const val KEY_KEYS_ON = "keys.on"
         private const val KEY_KEY_SALT = "keys.salt"
         private const val KEY_KEY_ROUNDS = "keys.rounds"

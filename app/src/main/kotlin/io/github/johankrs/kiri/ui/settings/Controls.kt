@@ -870,6 +870,8 @@ fun ToggleCard(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     summary: String? = null,
+    /** The lines the summary takes at least, so a summary that grows does not move the rows under it. */
+    summaryLines: Int = 1,
 ) {
     val colors = KiriTheme.colors
     GroupRow(modifier) { row ->
@@ -883,7 +885,7 @@ fun ToggleCard(
             Column(Modifier.weight(1f)) {
                 BasicText(text = label, style = KiriType.body.copy(color = colors.onSurface))
                 if (summary != null) {
-                    BasicText(text = summary, style = KiriType.caption.copy(color = colors.onSurfaceMuted))
+                    BasicText(text = summary, style = KiriType.caption.copy(color = colors.onSurfaceMuted), minLines = summaryLines)
                 }
             }
             Spacer(Modifier.width(12.dp))

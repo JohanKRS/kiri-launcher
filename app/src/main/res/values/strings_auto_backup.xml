@@ -58,7 +58,7 @@
     <string name="auto_backup_failed_space">There is not enough room.</string>
     <string name="auto_backup_failed_other">It tries again next time.</string>
     <string name="auto_backup_now">Save one now</string>
-    <string name="auto_backup_now_summary">Just like the automatic one</string>
+    <string name="auto_backup_now_summary">Right now, to the same place, even with no changes</string>
 
     <string name="auto_backup_when_daily">Every day, around %1$s</string>
     <string name="auto_backup_when_days">Every %1$d days, around %2$s</string>
