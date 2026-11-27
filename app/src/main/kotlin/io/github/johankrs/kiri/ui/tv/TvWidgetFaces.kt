@@ -147,20 +147,29 @@ private fun WidgetSlot(
             .drawWithCache {
                 // A soft shadow, and a wider one with the focus. Under the glass it darkens it a
                 // little, which keeps the writing on it clear over a pale wallpaper.
-                val near = if (shadow > 0f) SoftShadow(units.px(WIDGET_SHADOW_BLUR)) else null
-                val far = if (shadow > 0f) SoftShadow(units.px(WIDGET_LIFT_BLUR)) else null
+                val shows = shadow > 0f && !TvProbe.off("shadow")
+                val gpu = TvProbe.off("gpublur")
+                val near = if (shows) SoftShadow(units.px(WIDGET_SHADOW_BLUR)) else null
+                val far = if (shows) SoftShadow(units.px(WIDGET_LIFT_BLUR)) else null
+                val gpuNear = GpuSoftShadow(units.px(WIDGET_SHADOW_BLUR))
+                val gpuFar = GpuSoftShadow(units.px(WIDGET_LIFT_BLUR))
                 onDrawBehind {
                     if (near == null || far == null) return@onDrawBehind
                     val r = units.px(corner)
-                    near.draw(this, WIDGET_SHADOW * shadow, units.px(WIDGET_SHADOW_DROP), r)
-                    if (ring > 0f) far.draw(this, WIDGET_LIFT_SHADOW * shadow * ring, units.px(WIDGET_LIFT_DROP), r)
+                    if (gpu) {
+                        gpuNear.draw(this, WIDGET_SHADOW * shadow, units.px(WIDGET_SHADOW_DROP), r)
+                        if (ring > 0f) gpuFar.draw(this, WIDGET_LIFT_SHADOW * shadow * ring, units.px(WIDGET_LIFT_DROP), r)
+                    } else {
+                        near.draw(this, WIDGET_SHADOW * shadow, units.px(WIDGET_SHADOW_DROP), r)
+                        if (ring > 0f) far.draw(this, WIDGET_LIFT_SHADOW * shadow * ring, units.px(WIDGET_LIFT_DROP), r)
+                    }
                 }
             }
             .graphicsLayer {
                 this.shape = shape
                 clip = true
                 // Kept and only laid down at each frame, as a banner (see `kept`), unless lifted.
-                compositingStrategy = if (focused || moving) CompositingStrategy.Auto else CompositingStrategy.Offscreen
+                compositingStrategy = if (focused || moving || TvProbe.off("layers")) CompositingStrategy.Auto else CompositingStrategy.Offscreen
             }
             .background(WidgetGlass)
             .drawBehind {

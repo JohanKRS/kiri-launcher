@@ -189,7 +189,7 @@ internal fun bannerShape(width: Dp): RoundedCornerShape = RoundedCornerShape(wid
  * picture would be stretched, and blur. That one is drawn as it is shown, every time.
  */
 internal fun Modifier.kept(on: Boolean = true): Modifier = graphicsLayer {
-    compositingStrategy = if (on) CompositingStrategy.Offscreen else CompositingStrategy.Auto
+    compositingStrategy = if (on && !TvProbe.off("layers")) CompositingStrategy.Offscreen else CompositingStrategy.Auto
 }
 
 /**
@@ -802,7 +802,22 @@ internal fun TvBackdrop(look: TvLook, running: Boolean, small: Boolean = false) 
     if (small) LiveCanvas(live) else LiveSurface(live, running)
     // Over a pale one, the shade is lighter: the writing on it turns dark instead.
     val strength = if (live.color.light) 0.3f else 1f
-    Box(Modifier.fillMaxSize().drawBehind { wallpaperShade(strength) })
+    Box(
+        Modifier.fillMaxSize().drawBehind {
+            if (TvProbe.off("fullshade")) {
+                drawRect(
+                    Brush.verticalGradient(
+                        0f to Color(0x47040A0E).copy(alpha = 0.28f * strength),
+                        0.26f to Color(0x00040A0E),
+                        0.7f to Color(0x00040A0E),
+                        1f to Color(0x59040A0E).copy(alpha = 0.35f * strength),
+                    ),
+                )
+            } else {
+                wallpaperShade(strength)
+            }
+        },
+    )
 }
 
 /**

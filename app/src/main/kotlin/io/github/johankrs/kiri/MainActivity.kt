@@ -70,6 +70,8 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+        // MEDIÇÃO, NÃO MESCLAR: see TvProbe.
+        io.github.johankrs.kiri.ui.tv.TvProbe.handle(this, intent) { homeTick++ }
     }
 
     override fun onStart() {
@@ -108,6 +110,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        // MEDIÇÃO, NÃO MESCLAR: see TvProbe.
+        io.github.johankrs.kiri.ui.tv.TvProbe.handle(this, intent) { homeTick++ }
         if (intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_HOME)) {
             homeTick++
         }

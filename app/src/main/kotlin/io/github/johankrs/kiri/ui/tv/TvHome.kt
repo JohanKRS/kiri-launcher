@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
@@ -575,8 +576,10 @@ fun TvHome(
         }
 
         CompositionLocalProvider(LocalTvUnits provides units, LocalTvInk provides tvInk(look)) {
-            TvWindow(showsSystem = look.wallpaper == TvWallpaper.SYSTEM)
-            TvBackdrop(look, running = active)
+            TvWindow(showsSystem = look.wallpaper == TvWallpaper.SYSTEM || TvProbe.off("window"))
+            if (!TvProbe.off("wall")) {
+                TvBackdrop(if (TvProbe.off("still") && look.live != null) look.copy(wallpaper = TvWallpaper.AURORA) else look, running = active)
+            }
             // "All apps" covers the home screen, which fades out under it.
             val allOpen = layer == TvLayer.ALL || (layer != TvLayer.HOME && (menu?.from == TvLayer.ALL || editor?.from == TvLayer.ALL))
             val homeAway by animateFloatAsState(if (allOpen) 1f else 0f, tween(220), label = "homeAway")
@@ -591,7 +594,7 @@ fun TvHome(
                         moving = moving,
                         repository = repository,
                     )
-                    TvWidgetsBand(
+                    if (!TvProbe.off("widgets")) TvWidgetsBand(
                         widgets = widgets.list,
                         boxes = widgetBoxes,
                         focused = widgetFocus.takeIf { homeFocus },
@@ -599,7 +602,7 @@ fun TvHome(
                         marketRows = marketRows,
                         shadow = look.shadowAmount,
                     )
-                    TopBar(gearFocused = onGear && layer == TvLayer.HOME)
+                    if (!TvProbe.off("topbar")) TopBar(gearFocused = onGear && layer == TvLayer.HOME)
                 }
             }
 
@@ -908,11 +911,23 @@ private fun BannerSlot(
                     val corner = size.width * (12f / 148f)
                     // A close shadow, and a wider one that comes in with the focus, as if lifted.
                     // Only around the banner (hollow): glass banners would show it under them.
-                    val near = if (shadow > 0f) SoftShadow(units.px(BANNER_SHADOW_BLUR), hollow = true) else null
-                    val far = if (shadow > 0f) SoftShadow(units.px(BANNER_LIFT_BLUR), hollow = true) else null
+                    val shows = shadow > 0f && !TvProbe.off("shadow")
+                    val gpu = TvProbe.off("gpublur")
+                    val near = if (shows) SoftShadow(units.px(BANNER_SHADOW_BLUR), hollow = true) else null
+                    val far = if (shows) SoftShadow(units.px(BANNER_LIFT_BLUR), hollow = true) else null
+                    val gpuNear = GpuSoftShadow(units.px(BANNER_SHADOW_BLUR))
+                    val gpuFar = GpuSoftShadow(units.px(BANNER_LIFT_BLUR))
+                    val face = androidx.compose.ui.graphics.Path().apply {
+                        addRoundRect(androidx.compose.ui.geometry.RoundRect(0f, 0f, size.width, size.height, CornerRadius(corner)))
+                    }
                     onDrawBehind {
                         val r = ring.value
-                        if (near != null && far != null) {
+                        if (near != null && far != null && gpu) {
+                            clipPath(face, androidx.compose.ui.graphics.ClipOp.Difference) {
+                                gpuNear.draw(this, BANNER_SHADOW * shadow, units.px(BANNER_SHADOW_DROP), corner)
+                                if (r > 0f) gpuFar.draw(this, BANNER_LIFT_SHADOW * shadow * r, units.px(BANNER_LIFT_DROP), corner)
+                            }
+                        } else if (near != null && far != null) {
                             near.draw(this, BANNER_SHADOW * shadow, units.px(BANNER_SHADOW_DROP), corner)
                             if (r > 0f) far.draw(this, BANNER_LIFT_SHADOW * shadow * r, units.px(BANNER_LIFT_DROP), corner)
                         }
@@ -931,7 +946,11 @@ private fun BannerSlot(
         ) {
             // Still, the banner is drawn once and kept (see [kept]); lifted, it is drawn as large
             // as it is shown, so the one with the focus stays sharp.
-            TvBannerFace(item.art, bw, repository, modifier = Modifier.kept(!focused && !moving))
+            if (TvProbe.off("faces")) {
+                Box(Modifier.size(bw, units.dp(bh)).background(Color(0xFF2B5566)))
+            } else {
+                TvBannerFace(item.art, bw, repository, modifier = Modifier.kept(!focused && !moving))
+            }
         }
         if (moving) {
             BasicText(
@@ -949,7 +968,7 @@ private fun BannerSlot(
                     .offset(y = units.dp(-30f)),
             )
         }
-        if (names != TvNameShow.NEVER) {
+        if (names != TvNameShow.NEVER && !TvProbe.off("names")) {
             val shift = if (focused) (if (carousel) 12f else 6f) else 0f
             val nameShift = animateFloatAsState(shift, spring(dampingRatio = 0.6f, stiffness = 420f), label = "nameShift")
             val ink = LocalTvInk.current
@@ -965,7 +984,7 @@ private fun BannerSlot(
                     lineHeight = units.sp(17f),
                     color = ink,
                     textAlign = TextAlign.Center,
-                    shadow = if (ink == Color.White) Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, units.px(1f)), units.px(4f)) else null,
+                    shadow = if (ink == Color.White && !TvProbe.off("textshadow")) Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, units.px(1f)), units.px(4f)) else null,
                 ),
                 modifier = Modifier
                     .width(bw)
@@ -994,7 +1013,7 @@ private fun TopBar(gearFocused: Boolean) {
     val lit by animateFloatAsState(if (gearFocused) 1f else 0f, tween(200), label = "gearLit")
     val ink = LocalTvInk.current
     // Dark writing on a pale wallpaper needs no shadow to stand out.
-    val shadow = if (ink == Color.White) Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, units.px(1f)), units.px(6f)) else null
+    val shadow = if (ink == Color.White && !TvProbe.off("textshadow")) Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, units.px(1f)), units.px(6f)) else null
     Box(Modifier.fillMaxSize().zIndex(5f)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
