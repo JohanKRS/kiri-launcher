@@ -1,8 +1,8 @@
 package io.github.johankrs.kiri.core.look
 
-/** How an app comes on screen when it is opened from the launcher. */
+/** How an app comes on screen when it is opened from the launcher. Android draws it. */
 enum class AppOpenStyle(val key: String) {
-    /** Grows out of the icon that was tapped. */
+    /** A frame opens out of the icon that was tapped and shows the app at its own size. */
     FROM_ICON("icon"),
     SLIDE_UP("slideUp"),
     FADE("fade"),
@@ -11,10 +11,28 @@ enum class AppOpenStyle(val key: String) {
     SYSTEM("system"),
 }
 
-/** How the launcher's own screen comes back when an app is left. */
-enum class HomeReturnStyle(val key: String) {
-    ZOOM("zoom"),
+/**
+ * How the launcher's own screen goes out of sight when the drawer or an app comes over it, and
+ * how it comes back. The same for the drawer and for apps.
+ */
+enum class HomeStyle(val key: String) {
+    /** It steps back a little and goes; it comes back growing into place. */
+    RECEDE("zoom"),
+
+    /**
+     * It grows larger from a point and goes, as if passed through: from the icon of the app
+     * that opens, or from the middle for the drawer. Coming back, everything flies into place.
+     */
+    FLY_BACK("flyBack"),
+
+    /** Like [FLY_BACK], but every item flies on its own: the nearest land first. */
+    WAVE("wave"),
+
+    /** It goes out of focus, as the far side of a photograph, and comes back sharp. */
+    FOCUS("focus"),
     FADE("fade"),
+
+    /** It stays still. Under the drawer it still fades, not to be seen through the glass. */
     NONE("none"),
 }
 
@@ -23,15 +41,21 @@ enum class DrawerStyle(val key: String) {
     /** A sheet that rises from the bottom of the screen. */
     SLIDE("slide"),
 
-    /** Comes forward from a little further away while the home screen steps back. */
+    /** Comes forward from a little further away. */
     ZOOM("zoom"),
+
+    /** The glass opens in a circle from where the finger started, showing each app it reaches. */
+    REVEAL("reveal"),
+
+    /** The glass clouds over where it is, and the apps rise into place row by row. */
+    CASCADE("cascade"),
     FADE("fade"),
 }
 
 /** The person's choices for how things move. */
 data class MotionSettings(
     val appOpen: AppOpenStyle = AppOpenStyle.FROM_ICON,
-    val homeReturn: HomeReturnStyle = HomeReturnStyle.ZOOM,
+    val home: HomeStyle = HomeStyle.RECEDE,
     val drawer: DrawerStyle = DrawerStyle.SLIDE,
     /** From [SPEED] : 1 is calm, 3 is the standard, 5 is brisk. */
     val speed: Int = DEFAULT_SPEED,
@@ -57,7 +81,8 @@ data class MotionSettings(
         const val DEFAULT_SPEED = 3
 
         const val KEY_APP_OPEN = "motion.appOpen"
-        const val KEY_HOME_RETURN = "motion.homeReturn"
+        /** Named for what it first chose: how the home screen came back after an app. */
+        const val KEY_HOME = "motion.homeReturn"
         const val KEY_DRAWER = "motion.drawer"
         const val KEY_SPEED = "motion.speed"
 
@@ -66,8 +91,7 @@ data class MotionSettings(
             val defaults = MotionSettings()
             return MotionSettings(
                 appOpen = AppOpenStyle.entries.firstOrNull { it.key == string(KEY_APP_OPEN) } ?: defaults.appOpen,
-                homeReturn = HomeReturnStyle.entries.firstOrNull { it.key == string(KEY_HOME_RETURN) }
-                    ?: defaults.homeReturn,
+                home = HomeStyle.entries.firstOrNull { it.key == string(KEY_HOME) } ?: defaults.home,
                 drawer = DrawerStyle.entries.firstOrNull { it.key == string(KEY_DRAWER) } ?: defaults.drawer,
                 speed = (int(KEY_SPEED) ?: defaults.speed).coerceIn(SPEED),
             )

@@ -850,6 +850,8 @@ private fun HomePage(
         val pad = HomeGridGeometry.CELL_PAD_DP.dp
         val labelWidth = with(density) { labelWidthPx.toDp() }
 
+        // How each item moves as the drawer or an app comes and goes, when it moves on its own.
+        val move = LocalItemMove.current
         for (item in items) {
             key(item.id) {
                 // Where this cell is on screen, kept for the moment the item is picked up.
@@ -904,6 +906,7 @@ private fun HomePage(
                             layout(width, height) { placeable.place(0, 0) }
                         }
                         .onPlaced { placement[0] = it }
+                        .itemMove(move)
                         .graphicsLayer {
                             alpha = if (hidden) 0f else 1f
                             scaleX = welcome.value
