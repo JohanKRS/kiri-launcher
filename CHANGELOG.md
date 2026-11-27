@@ -21,7 +21,7 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   com o foco é desenhado de novo, para ficar nítido maior. As sombras saem prontas de uma imagem
   feita uma vez, sem desfoque nem recorte a cada quadro, com o mesmo visual. E a janela fica opaca
   quando o papel de parede não é o "Da TV": a TV não junta mais o papel de parede do sistema por
-  baixo do Kiri a cada quadro, o que numa TV 4K ela fazia com a mesma placa de vídeo.
+  baixo do Kiri a cada quadro, o que numa TV 4K ela fazia com a mesma placa de vídeo (#25).
 
 ## [0.4.1] - 2026-11-27
 
