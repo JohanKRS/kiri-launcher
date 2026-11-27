@@ -9,6 +9,23 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Papéis de parede animados
+- Seis papéis de parede animados que o próprio Kiri desenha: Aurora viva, Bruma, Fios de névoa,
+  Pastilhas de luz, Serra na névoa e Flores de kiri. Cada um vem nas seis cores do ícone do Kiri
+  e com movimento Normal, Lento ou Parado. Não são vídeo nem imagem: cada cena é desenhada pequena,
+  separada do resto da tela inicial, e a tela estica. Como se mexem devagar, desenham no máximo 30
+  quadros por segundo, mesmo numa tela de 120 Hz. Por isso pesam pouco até numa TV fraca, e param
+  de desenhar quando não estão à vista (#18).
+- Na TV, a Aurora viva é o novo fundo padrão da tela inicial. Quem estava com a Aurora de antes, que
+  era o padrão, passa para a viva; a de antes continua na lista como "Aurora parada", e os outros
+  fundos escolhidos ficam como estão. Em Tela da TV aparecem Cor e Movimento quando o fundo é
+  animado. Na cor Névoa, que é clara, o relógio, a engrenagem e os nomes dos banners ficam escuros
+  (#18).
+- No celular e no tablet, Papel de parede ganha "Papel de parede animado do Kiri": escolha a cena,
+  a cor e o movimento e toque em "Usar como papel de parede", e o Android mostra o papel e pede para
+  confirmar. Depois disso, as mudanças aparecem na hora. O vidro do Kiri desfoca uma imagem parada
+  da cena, então o desfoque funciona com ele mesmo na versão da Play Store (#18).
+
 ### Backup
 - Backup automático, em Configurações › Backup e restauração › Backup automático: o Kiri salva
   um backup sozinho todo dia, a cada alguns dias (de 2 a 30), toda semana ou todo mês, por volta do

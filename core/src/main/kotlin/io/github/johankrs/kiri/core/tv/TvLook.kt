@@ -1,6 +1,10 @@
 package io.github.johankrs.kiri.core.tv
 
 import io.github.johankrs.kiri.core.look.GlassLevel
+import io.github.johankrs.kiri.core.look.LiveColor
+import io.github.johankrs.kiri.core.look.LiveLook
+import io.github.johankrs.kiri.core.look.LiveMotion
+import io.github.johankrs.kiri.core.look.LiveScene
 
 /** How the banners of the TV's home screen are laid out. */
 enum class TvArrangement(val key: String) {
@@ -44,9 +48,18 @@ enum class TvNameShow(val key: String) {
     }
 }
 
-/** The picture behind the TV's home screen: one Kiri draws, the TV's own wallpaper, or one the person chose. */
-enum class TvWallpaper(val key: String) {
-    AURORA("aurora"),
+/**
+ * The picture behind the TV's home screen: one Kiri draws, moving ([live]) or still, the TV's
+ * own wallpaper, or one the person chose.
+ */
+enum class TvWallpaper(val key: String, val live: LiveScene? = null) {
+    LIVE_AURORA("live_aurora", LiveScene.AURORA),
+    LIVE_BRUMA("live_bruma", LiveScene.BRUMA),
+    LIVE_FIOS("live_fios", LiveScene.FIOS),
+    LIVE_PASTILHAS("live_pastilhas", LiveScene.PASTILHAS),
+    LIVE_SERRA("live_serra", LiveScene.SERRA),
+    LIVE_FLORES("live_flores", LiveScene.FLORES),
+    AURORA("aurora_still"),
     OCEANO("oceano"),
     GRAFITE("grafite"),
     POR_DO_SOL("por_do_sol"),
@@ -59,7 +72,14 @@ enum class TvWallpaper(val key: String) {
     ;
 
     companion object {
-        fun fromKey(key: String?): TvWallpaper? = entries.firstOrNull { it.key == key }
+        /**
+         * What the still aurora was kept as when it was the default, before there were live
+         * ones. Kept by nearly everyone without choosing it, it now means the default again.
+         */
+        private const val OLD_DEFAULT = "aurora"
+
+        fun fromKey(key: String?): TvWallpaper? =
+            if (key == OLD_DEFAULT) LIVE_AURORA else entries.firstOrNull { it.key == key }
     }
 }
 
@@ -70,7 +90,11 @@ data class TvLook(
     /** How large the banners are, a level of [SIZES]. */
     val bannerSize: Int = DEFAULT_SIZE,
     val names: TvNameShow = TvNameShow.FOCUS,
-    val wallpaper: TvWallpaper = TvWallpaper.AURORA,
+    val wallpaper: TvWallpaper = TvWallpaper.LIVE_AURORA,
+    /** The color of a [live][TvWallpaper.live] wallpaper. */
+    val liveColor: LiveColor = LiveColor.LILAC,
+    /** How fast a [live][TvWallpaper.live] wallpaper moves. */
+    val liveMotion: LiveMotion = LiveMotion.NORMAL,
     /** How much room there is between the banners, a level of [GAPS]. */
     val gap: Int = DEFAULT_GAP,
     /** How dark the soft shadow around the banners and the widgets is. */
@@ -89,6 +113,9 @@ data class TvLook(
         GlassLevel.MEDIUM -> 1f
         GlassLevel.STRONG -> 1.7f
     }
+
+    /** The moving wallpaper, when the one chosen moves. */
+    val live: LiveLook? get() = wallpaper.live?.let { LiveLook(it, liveColor, liveMotion) }
 
     fun withBannerSize(level: Int): TvLook = copy(bannerSize = level.coerceIn(SIZES))
 
@@ -111,6 +138,8 @@ data class TvLook(
         const val KEY_WALLPAPER = "tv.home.wallpaper"
         const val KEY_GAP = "tv.home.gap"
         const val KEY_SHADOW = "tv.home.shadow"
+        const val KEY_LIVE_COLOR = "tv.home.live.color"
+        const val KEY_LIVE_MOTION = "tv.home.live.motion"
 
         fun fromStored(string: (String) -> String?, int: (String) -> Int?): TvLook {
             val default = TvLook()
@@ -122,6 +151,8 @@ data class TvLook(
                 wallpaper = TvWallpaper.fromKey(string(KEY_WALLPAPER)) ?: default.wallpaper,
                 gap = (int(KEY_GAP) ?: default.gap).coerceIn(GAPS),
                 shadow = GlassLevel.fromKey(string(KEY_SHADOW)) ?: default.shadow,
+                liveColor = LiveColor.fromKey(string(KEY_LIVE_COLOR)) ?: default.liveColor,
+                liveMotion = LiveMotion.fromKey(string(KEY_LIVE_MOTION)) ?: default.liveMotion,
             )
         }
     }

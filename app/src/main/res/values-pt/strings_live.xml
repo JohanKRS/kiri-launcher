@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="live_scene_aurora">Aurora viva</string>
+    <string name="live_scene_bruma">Bruma</string>
+    <string name="live_scene_fios">Fios de névoa</string>
+    <string name="live_scene_pastilhas">Pastilhas de luz</string>
+    <string name="live_scene_serra">Serra na névoa</string>
+    <string name="live_scene_flores">Flores de kiri</string>
+
+    <string name="live_scene">Cena</string>
+    <string name="live_color">Cor</string>
+    <string name="live_motion">Movimento</string>
+    <string name="live_motion_still">Parado</string>
+    <string name="live_motion_slow">Lento</string>
+    <string name="live_motion_normal">Normal</string>
+
+    <string name="live_wallpaper_name">Kiri</string>
+    <string name="live_wallpaper_description">Cenas suaves que se mexem devagar: aurora, bruma, fios de névoa, pastilhas de luz, serra e flores. Escolha uma nas configurações do Kiri.</string>
+
+    <string name="wallpaper_kiri_live">Papel de parede animado do Kiri</string>
+    <string name="wallpaper_kiri_live_summary">Seis cenas que se mexem devagar, nas cores do ícone do Kiri</string>
+    <string name="live_title">Papel animado do Kiri</string>
+    <string name="live_set">Usar como papel de parede</string>
+    <string name="live_on">Já é o seu papel de parede. As mudanças aparecem nele na hora.</string>
+    <string name="live_note">O Android mostra o papel de parede antes e pede para confirmar. Em alguns aparelhos, ali também dá para pôr na tela de bloqueio.</string>
+    <string name="live_failed">Este aparelho não abriu a tela de papel de parede.</string>
+</resources>

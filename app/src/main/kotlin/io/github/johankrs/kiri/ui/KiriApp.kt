@@ -169,6 +169,7 @@ import io.github.johankrs.kiri.ui.settings.TvHomeButtonScreen
 import io.github.johankrs.kiri.ui.settings.TvPictureScreen
 import io.github.johankrs.kiri.ui.settings.TvScreenSettings
 import io.github.johankrs.kiri.ui.settings.TypographyScreen
+import io.github.johankrs.kiri.ui.settings.LiveWallpaperScreen
 import io.github.johankrs.kiri.ui.settings.WallpaperScreen
 import io.github.johankrs.kiri.ui.settings.labelRes
 import io.github.johankrs.kiri.ui.theme.Backdrop
@@ -230,6 +231,9 @@ private enum class Screen {
     ICON_PICKER,
     TYPOGRAPHY_SETTINGS,
     WALLPAPER_SETTINGS,
+
+    /** Kiri's own live wallpaper, on a phone or tablet. */
+    LIVE_WALLPAPER_SETTINGS,
     FOLDER_SETTINGS,
     HIDDEN_APPS,
     APP_ICON_SETTINGS,
@@ -1615,6 +1619,20 @@ fun KiriApp(
                                 onChange = { next -> scope.launch { settings.setWallpaperSetup(next) } },
                                 // Glass shows the new wallpaper from now on.
                                 onApplied = { wallpaper.changed() },
+                                onOpenLive = { push(Screen.LIVE_WALLPAPER_SETTINGS) },
+                                onBack = pop,
+                            )
+
+                            Screen.LIVE_WALLPAPER_SETTINGS -> LiveWallpaperScreen(
+                                look = loaded.liveLook,
+                                screen = backdrop.screenSize,
+                                onChange = { next ->
+                                    scope.launch {
+                                        settings.setLiveLook(next)
+                                        // Glass shows a still picture of it: drawn again.
+                                        wallpaper.changed()
+                                    }
+                                },
                                 onBack = pop,
                             )
 
