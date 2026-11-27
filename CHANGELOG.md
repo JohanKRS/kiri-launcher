@@ -9,6 +9,24 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Backup
+- Backup automático, em Configurações › Backup e restauração › Backup automático: o Kiri salva
+  um backup sozinho todo dia, a cada alguns dias (de 2 a 30), toda semana ou todo mês, por volta do
+  horário escolhido. Quem acorda o Kiri é o agendador do próprio Android, sem biblioteca nova: o
+  backup continua depois de reiniciar, espera a bateria sair do baixo e, se o aparelho estava
+  desligado na hora, sai assim que der (#17).
+- Vai para uma pasta escolhida uma vez pelo seletor de pastas do Android (sem escolher, vai para
+  Download/Kiri), guardando os últimos 1 a 30 (7 de início): o Kiri só apaga arquivos que ele
+  mesmo fez no automático, que se chamam "Kiri auto ...", nunca um salvo à mão. Ou vai sempre para
+  o mesmo arquivo, para o Google Drive, que não deixa um app escolher uma pasta inteira dele e
+  guarda sozinho as versões anteriores. "Só quando algo mudar" não cria outro backup igual ao
+  último. Na TV, sem seletor, fica em Download/Kiri (#17).
+- As chaves do Mercado ficam de fora, como no backup à mão. Ligadas, você digita a senha uma vez:
+  o Kiri não guarda a senha, só a chave tirada dela, trancada pelo Android, e cada backup abre na
+  restauração com essa mesma senha (#17).
+- "Salvar um agora" faz um do mesmo jeito que o automático, e "Último automático" diz quando foi,
+  onde ficou ou o que deu errado e como resolver (#17).
+
 ### Configurações
 - "Tema" em Configurações › Aparência: Do sistema, Claro ou Escuro. As próprias configurações
   mudam na hora. Sem escolha, o celular segue o aparelho e a TV fica no escuro, porque quase
