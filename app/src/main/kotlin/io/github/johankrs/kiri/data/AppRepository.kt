@@ -227,6 +227,15 @@ class AppRepository private constructor(context: Context) {
             "@${settings.artPercents[app.key] ?: ""}@${settings.grounds[app.key]?.key.orEmpty()}"
     }
 
+    /**
+     * The entry Android opens for [packageName] as a whole, by `AppEntry.key`: on a TV its TV
+     * entry first. Null when it has none, or the package is not there.
+     */
+    fun mainEntryKey(packageName: String, formFactor: FormFactor): String? = runCatching {
+        val tv = if (formFactor == FormFactor.TV) packageManager.getLeanbackLaunchIntentForPackage(packageName) else null
+        (tv ?: packageManager.getLaunchIntentForPackage(packageName))?.component?.let { "${it.packageName}/${it.className}" }
+    }.getOrNull()
+
     fun launchIntent(app: AppEntry): Intent = Intent(Intent.ACTION_MAIN)
         .setComponent(app.componentName())
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)

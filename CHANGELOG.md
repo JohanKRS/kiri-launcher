@@ -9,6 +9,13 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
+### Tela inicial
+- Um app que troca o próprio ícone por dentro (os que oferecem vários ícones para escolher)
+  continua no mesmo lugar da tela inicial ou da pasta, com o nome, o ícone e o fundo que você
+  escolheu para ele, em vez de sumir da tela inicial e ficar só na gaveta. Vale também para o
+  gesto que abre o app, para a tela inicial da TV e para um app cuja atualização muda a tela
+  por onde ele abre (#10).
+
 ### Gaveta
 - Abrindo ou fechando a gaveta, a borda de cima da folha não é mais uma linha reta: o vidro
   (desfoque e cor) vai de transparente até a cor da gaveta num degradê suave, que acompanha o
