@@ -2,6 +2,7 @@ package io.github.johankrs.kiri.ui
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
@@ -129,10 +130,12 @@ import io.github.johankrs.kiri.core.look.LabelLook
 import io.github.johankrs.kiri.core.look.WidgetLook
 import io.github.johankrs.kiri.core.named
 import io.github.johankrs.kiri.core.shown
+import io.github.johankrs.kiri.core.tv.HomeRoute
 import io.github.johankrs.kiri.core.tv.TvWallpaper
 import io.github.johankrs.kiri.core.tv.TvWidgetKind
 import io.github.johankrs.kiri.data.AppRepository
 import io.github.johankrs.kiri.data.Backups
+import io.github.johankrs.kiri.data.HomeButton
 import io.github.johankrs.kiri.data.InstalledCheck
 import io.github.johankrs.kiri.data.LauncherSettings
 import io.github.johankrs.kiri.data.SettingsStore
@@ -156,7 +159,9 @@ import io.github.johankrs.kiri.ui.settings.IconPickerScreen
 import io.github.johankrs.kiri.ui.settings.MotionSettingsScreen
 import io.github.johankrs.kiri.ui.settings.RestoreScreen
 import io.github.johankrs.kiri.ui.settings.SettingsIndexScreen
+import io.github.johankrs.kiri.ui.settings.HomeButtonStep
 import io.github.johankrs.kiri.ui.settings.LockDisclosureScreen
+import io.github.johankrs.kiri.ui.settings.TvHomeButtonScreen
 import io.github.johankrs.kiri.ui.settings.TvPictureScreen
 import io.github.johankrs.kiri.ui.settings.TvScreenSettings
 import io.github.johankrs.kiri.ui.settings.TypographyScreen
@@ -194,9 +199,11 @@ import io.github.johankrs.kiri.widgets.system.rememberWidgetSetup
 import io.github.johankrs.kiri.widgets.widgetFacts
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** What is on screen. The last entry of the stack is visible; Back removes it. */
 private enum class Screen {
@@ -229,9 +236,15 @@ private enum class Screen {
     /** The pictures to choose the TV's wallpaper from. */
     TV_PICTURE,
 
+    /** What the Home button of a TV opens, and how Kiri becomes it. */
+    TV_HOME_BUTTON,
+
     /** What the accessibility service is for, before Android's settings open for it. */
     LOCK_DISCLOSURE,
 }
+
+/** How long Android may take to start the accessibility service once it is turned on. */
+private const val START_GRACE_MS = 1_500L
 
 private val ScreenStackSaver = Saver<List<Screen>, String>(
     save = { stack -> stack.joinToString(",") { it.name } },
@@ -407,9 +420,13 @@ fun KiriApp(
     // The home screen opens on the page chosen as the first one.
     var homePage by rememberSaveable { mutableIntStateOf(homeLayout.startPage) }
     val gestures = loaded.gestures
-    // The accessibility service is listed only while a gesture locks the screen, whatever changed
-    // the gestures (the settings, a backup put back).
-    LaunchedEffect(gestures.locksScreen) { KiriAccessibilityService.offer(context, gestures.locksScreen) }
+    // The accessibility service is listed only while a gesture locks the screen or, on a TV, Kiri
+    // is to come in place of the TV's own home screen, whatever changed that (the settings, a
+    // backup put back).
+    val tvHomeButton = formFactor == FormFactor.TV && loaded.tv.homeButton
+    LaunchedEffect(gestures.locksScreen, tvHomeButton) {
+        KiriAccessibilityService.offer(context, gestures.locksScreen || tvHomeButton)
+    }
     val motion = loaded.motion
     val drawerLook = loaded.drawerLook
     val labelLook = loaded.labelLook
@@ -499,6 +516,17 @@ fun KiriApp(
     }
     val current = stack.last()
     val push: (Screen) -> Unit = { screen -> stack = stack + screen }
+
+    // On a TV, once: where the Home button opens another home screen, Kiri offers to be it.
+    // The screen opens before the offer is saved: saving it ends this effect.
+    val homeButtonOffered = loaded.tv.homeButtonOffered
+    LaunchedEffect(root, homeButtonOffered) {
+        if (root != Screen.TV_HOME || homeButtonOffered) return@LaunchedEffect
+        val home = withContext(Dispatchers.Default) { HomeButton.state(context) }
+        if (home.route == HomeRoute.KIRI) return@LaunchedEffect
+        if (stack == listOf(root)) push(Screen.TV_HOME_BUTTON)
+        settings.setTvHomeButtonOffered()
+    }
     // The backup being restored is not kept when Android ends the app: its screen closes.
     LaunchedEffect(current) { if (current == Screen.BACKUP_RESTORE && backups.opened == null) pop() }
 
@@ -1330,6 +1358,21 @@ fun KiriApp(
                                 scroll = settingsIndexScroll,
                                 onOpenAppIcon = { push(Screen.APP_ICON_SETTINGS) },
                                 onOpenTvScreen = if (root == Screen.TV_HOME) { { push(Screen.TV_SCREEN_SETTINGS) } } else null,
+                                onOpenTvHomeButton = if (root == Screen.TV_HOME) { { push(Screen.TV_HOME_BUTTON) } } else null,
+                                tvHomeButtonSummary = if (root == Screen.TV_HOME) {
+                                    val home = remember(refreshTick, resumeTick) { HomeButton.state(context) }
+                                    when {
+                                        home.route == HomeRoute.KIRI || (tvHomeButton && KiriAccessibilityService.connected && home.other != null) ->
+                                            stringResource(R.string.tv_home_summary_kiri)
+                                        tvHomeButton -> stringResource(R.string.tv_home_summary_waiting)
+                                        else -> stringResource(
+                                            R.string.tv_home_summary_other,
+                                            home.otherName ?: stringResource(R.string.tv_home_tv_own),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
                             )
 
                             Screen.TV_SCREEN_SETTINGS -> TvScreenSettings(
@@ -1361,6 +1404,75 @@ fun KiriApp(
                             )
 
                             Screen.APP_ICON_SETTINGS -> AppIconScreen(onBack = pop)
+
+                            // Android's own way first; where the TV's own home screen outranks
+                            // every choice, Kiri in its place, once what that takes is said.
+                            Screen.TV_HOME_BUTTON -> {
+                                // Android was asked and kept the other home screen.
+                                var asked by rememberSaveable { mutableStateOf(false) }
+                                var looks by remember { mutableIntStateOf(0) }
+                                val home = remember(refreshTick, resumeTick, looks) { HomeButton.state(context) }
+                                val serviceOn = remember(refreshTick, resumeTick, looks, tvHomeButton) {
+                                    KiriAccessibilityService.isOn(context)
+                                }
+                                val askIntent = remember(home) { HomeButton.askIntent(context) }
+                                val settingsIntent = remember(home, askIntent) {
+                                    if (askIntent == null) HomeButton.settingsIntent(context) else null
+                                }
+                                val ask = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                                    asked = true
+                                    looks++
+                                }
+                                val connected = KiriAccessibilityService.connected
+                                val takenOver = tvHomeButton && connected && home.other != null
+                                // On in Android's settings, yet not started: after the moment it
+                                // takes to start, the screen says what helps.
+                                var settled by remember(refreshTick, resumeTick) { mutableStateOf(false) }
+                                LaunchedEffect(refreshTick, resumeTick) {
+                                    delay(START_GRACE_MS)
+                                    settled = true
+                                }
+                                val stuck = tvHomeButton && serviceOn && !connected && settled
+                                val step = when {
+                                    home.route == HomeRoute.KIRI || takenOver -> HomeButtonStep.DONE
+                                    tvHomeButton -> HomeButtonStep.WAITING
+                                    home.route == HomeRoute.ASK_ANDROID && !asked && (askIntent != null || settingsIntent != null) ->
+                                        HomeButtonStep.ASK_ANDROID
+                                    else -> HomeButtonStep.TAKE_OVER
+                                }
+                                val otherIcon = remember(home.other?.packageName) {
+                                    home.other?.let { HomeButton.icon(context, it.packageName) }
+                                }
+                                val kiriIcon = remember { HomeButton.icon(context, context.packageName) }
+                                TvHomeButtonScreen(
+                                    step = step,
+                                    route = home.route,
+                                    asked = asked,
+                                    takenOver = takenOver,
+                                    stuck = stuck,
+                                    otherName = home.otherName,
+                                    otherIcon = otherIcon,
+                                    kiriIcon = kiriIcon,
+                                    onAskAndroid = when {
+                                        askIntent != null -> { { runCatching { ask.launch(askIntent) }.onFailure { asked = true } } }
+                                        settingsIntent != null -> {
+                                            {
+                                                asked = true
+                                                runCatching { context.startActivity(settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                                            }
+                                        }
+                                        else -> null
+                                    },
+                                    askOpensSettings = askIntent == null,
+                                    onAllow = {
+                                        scope.launch { settings.setTvHomeButton(true) }
+                                        scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) }
+                                    },
+                                    onOpenAccessibility = { scope.launch { KiriAccessibilityService.offerAndOpenSettings(context) } },
+                                    onTurnOff = { scope.launch { settings.setTvHomeButton(false) } },
+                                    onBack = pop,
+                                )
+                            }
 
                             // Allowed: the gesture is set, the service listed, and Android's settings
                             // open on it. Not allowed: everything stays as it was.

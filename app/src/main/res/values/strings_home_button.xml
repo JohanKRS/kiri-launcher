@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Making Kiri what the Home button of a TV remote opens -->
+    <string name="tv_home_title">Home button</string>
+    <string name="tv_home_section">Home screen</string>
+    <string name="tv_home_summary_kiri">Opens Kiri</string>
+    <string name="tv_home_summary_other">Opens %1$s for now</string>
+    <string name="tv_home_summary_waiting">Turn Kiri on in Accessibility to finish</string>
+    <string name="tv_home_opens">The Home button opens</string>
+    <string name="tv_home_tv_own">The TV’s home screen</string>
+    <string name="tv_home_tv_own_inline">the TV’s own home screen</string>
+    <string name="tv_home_note_kiri">Nothing to do: Kiri is the home screen.</string>
+    <string name="tv_home_note_taken_over">%1$s still shows for an instant, and Kiri comes in its place.</string>
+    <string name="tv_home_note_locked">On this TV, %1$s came with a priority over every other home screen: Android opens it even when you choose another one.</string>
+    <string name="tv_home_note_ask">Android lets you choose the home screen on this TV.</string>
+    <string name="tv_home_note_asked">Android kept %1$s. Kiri can still come in its place.</string>
+
+    <string name="tv_home_official">Android’s way</string>
+    <string name="tv_home_ask">Ask Android</string>
+    <string name="tv_home_ask_summary">Android asks whether Kiri should be the home screen</string>
+    <string name="tv_home_ask_settings">Open Default apps</string>
+    <string name="tv_home_ask_settings_summary">Choose Kiri as the home app, then come back</string>
+
+    <string name="tv_home_takeover">Kiri in its place</string>
+    <string name="tv_home_takeover_intro">Kiri can notice the TV’s own home screen coming up and open right in its place. For that it uses Android’s accessibility service, the only way Android gives an app to know it.</string>
+    <string name="tv_home_does_title">What the service does</string>
+    <string name="tv_home_does">When a window of %1$s comes up, Android tells Kiri which one it is, and Kiri opens if it is the home screen. It hears from no other app.</string>
+    <string name="tv_home_not_title">What it does not do</string>
+    <string name="tv_home_not">It reads nothing on the screen, does not see what you type or watch, and collects or sends no data.</string>
+    <string name="tv_home_off_title">How to turn it off</string>
+    <string name="tv_home_off">Right here, with Turn off: the service leaves Android’s list, and Home opens %1$s again.</string>
+    <string name="tv_home_allow">Allow</string>
+    <string name="tv_home_allow_summary">Opens the TV’s Accessibility settings, where you turn Kiri on</string>
+    <string name="tv_home_decline">Not now</string>
+    <string name="tv_home_decline_summary">Home keeps opening %1$s</string>
+
+    <string name="tv_home_on_title">On</string>
+    <string name="tv_home_on">Kiri comes in place of %1$s whenever the Home button opens it.</string>
+    <string name="tv_home_waiting_title">One step left</string>
+    <string name="tv_home_waiting">Turn Kiri on in the TV’s Accessibility settings, then come back.</string>
+    <string name="tv_home_stuck_title">Android has not started Kiri</string>
+    <string name="tv_home_stuck">Kiri is on in Accessibility, but Android has not started it. Turning Kiri off and on again there starts it.</string>
+    <string name="tv_home_stuck_summary">Turn Kiri off and on again there</string>
+    <string name="tv_home_open_accessibility">Open Accessibility</string>
+    <string name="tv_home_open_accessibility_summary">Turn Kiri on there</string>
+    <string name="tv_home_turn_off">Turn off</string>
+    <string name="tv_home_turn_off_summary">Home opens %1$s again, and the service leaves Android’s list</string>
+</resources>

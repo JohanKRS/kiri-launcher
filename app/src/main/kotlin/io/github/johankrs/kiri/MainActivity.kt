@@ -73,6 +73,8 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         // Widgets of other apps only change what they show while someone listens for it.
         SystemWidgets.of(this).startListening()
+        // What the Home button opens may have changed while Kiri was out of sight.
+        KiriAccessibilityService.refresh()
         refreshTick++
         startedSinceResume = true
     }

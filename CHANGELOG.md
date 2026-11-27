@@ -9,10 +9,19 @@ coisa. Como lançar uma versão: ver "Releases" no README.
 
 ## [Não lançado]
 
-### Configurações na TV
+### TV
+- Botão Home: em Configurações › Botão Home (e sozinho, uma vez, quando o Kiri abre na TV pela
+  primeira vez) o Kiri mostra o que o Home do controle abre e se oferece para ser a tela inicial.
+  Onde o Android deixa escolher, ele pede do jeito do Android. Onde a tela inicial de fábrica tem
+  prioridade sobre qualquer escolha, como a do Google TV, o Kiri vem no lugar dela sempre que ela
+  aparece, pelo mesmo serviço de acessibilidade do toque duplo: só depois de você permitir, com
+  aviso do que o serviço faz e não faz, e desligável na mesma tela. O serviço só fica sabendo
+  quando uma janela da tela inicial de fábrica aparece, e de nenhum outro app (#14).
+- Uma TV que lista o mesmo sintonizador duas vezes (uma Hisense lista "Tuner" duas vezes) mostra
+  uma entrada só (#14).
 - Na TV, as configurações mostram só o que vale para a TV. Saem Papel de parede (o da TV fica em
   Tela da TV), Ícones e Tipografia, que eram dos ícones e nomes do celular, e "Tela da TV" passa a
-  ser a primeira linha. Em Animações saem a gaveta e o "Voo em onda", que na TV era igual ao "Voo
+  ser a primeira linha de Aparência. Em Animações saem a gaveta e o "Voo em onda", que na TV era igual ao "Voo
   de volta" (#15).
 - Tela da TV ganha "Espaço entre os banners" (7 níveis; o 4 é o de antes) e "Sombra" (Nenhuma,
   Leve, Média, Forte), que vale para os banners e os widgets. Antes a única sombra era a dos ícones

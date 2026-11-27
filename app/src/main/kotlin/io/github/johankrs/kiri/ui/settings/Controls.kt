@@ -87,7 +87,7 @@ private const val HOLD_REPEAT_MS = 70L
 
 enum class Glyph {
     MINUS, PLUS, BACK, FORWARD, CLOSE, INFO, SHAPES, TUNE, CHECK, WIDGETS, PICTURE, EDIT, STORE, UNINSTALL, EYE, HIDE,
-    PAGES, SAVE, OPEN, UNDO, FILE,
+    PAGES, SAVE, OPEN, UNDO, FILE, HOME,
 }
 
 /** Small line icons drawn by hand, so no icon library is needed. Thin lines: they are quiet. */
@@ -306,6 +306,24 @@ fun GlyphIcon(glyph: Glyph, color: Color, modifier: Modifier = Modifier) {
                 }
                 line(0.3f, 0.36f, 0.44f, 0.22f)
                 line(0.3f, 0.36f, 0.44f, 0.5f)
+            }
+
+            // A house: the Home button, and the home screen it opens.
+            Glyph.HOME -> {
+                outline(stroke, color) {
+                    moveTo(0.16f, 0.47f)
+                    lineTo(0.5f, 0.18f)
+                    lineTo(0.84f, 0.47f)
+                }
+                outline(stroke, color) {
+                    moveTo(0.27f, 0.39f)
+                    lineTo(0.27f, 0.82f)
+                    lineTo(0.73f, 0.82f)
+                    lineTo(0.73f, 0.39f)
+                }
+                line(0.44f, 0.82f, 0.44f, 0.62f)
+                line(0.44f, 0.62f, 0.56f, 0.62f)
+                line(0.56f, 0.62f, 0.56f, 0.82f)
             }
 
             // A sheet with a folded corner: a file.

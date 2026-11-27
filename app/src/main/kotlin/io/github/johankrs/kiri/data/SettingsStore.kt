@@ -505,6 +505,28 @@ class SettingsStore private constructor(context: Context) {
         }
     }
 
+    /**
+     * Whether Kiri comes in place of the TV's own home screen, read apart from everything else
+     * for the accessibility service, which needs only this.
+     */
+    val tvHomeButton: Flow<Boolean> = store.data
+        .catch { emit(emptyPreferences()) }
+        .map { preferences -> preferences[KEY_TV_HOME_BUTTON] == true }
+        .distinctUntilChanged()
+
+    /** Whether Kiri comes in place of the TV's own home screen (see [TvSettings.homeButton]). */
+    suspend fun setTvHomeButton(on: Boolean) {
+        store.edit { preferences ->
+            if (on) preferences[KEY_TV_HOME_BUTTON] = true else preferences.remove(KEY_TV_HOME_BUTTON)
+            preferences[KEY_TV_HOME_BUTTON_OFFERED] = true
+        }
+    }
+
+    /** Kiri offered to be what the Home button opens: it does not offer again by itself. */
+    suspend fun setTvHomeButtonOffered() {
+        store.edit { preferences -> preferences[KEY_TV_HOME_BUTTON_OFFERED] = true }
+    }
+
     /** The name of an input of the TV; null goes back to the input's own. */
     suspend fun setTvInputName(inputId: String, name: String?) {
         store.edit { preferences ->
@@ -628,6 +650,8 @@ class SettingsStore private constructor(context: Context) {
             banners = banners ?: emptyMap(),
             inputNames = names ?: emptyMap(),
             widgets = TvWidgets.decode(this[KEY_TV_WIDGETS]),
+            homeButton = this[KEY_TV_HOME_BUTTON] == true,
+            homeButtonOffered = this[KEY_TV_HOME_BUTTON_OFFERED] == true,
         )
     }
 
@@ -716,6 +740,8 @@ class SettingsStore private constructor(context: Context) {
 
         private val KEY_TV_HOME = stringPreferencesKey(TvHomeItems.KEY)
         private val KEY_TV_WIDGETS = stringPreferencesKey(TvWidgets.KEY)
+        private val KEY_TV_HOME_BUTTON = booleanPreferencesKey(TvSettings.KEY_HOME_BUTTON)
+        private val KEY_TV_HOME_BUTTON_OFFERED = booleanPreferencesKey(TvSettings.KEY_HOME_BUTTON_OFFERED)
         private const val TV_PREFIX = "tv."
 
         private val KEY_ICON_SHAPE = stringPreferencesKey(IconLook.KEY_SHAPE)

@@ -12,7 +12,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import io.github.johankrs.kiri.core.tv.TunerSeen
 import io.github.johankrs.kiri.core.tv.TvInputKind
+import io.github.johankrs.kiri.core.tv.TvTuners
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -59,24 +61,33 @@ class TvInputs private constructor(context: Context) {
 
     /**
      * The inputs the TV has, in its own order: its tuner (only the TV's own, not the channels of
-     * apps) and its ports. A device plugged into a port is that port, so it is not there twice.
-     * Inputs the person hid in the TV's settings are left out.
+     * apps) and its ports. A device plugged into a port is that port, so it is not there twice,
+     * and a tuner that Android lists several times is there once. Inputs the person hid in the
+     * TV's settings are left out.
      */
     suspend fun load(): List<TvInput> = withContext(Dispatchers.Default) {
         val all = runCatching { manager?.tvInputList.orEmpty() }.getOrDefault(emptyList())
-        all.filter { info ->
+        val shown = all.filter { info ->
             info.parentId == null &&
                 !runCatching { info.isHidden(appContext) }.getOrDefault(false) &&
                 (info.isPassthroughInput || info.isSystemTuner())
-        }.map { info ->
-            val custom = runCatching { info.loadCustomLabel(appContext)?.toString() }.getOrNull()
-            val label = runCatching { info.loadLabel(appContext).toString() }.getOrNull()
-            TvInput(
-                id = info.id,
-                ownName = custom?.takeIf { it.isNotBlank() } ?: label?.takeIf { it.isNotBlank() } ?: info.id,
-                kind = kindOf(info.type),
-            )
+        }.map { info -> info to nameOf(info) }
+        // A tuner listed once per piece of hardware behind it is one input, as the TV shows it.
+        val tuners = TvTuners.kept(
+            shown.filter { (info, _) -> !info.isPassthroughInput }.map { (info, name) ->
+                TunerSeen(id = info.id, service = info.serviceInfo?.let { "${it.packageName}/${it.name}" } ?: info.id, name = name)
+            },
+        )
+        shown.filter { (info, _) -> info.isPassthroughInput || info.id in tuners }.map { (info, name) ->
+            TvInput(id = info.id, ownName = name, kind = kindOf(info.type))
         }
+    }
+
+    /** What the TV calls [info], or what the person named it in the TV's settings. */
+    private fun nameOf(info: TvInputInfo): String {
+        val custom = runCatching { info.loadCustomLabel(appContext)?.toString() }.getOrNull()
+        val label = runCatching { info.loadLabel(appContext).toString() }.getOrNull()
+        return custom?.takeIf { it.isNotBlank() } ?: label?.takeIf { it.isNotBlank() } ?: info.id
     }
 
     /**

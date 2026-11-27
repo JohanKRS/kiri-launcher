@@ -102,6 +102,10 @@ fun SettingsIndexScreen(
     lastBackupAt: Long? = null,
     /** Leads to how the TV's home screen looks; null where there is none. */
     onOpenTvScreen: (() -> Unit)? = null,
+    /** Leads to what the Home button of a TV opens; null where there is no TV. */
+    onOpenTvHomeButton: (() -> Unit)? = null,
+    /** What the Home button opens now, for the row that leads there. */
+    tvHomeButtonSummary: String? = null,
 ) {
     SettingsScaffold(title = stringResource(R.string.settings_title), onBack = onBack, focusFirst = true) {
         Column(
@@ -109,6 +113,18 @@ fun SettingsIndexScreen(
                 .fillMaxSize()
                 .verticalScroll(scroll),
         ) {
+            // On a TV, first of all: whether the Home button opens Kiri.
+            if (onOpenTvHomeButton != null) {
+                SectionTitle(stringResource(R.string.tv_home_section))
+                SettingsGroup {
+                    SettingsLinkRow(
+                        title = stringResource(R.string.tv_home_title),
+                        summary = tvHomeButtonSummary.orEmpty(),
+                        onClick = onOpenTvHomeButton,
+                    )
+                }
+            }
+
             SectionTitle(stringResource(R.string.settings_section_look))
             SettingsGroup {
                 // A TV has its own screen for how everything on it looks, and banners for icons.
