@@ -6,9 +6,9 @@ import java.util.Locale
  * A source that gives every market by itself, without the person's keys: stocks of both
  * exchanges, currencies and their charts.
  *
- * None is part of this code. A build can add some from a module of its own (the folder
- * `personal`, when it is there: see `app/build.gradle.kts`), and they are then offered beside the
- * official services. Without that module the app knows only the official services.
+ * None is part of this code. They come from other apps installed beside Kiri (see
+ * [SourceApps]), and are then offered beside the official services. Without any, the app knows
+ * only the official services.
  */
 interface CompleteSource {
     /** The name it is saved under in the settings; never the one of [MarketSource.OFFICIAL]. */

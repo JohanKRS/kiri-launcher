@@ -30,6 +30,10 @@
         <intent>
             <action android:name="com.novalauncher.THEME" />
         </intent>
+        <!-- Apps that give the market widget its prices (see SourceApps in core). -->
+        <intent>
+            <action android:name="io.github.johankrs.kiri.action.MARKET_SOURCE" />
+        </intent>
         <!-- Apps that offer widgets, so every one of them can be listed and shown. -->
         <intent>
             <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -193,10 +197,12 @@
 
         <!--
             Off until the person turns it on in Android's accessibility settings. It lets a
-            gesture lock the screen; it reads nothing on the screen.
+            gesture lock the screen; it reads nothing on the screen. Disabled here, so Android
+            lists it only while a gesture locks the screen (KiriAccessibilityService.offer).
         -->
         <service
             android:name=".KiriAccessibilityService"
+            android:enabled="false"
             android:exported="true"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

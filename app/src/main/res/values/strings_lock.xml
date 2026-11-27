@@ -5,4 +5,20 @@
     <string name="accessibility_description">Lets Kiri lock the screen when you choose a gesture for it, such as a double tap on the home screen. Kiri does not read anything on the screen.</string>
     <string name="lock_turn_on">Turn on screen locking</string>
     <string name="lock_turn_on_summary">Android asks for Kiri to be turned on in Accessibility before it can lock the screen</string>
+    <string name="lock_not_in_this_build">This build of Kiri, the one from Google Play, has no accessibility service, so no gesture can lock the screen here. The APK from GitHub can.</string>
+
+    <!-- What the service is for, before Android's accessibility settings open (Google Play asks for it apart, with a choice). -->
+    <string name="lock_disclosure_title">Lock the screen</string>
+    <string name="lock_disclosure_intro">For a gesture to lock the screen, such as a double tap on the home screen, Kiri uses Android\'s accessibility service. It is the only way Android gives an app to lock the screen.</string>
+    <string name="lock_disclosure_does_title">What the service does</string>
+    <string name="lock_disclosure_does">It only locks the screen, and only when you make the gesture you chose.</string>
+    <string name="lock_disclosure_not_title">What it does not do</string>
+    <string name="lock_disclosure_not">It reads nothing on the screen, does not see what you type, receives nothing from other apps, and collects or sends no data.</string>
+    <string name="lock_disclosure_off_title">How to turn it off</string>
+    <string name="lock_disclosure_off">Give the gesture another action: the service leaves Android\'s list.</string>
+    <string name="lock_disclosure_allow">Allow</string>
+    <string name="lock_disclosure_allow_summary">Opens Android\'s Accessibility, where you turn Kiri on</string>
+    <string name="lock_disclosure_decline">Not now</string>
+    <string name="lock_disclosure_decline_summary">The gesture stays as it was</string>
+    <string name="lock_disclosure_decline_summary_off">The gesture does not lock the screen until you allow it</string>
 </resources>

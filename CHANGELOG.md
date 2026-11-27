@@ -16,6 +16,24 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   gesto que abre o app, para a tela inicial da TV e para um app cuja atualização muda a tela
   por onde ele abre (#10).
 
+## [0.2.1] - 2026-11-27
+
+### Gestos
+- Antes de abrir a Acessibilidade do Android, o Kiri mostra numa tela à parte para que serve o
+  serviço (só bloquear a tela quando você faz o gesto), o que ele não faz (não lê a tela, não vê
+  o que você digita, não coleta nem envia dados) e como desligar, com "Permitir" e "Agora não".
+  Escolher "Bloquear a tela" para um gesto só vale depois de "Permitir" (#11).
+
+### Google Play
+- A versão do Google Play volta a ter o serviço de acessibilidade, então o toque duplo pode
+  bloquear a tela também nela. O Play Console pede para ele uma declaração com um vídeo do aviso
+  acima. Seguem fora dela o acesso a todos os arquivos, a lista de todos os apps e as fotos (#11).
+
+## [0.2.0] - 2026-11-26
+
+Primeira versão também para o Google Play: o release traz, além do APK, o pacote do app
+(`kiri-launcher-0.2.0.aab`) para enviar no Play Console.
+
 ### Pastas
 - A pasta aberta tem uma casa quadrada para cada app: os ícones ficam à mesma distância na
   horizontal e na vertical, e o painel tem a mesma margem nos quatro lados. Com 4, 9 ou 16 apps
@@ -36,6 +54,30 @@ coisa. Como lançar uma versão: ver "Releases" no README.
   vidro do Kiri. Botão com forma própria (uma pílula, um círculo) continua com a luz dele (#3).
 - Mercado: quando há mais itens do que cabem, o widget rola com o dedo e sempre para num item
   inteiro, nunca pela metade, em qualquer tamanho. Uma marca fina à direita avisa que há mais (#3).
+- Mercado: um app instalado à parte pode oferecer ao widget uma fonte completa de preços (ações
+  do Brasil e dos EUA, moedas e gráficos). Ela aparece em "De onde vêm os preços", ao lado dos
+  serviços oficiais, dizendo de qual app vem, e só vale depois de escolhida; se o app for
+  removido, voltam os serviços oficiais. Como fazer um app assim:
+  [docs/fontes-de-cotacoes.md](docs/fontes-de-cotacoes.md) (#5).
+
+### Gestos
+- O serviço de acessibilidade do Kiri só existe para o Android enquanto um gesto bloqueia a tela.
+  Sem esse gesto ele some da lista de acessibilidade do aparelho, e os apps que se recusam a abrir
+  ao lado de um serviço assim (alguns bancos) deixam de ver um no Kiri. Escolher de novo
+  "Bloquear a tela" o traz de volta à lista e abre a página dele, onde é preciso ligá-lo outra
+  vez: o Android esquece que estava ligado (#5).
+
+### Google Play
+- O Kiri passa a mirar o Android 16 (API 36), como o Google Play exige de todo app novo desde
+  31 de agosto de 2026 (#5).
+- Cada release traz também o `.aab`, assinado com a chave de release, e `scripts/release.sh`
+  confere a assinatura dele como confere a do APK (#5).
+- O `.aab` é a versão do Google Play: o mesmo Kiri sem o que o Play pede para declarar e justificar
+  antes de publicar até um teste (acesso a todos os arquivos, ver todos os apps, fotos e o serviço
+  de acessibilidade). Nela o vidro desfoca o papel de parede escolhido no Kiri, nenhum gesto
+  bloqueia a tela, a TV escolhe a imagem por outro app e os widgets de apps sem ícone não
+  aparecem; cada tela que ofereceria uma dessas coisas diz isso. O APK continua com tudo (#5).
+- Política de privacidade: [docs/privacidade.md](docs/privacidade.md) (#5).
 
 ## [0.1.0] - 2026-11-26
 

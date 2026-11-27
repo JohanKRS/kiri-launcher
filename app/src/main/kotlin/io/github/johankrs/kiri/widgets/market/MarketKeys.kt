@@ -182,9 +182,9 @@ private fun guideOf(service: KeyService): KeyGuide = Guides.first { it.service =
 private fun KeyGuide.saved(keys: ApiKeys): Boolean = parts.all { it.read(keys).isNotBlank() }
 
 /**
- * Where the prices come from: a choice between the complete sources this build has and the
- * official services, when it has any, and then the official services with the state of each
- * key. A build without complete sources has nothing to choose, so it shows only the services.
+ * Where the prices come from: a choice between the complete sources other apps offer and the
+ * official services, when there is any such app, and then the official services with the state
+ * of each key. Without one there is nothing to choose, so it shows only the services.
  */
 @Composable
 internal fun MarketSourcesSection(
